@@ -4,6 +4,7 @@ import {
     View, 
     TouchableOpacity, 
     Modal,
+    TextInput,
     Image,
     } from 'react-native';
     
@@ -27,6 +28,13 @@ import Tennis from '../assets/tennis.js'
 
 export default function HomeScreen() {
     const [isModalVisible, setIsModalVisible] = useState(false)
+
+    const [nickname, setNickname] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [adress, setAdress] = useState('');
+    const [description, setDescription] = useState('');
+    const [ambition, Ambition] = useState('');
 
     const [fontsLoaded] = useFonts({
         Poppins_700Bold,
@@ -52,9 +60,11 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.buttons}>
+
                 <TouchableOpacity onPress={() => setIsModalVisible(true)} style={styles.buttonSignUp} activeOpacity={0.8}>
                     <Text style={styles.textSignUp}>Inscription</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity onPress={handleSubmit} style={styles.buttonSignIn} activeOpacity={0.8}>
                     <Text style={styles.textSignIn}>Connexion</Text>
                 </TouchableOpacity>
@@ -68,6 +78,27 @@ export default function HomeScreen() {
                 >
                     <View style={styles.modalSignIn}>
                         <Text style={styles.title}>Inscription</Text>
+
+                        <TextInput      
+                            onChangeText={(value) => setNickname(value)}
+                            value={email}
+                        />
+                        <TextInput      
+                            onChangeText={(value) => setEmail(value)}
+                            value={email}
+                        />
+                        <TextInput      
+                            onChangeText={(value) => setPassword(value)}
+                            value={email}
+                        />
+                        <TextInput      
+                            onChangeText={(value) => setEmail(value)}
+                            value={email}
+                        />
+                        <TextInput      
+                            onChangeText={(value) => setEmail(value)}
+                            value={email}
+                        />
 
                         <View style={styles.containerIcons}>
                             <TouchableOpacity style={styles.iconFoot}>
