@@ -1,7 +1,6 @@
 
 import { StyleSheet, Text, View } from 'react-native';
 import MapScreen from './screens/MapScreen';
-import HomeScreen from './screens/HomeScreen';
 
 
 export default function App() {
@@ -9,7 +8,6 @@ export default function App() {
     <View style={styles.container}>
       <MapScreen/>
 
-      <HomeScreen/>
     </View>
   );
 }
