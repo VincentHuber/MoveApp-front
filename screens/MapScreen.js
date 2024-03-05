@@ -217,14 +217,14 @@ const styles = StyleSheet.create({
   containerIcons:{
     backgroundColor:'white',
     borderRadius:20,
-    height: '15%',
+    height: '14%',
     width:'85%',
     alignItems:'center',
     justifyContent:'center',
     flexDirection:'row',
     alignSelf:'center',
     marginTop: 'auto',
-    marginBottom:'-17%',
+    marginBottom:20,
   },
 
   //Icon sports non actives
