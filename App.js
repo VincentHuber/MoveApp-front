@@ -1,12 +1,13 @@
 
 import { StyleSheet, Text, View } from 'react-native';
 import HomeScreen from './screens/HomeScreen';
+import MapScreen from './screens/MapScreen'
 
 
 function App() {
   return (
     <View style={styles.container}>
-      <HomeScreen/>
+      <MapScreen/>
     </View>
   );
 }
