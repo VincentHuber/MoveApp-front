@@ -1,12 +1,21 @@
-import { StatusBar } from 'expo-status-bar';
+
 import { StyleSheet, Text, View } from 'react-native';
-import HomeScreen from './screens/HomeScreen';
+<<<<<<< HEAD
+import MapScreen from './screens/MapScreen';
+
+>>>>>>> b1eddc93dbacd6cf987accc95492773b8be2bf6e
 
 
-export default function App() {
+function App() {
   return (
+<<<<<<< HEAD
+    <View>
+      <EditProfile/>
+=======
     <View style={styles.container}>
-      <HomeScreen/>
+      <MapScreen/>
+
+>>>>>>> b1eddc93dbacd6cf987accc95492773b8be2bf6e
     </View>
   );
 }
@@ -14,5 +23,12 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
+
+export default App;
+
+
+

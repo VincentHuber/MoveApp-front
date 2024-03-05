@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+node_modules
+=======
 # Expo
 .expo
 __generated__
@@ -129,3 +132,4 @@ docs/pages/versions/*/react-native/*.diff
 
 # iOS
 **/ios/.xcode.env.local
+>>>>>>> b1eddc93dbacd6cf987accc95492773b8be2bf6e
