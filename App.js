@@ -1,13 +1,21 @@
 
 import { StyleSheet, Text, View } from 'react-native';
+<<<<<<< HEAD
 import MapScreen from './screens/MapScreen';
 
+>>>>>>> b1eddc93dbacd6cf987accc95492773b8be2bf6e
 
-export default function App() {
+
+function App() {
   return (
+<<<<<<< HEAD
+    <View>
+      <EditProfile/>
+=======
     <View style={styles.container}>
       <MapScreen/>
 
+>>>>>>> b1eddc93dbacd6cf987accc95492773b8be2bf6e
     </View>
   );
 }
@@ -19,3 +27,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default App;
+
+
+
