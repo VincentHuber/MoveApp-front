@@ -8,7 +8,7 @@ function App() {
   return (
     <View>
 
-      <EditProfile/>
+      <EditProfileScreen/>
     <View style={styles.container}>
       <MapScreen/>
       </View>
