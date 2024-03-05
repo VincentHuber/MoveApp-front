@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const EditProfileScreen = () => {
+  const navigation = useNavigation();
   const [pseudo, setPseudo] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,7 +16,7 @@ const EditProfileScreen = () => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = () => {
-    // Logique de mise à jour du profil
+    // Logique de mise à jour du profil, si 1 seule modif apportée = obligation d'enregistrer
 
     if (
       pseudo !== '' ||
@@ -34,9 +36,21 @@ const EditProfileScreen = () => {
   };
 
   const handleLogout = () => {
-    // Logique de déconnexion, rediriger vers la page d'accueil
-    // Exemple : navigation.navigate('Accueil');
+    // redirection vers page d'accueil (il faudra modifier le chemin pour la page d'accueil)
+    window.location.href = './HomeScreen'; 
     console.log('Déconnexion...');
+  };
+
+  const handleGoBack = () => {
+    navigation.goBack(); // revenir en arrière
+  };
+
+  const handleProfilePress = () => {
+    navigation.navigate('NomDeVotreProfil'); // bouton pour l'accès au profil (quand on clique sur notre photo de profil)
+  };
+
+  const handleReviewPress = () => {
+    navigation.navigate('Avis'); //navigation vers page 'Avis'
   };
 
   return (
@@ -97,13 +111,25 @@ const EditProfileScreen = () => {
           setMessage('');
         }}
       />
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Valider les modifications</Text>
+    
+    <View style={styles.container}>
+        <TouchableOpacity onPress={handleProfilePress}>
+          <Image source={require('./chemin/vers/votre/photo/profil')} style={styles.profileImage} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleLogout}>
-          <Text style={styles.logoutText}>Se déconnecter</Text>
+        <TouchableOpacity onPress={handleReviewPress}>
+          <Text style={styles.reviewText}>Donner un avis</Text>
         </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Valider les modifications</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout}>
+            <Text style={styles.logoutText}>Se déconnecter</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleGoBack}>
+            <Text style={styles.backText}>Retourner en arrière</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );

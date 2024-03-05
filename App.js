@@ -1,6 +1,8 @@
 
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+
 import MapScreen from './screens/MapScreen';
+
 
 function App() {
   return (
