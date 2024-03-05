@@ -1,11 +1,13 @@
 
 import { StyleSheet, Text, View } from 'react-native';
+
 import EditProfile from './screens/Editprofile'; 
+
 
 import MapScreen from './screens/MapScreen';
 
 import HomeScreen from './screens/HomeScreen';
-import ReviewScreen from './screens/ReviewScreen';
+
 
 
 
