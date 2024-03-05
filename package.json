@@ -11,11 +11,6 @@
   "dependencies": {
     "@react-navigation/bottom-tabs": "6",
     "@react-navigation/native": "^6.1.14",
-=======
-<<<<<<< HEAD
-    "@react-navigation/bottom-tabs": "6",
-    "@react-navigation/native": "6",
->>>>>>> cf8dfc033964c557af7243aae4769ae1f3172a1f
     "@react-navigation/native-stack": "6",
     "expo-location": "~16.5.5",
     "@expo-google-fonts/poppins": "^0.2.3",

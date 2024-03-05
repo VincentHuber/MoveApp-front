@@ -14,8 +14,6 @@ return (
         
           <Text style={styles.text}>Laisser un avis</Text>
        
-        
-        
       </View>
     );
 
