@@ -9,41 +9,18 @@
     "web": "expo start --web"
   },
   "dependencies": {
-<<<<<<< HEAD
-
     "@react-navigation/bottom-tabs": "6",
     "@react-navigation/native": "^6.1.14",
-
-    "@react-navigation/bottom-tabs": "6",
-    "@react-navigation/native": "6",
-
-=======
-    "@react-navigation/bottom-tabs": "6",
-    "@react-navigation/native": "^6.1.14",
->>>>>>> 349add3ef25dc3f0c03aa7cee33f24fb3a4db5b6
     "@react-navigation/native-stack": "6",
     "expo-location": "~16.5.5",
-<<<<<<< HEAD
-
-=======
->>>>>>> 349add3ef25dc3f0c03aa7cee33f24fb3a4db5b6
     "@expo-google-fonts/poppins": "^0.2.3",
     "@gorhom/bottom-sheet": "^4",
     "expo": "~50.0.8",
     "expo-font": "^11.10.3",
-<<<<<<< HEAD
-
-=======
->>>>>>> 349add3ef25dc3f0c03aa7cee33f24fb3a4db5b6
     "expo-status-bar": "~1.11.1",
     "install": "^0.13.0",
     "react": "18.2.0",
     "react-native": "0.73.4",
-<<<<<<< HEAD
-    "react-native-maps": "1.10.0",
-    "react-native-safe-area-context": "4.8.2",
-    "react-native-screens": "~3.29.0"
-=======
     "react-native-gesture-handler": "~2.14.0",
     "react-native-modalize": "^2.1.1",
     "react-native-reanimated": "~3.6.2",
@@ -51,10 +28,11 @@
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
     "react-native-svg": "14.1.0"
->>>>>>> 349add3ef25dc3f0c03aa7cee33f24fb3a4db5b6
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
   "private": true
 }
+
+

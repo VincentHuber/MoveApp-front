@@ -114,7 +114,7 @@ const EditProfileScreen = () => {
     
     <View style={styles.container}>
         <TouchableOpacity onPress={handleProfilePress}>
-          <Image source={require('./chemin/vers/votre/photo/profil')} style={styles.profileImage} />
+          
         </TouchableOpacity>
         <TouchableOpacity onPress={handleReviewPress}>
           <Text style={styles.reviewText}>Donner un avis</Text>
@@ -134,6 +134,8 @@ const EditProfileScreen = () => {
     </View>
   );
 };
+
+//<Image source={require('./')} style={styles.profileImage} />
 
 const styles = StyleSheet.create({
   container: {
