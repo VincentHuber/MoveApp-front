@@ -1,16 +1,25 @@
+import { StyleSheet, Text, View } from 'react-native';
 
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import EditProfileScreen from './screens/Editprofile';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import user from './reducers/users';
 
-export default function App() {
+import MapScreen from './screens/MapScreen';
+import HomeScreen from './screens/HomeScreen';
+
+
+const store = configureStore({
+  reducer: { user },
+ });
+
+
+function App() {
   return (
-    <NavigationContainer>
+    <Provider store={store}>
       <View style={styles.container}>
-        <EditProfileScreen />
+        <HomeScreen/>
       </View>
-    </NavigationContainer>
+    </Provider>
   );
 }
 
