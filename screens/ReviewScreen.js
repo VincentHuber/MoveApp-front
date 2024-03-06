@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Modal,
-  TextInput,
+  TextInput, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -32,7 +32,13 @@ export default function ReviewScreen() {
   
 
 return (
-<View style={styles.container}>
+  <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <StatusBar backgroundColor="transparent" barStyle="dark-content" translucent={true}/>
+      <View>
       {isReviewVisible && (
       <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
         <Text style={styles.text}>Laisser un avis</Text>
@@ -55,10 +61,8 @@ return (
               </TouchableOpacity>
               </View>)}
         
-            
-        
-        
-  </View>
+        </View>
+      </KeyboardAvoidingView>
         
         
       
@@ -70,9 +74,11 @@ return (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F4F4',
+    backgroundColor: '#CFCFCF',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: StatusBar.currentHeight || 0,
+    
   },
   
   button: {
@@ -94,50 +100,36 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   }, 
 
-  /*inputtext:{ 
-    width: 50,
-    height: 100,
-    paddingLeft: 180,
-    paddingRight:180,
-    borderRadius: 20,
-    borderColor:'gray',
-
-
-  },*/
+  
 
   inputWrapper: {
-    backgroundColor:"yellow",
+    backgroundColor:"#FFFFFF",
     width: 317,
     height:328,
-    borderRadius: 20, // Ajout du border radius
-    overflow: 'hidden', // Pour que le contenu déborde
-    marginBottom: 10,
-
-  },
+    borderRadius: 20, 
+    overflow: 'hidden', 
+    marginBottom: 10,},
+    //maxHeight: Dimensions.get('window').height - (StatusBar.currentHeight || 0) - 100},
 
   input: {
     
-    backgroundColor:'gray',
+    backgroundColor:'#F4F4F4',
     color :'black',
     height: 180,
     marginBottom:50,
     marginTop:130,
     width: 300,
     marginLeft:8,
-    paddingLeft:100,
+    paddingLeft:10,
     borderRadius: 20,
+    //justifyContent: 'flex-start',
+    //alignItems: 'center',
     
   },
-
-  buttonreviewcontainer:{
-    
-
-  },
-
+  
   buttonReview:{
     fontFamily: 'Poppins_600SemiBold',
-    borderColor: '#4A46FF',
-    borderWidth: 2,
+    backgroundColor:'#4A46FF',
     width: 317,
     height: 53,
     //marginBottom:5000,
@@ -150,10 +142,10 @@ const styles = StyleSheet.create({
   },
 
   textReview:{
-    color: '#4A46FF',
+    color: 'white',
     paddingTop: 5,
     
-  }
+  },
 
 });
 
