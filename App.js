@@ -9,6 +9,7 @@ import user from './reducers/users';
 import MapScreen from './screens/MapScreen';
 import HomeScreen from './screens/HomeScreen';
 import ReviewScreen from './screens/ReviewScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 

@@ -9,13 +9,14 @@ import {
   Poppins_400Regular, 
   Poppins_400Regular_Italic, 
   Poppins_500Medium, 
-  Poppins_300Light,
-} from '@expo-google-fonts/poppins';
+  Poppins_300Light,} from '@expo-google-fonts/poppins';
 
 import Foot from '../assets/foot.js';
 import Basket from '../assets/basket.js';
 import Running from '../assets/running.js';
 import Tennis from '../assets/tennis.js';
+
+const BACKEND_ASSRESS='http://192.168.84.75:3000'
 
 const EditProfileScreen = () => {
   const [selectedSports, setSelectedSports] = useState({
@@ -45,14 +46,17 @@ const EditProfileScreen = () => {
   const [photoProfil, setPhotoProfil] = useState('');
   const [photoCouverture, setPhotoCouverture] = useState('');
   const [message, setMessage] = useState('');
+  const [userLogInfo, setUserLogInfo] = useState({ nickname: '', email: '', password: '', address: '', description: '', sports: '', ambition: '', coverPicture: '', profilPicture: '' });
+  
+
 
   const handleSubmit = () => {
     const userData = {
-      token: 'votre_token',
+      token: token,
       nickname: pseudo,
       mail: email,
       password: password,
-      address: lieuPratique,
+      adress: lieuPratique,
       description: description,
       sports: selectedSports,
       ambition: ambition,
@@ -79,6 +83,31 @@ const EditProfileScreen = () => {
     });
   };
 
+  fetch(`${BACKEND_ASSRESS}/user/Laure/${userLogInfo.nickname}`) 
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    if (data.result && data.users.length > 0) {
+      const user = data.users[0];
+      setUserLogInfo({
+        nickname: user.nickname,
+        mail: user.email,
+        password: user.password,
+        adress: user.adress,
+        description: user.description,
+        sports: user.sports,
+        ambition: user.ambition,
+        coverPicture: user.coverPicture,
+        profilPicture: user.profilPicture
+      });
+    } else {
+      console.error('Aucun utilisateur trouvé.');
+    }
+  })
+  .catch(error => {
+    console.error('Erreur lors de la récupération des informations de l\'utilisateur:', error);
+  });
+
   const handleLogout = () => {
     console.log('Déconnexion...');
     navigation.navigate('HomeScreen');
@@ -87,6 +116,19 @@ const EditProfileScreen = () => {
   const handleGoBack = () => {
     navigation.goBack();
   };
+
+  const [fontsLoaded] = useFonts({
+    Poppins_700Bold,
+    Poppins_600SemiBold, 
+    Poppins_400Regular, 
+    Poppins_400Regular_Italic, 
+    Poppins_500Medium, 
+    Poppins_300Light
+})
+
+if(!fontsLoaded){
+    return null
+}
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -101,68 +143,75 @@ const EditProfileScreen = () => {
           style={styles.profileImage}
         />
         <View style={styles.textContainer}>
-          <Text style={styles.pseudoText}>{pseudo}</Text>
+          <Text style={styles.pseudoText}>{userLogInfo.nickname}</Text>
         </View>
       </View>
 
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Pseudo</Text>
         <TextInput
-          style={styles.input}
+           style={[styles.input, styles.boldText]}
           placeholder="Pseudo"
-          value={pseudo}
+          value={userLogInfo.nickname}
           onChangeText={(text) => {
             setPseudo(text);
             setMessage('');
           }}
         />
       </View>
+
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Email</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, styles.boldText]}
           placeholder="Email"
-          value={email}
+          value={userLogInfo.email}
           onChangeText={(text) => {
             setEmail(text);
             setMessage('');
           }}
-        />
+       />
       </View>
+
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Password</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, styles.boldText]}
           placeholder="Password"
-          value={password}
+          value={userLogInfo.password}
           onChangeText={(text) => {
             setPassword(text);
             setMessage('');
           }}
+          secureTextEntry={true}
         />
       </View>
+
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Lieu de pratique sportive</Text>
         <TextInput
-          style={styles.inputArea}
+          style={[styles.input, styles.boldText]}
           placeholder="Lieu de pratique"
-          value={lieuPratique}
+          value={userLogInfo.adress}
           onChangeText={(text) => {
             setLieuPratique(text);
             setMessage('');
           }}
         />
       </View>
+
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Description</Text>
         <TextInput
-          style={styles.inputArea}
+          style={[styles.input, styles.multilineInput, styles.boldText]} 
           placeholder="Description"
-          value={description}
+          value={userLogInfo.description}
           onChangeText={(text) => {
             setDescription(text);
             setMessage('');
           }}
+          multiline={true} 
+          textAlignVertical="top" 
         />
       </View>
 
@@ -232,19 +281,30 @@ const EditProfileScreen = () => {
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Ambition</Text>
         <TextInput
-          style={styles.inputArea}
+          style={[styles.input, styles.multilineInput, styles.boldText]} 
           placeholder="Ambition"
-          value={ambition}
+          value={userLogInfo.ambition}
           onChangeText={(text) => {
             setAmbition(text);
             setMessage('');
           }}
+          multiline={true} 
+          textAlignVertical="top"
         />
       </View>
 
       <View style={styles.inputContainer}>
         <Text style={styles.inputLabel}>Photo de profil et de couverture</Text>
-        
+        <View style={styles.profileImageContainer}>
+          <Image
+            source={{ uri: userLogInfo.coverPicture }} // Utilisation de l'URL de la photo de couverture
+            style={styles.coverImage}
+          />
+          <Image
+            source={{ uri: userLogInfo.profilPicture }} // Utilisation de l'URL de la photo de profil
+            style={styles.profileImage}
+          />
+        </View>
       </View>
 
     
@@ -259,7 +319,6 @@ const EditProfileScreen = () => {
     </ScrollView>
   );
 };
-
 //<Image source={require('./')} style={styles.profileImage} />
 
 const styles = StyleSheet.create({
@@ -337,6 +396,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     fontSize: 14,
     paddingBottom: 35,
+  },
+  boldText: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  multilineInput: {
+    paddingTop: 10, // Marge en haut pour une meilleure apparence
   },
 
   //Bouton avis
