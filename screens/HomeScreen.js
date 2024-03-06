@@ -53,7 +53,22 @@ export default function HomeScreen({ navigation }) {
     const [adress, setAdress] = useState('');
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
-    const [sports, setSports] = useState([]);
+
+    // const [sports, setSports] = useState([]);
+
+    const [selectedSports, setSelectedSports] = useState({
+        Football: false,
+        Basketball: false,
+        Running: false,
+        Tennis: false,
+      });
+    
+      const handleAddSport = (sport) => {
+        setSelectedSports(prevState => ({
+          ...prevState,
+          [sport]: !prevState[sport],
+        }));
+      };
 
     // pour comprendre la modal BottomSheet : https://www.youtube.com/watch?v=SgeAfiz_j_w&t=184s
     const sheetRef = useRef(null);
@@ -108,7 +123,7 @@ export default function HomeScreen({ navigation }) {
             password,
             ambition,
             adress,
-            sports,
+            sports: selectedSports,
             description,
             profilePicture: userProfilePicture,
             coverPicture: userCoverPicture
@@ -280,40 +295,20 @@ export default function HomeScreen({ navigation }) {
                         <Text style={styles.textSports}>MES SPORTS*</Text>
                         <View style={styles.containerIcons}>
                             <TouchableOpacity style={styles.iconFoot} 
-                                onPress={()=>{
-                                    if (sports.includes('foot')) {
-                                        setSports(sports.filter(item => item !== 'foot'));
-                                    } else {
-                                        setSports([...sports, 'foot']);
-                                        }}}>
+                                onPress={()=>handleAddSport('Football')}>
 
                                     <Foot/>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.iconRunning} 
-                                    onPress={()=>{
-                                    if (sports.includes('running')) {
-                                        setSports(sports.filter(item => item !== 'running'));
-                                    } else {
-                                        setSports([...sports, 'running']);
-                                        }}}>
+                                    onPress={()=>handleAddSport('Running')}>
                                 <Running/>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.iconBasket}  
-                                    onPress={()=>{
-                                    if (sports.includes('basket')) {
-                                        setSports(sports.filter(item => item !== 'basket'));
-                                    } else {
-                                        setSports([...sports, 'basket']);
-                                        }}}>
+                                    onPress={()=>handleAddSport('Basketball')}>
                                 <Basket/>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.iconTennis}  
-                                    onPress={()=>{
-                                    if (sports.includes('tennis')) {
-                                        setSports(sports.filter(item => item !== 'tennis'));
-                                    } else {
-                                        setSports([...sports, 'tennis']);
-                                        }}}>
+                                    onPress={()=>handleAddSport('Tennis')}>
                                 <Tennis/>
                             </TouchableOpacity>
                         </View>
