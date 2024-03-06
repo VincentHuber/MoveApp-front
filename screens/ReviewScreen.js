@@ -16,38 +16,53 @@ export default function ReviewScreen() {
   const [reviewText, setReviewText] = useState('');
   const [addReview, setAddReview] = useState('');
   const [isTextInputVisible, setIsTextInputVisible] = useState(false);
+  const [isReviewVisible, setIsReviewVisible] = useState(true);
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible)
-  };
+    setIsReviewVisible(!isReviewVisible);
+  }; // cette fonction au clik fait disparaitre le bouton "laisser un avis"
 
-    
+  const handleAddReview = () => {
+    setIsVisible(false);
+    setIsReviewVisible(true);
+    setReviewText(''); // cette fonction au clik fait disparaitre le bouton "deposer mon avis"
+  }
+
+  
 
 return (
 <View style={styles.container}>
+      {isReviewVisible && (
       <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
         <Text style={styles.text}>Laisser un avis</Text>
         </TouchableOpacity>
-        {isVisible && (
-        <View style={styles.inputtext}>
+      )}
+        {isVisible  && (
+        <View style={styles.inputWrapper}>
           <TextInput
               style={styles.input}
               multiline={true}
               placeholder="Votre avis"
               value={reviewText}
               onChangeText={setReviewText}
-              /><View style={styles.buttonreviewcontainer}>
-              <TouchableOpacity style={styles.buttonReview} onPress={setAddReview}>
+              />
+              </View>)}
+              {isVisible && (
+              <View style={styles.buttonreviewcontainer}>
+              <TouchableOpacity style={styles.buttonReview} onPress={handleAddReview}>
                 <Text style={styles.textReview}>Deposer mon avis</Text>
               </TouchableOpacity>
-              </View>
-        </View>
-            )}
+              </View>)}
+        
+            
+        
+        
   </View>
         
         
       
-    );
+        );
 
     };
     
@@ -65,9 +80,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 317,
     height: 53,
-    marginTop: 500,
+    marginBottom: 300,
     paddingVertical: 12,
-    borderRadius: 100,
+    borderRadius: 20,
     alignItems: 'center'
   },
   text: {
@@ -79,23 +94,39 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   }, 
 
-  inputtext:{ 
-    width: '100%',
-    height: '0%',
+  /*inputtext:{ 
+    width: 50,
+    height: 100,
     paddingLeft: 180,
+    paddingRight:180,
     borderRadius: 20,
+    borderColor:'gray',
 
+
+  },*/
+
+  inputWrapper: {
+    backgroundColor:"yellow",
+    width: 317,
+    height:328,
+    borderRadius: 20, // Ajout du border radius
+    overflow: 'hidden', // Pour que le contenu déborde
+    marginBottom: 10,
 
   },
 
   input: {
     
-    backgroundColor:'#F4F4F4',
+    backgroundColor:'gray',
     color :'black',
     height: 180,
-    width: 250,
+    marginBottom:50,
+    marginTop:130,
+    width: 300,
+    marginLeft:8,
+    paddingLeft:100,
     borderRadius: 20,
-
+    
   },
 
   buttonreviewcontainer:{
@@ -104,12 +135,15 @@ const styles = StyleSheet.create({
   },
 
   buttonReview:{
+    fontFamily: 'Poppins_600SemiBold',
     borderColor: '#4A46FF',
     borderWidth: 2,
     width: 317,
     height: 53,
+    //marginBottom:5000,
     paddingVertical: 12,
-    paddingtop:100,
+    //paddingtop:100,
+    //paddingLeft:0,
     borderRadius: 20,
     alignItems: 'center'
 

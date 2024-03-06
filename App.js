@@ -18,7 +18,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <View style={styles.container}>
-        <HomeScreen/>
+        <ReviewScreen/>
       </View>
     </Provider>
   );
