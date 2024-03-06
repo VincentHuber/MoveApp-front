@@ -1,44 +1,35 @@
-
 import { StyleSheet, Text, View } from 'react-native';
 
-import EditProfile from './screens/Editprofile'; 
-
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import user from './reducers/users';
 
 import MapScreen from './screens/MapScreen';
-
 import HomeScreen from './screens/HomeScreen';
 import ReviewScreen from './screens/ReviewScreen';
 
 
+const store = configureStore({
+  reducer: { user },
+ });
 
 
 function App() {
-  return (<View>
-      <EditProfile />
-     <View style={styles.container}>
-   
-
-      <MapScreen />
-
-
-
-      <HomeScreen />
-      <ReviewScreen />
-
-    </View>
-    </View>
+  return (
+    <Provider store={store}>
+      <View style={styles.container}>
+        <HomeScreen/>
+      </View>
+    </Provider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 
-export default App;
 
 
 

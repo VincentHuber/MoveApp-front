@@ -21,32 +21,21 @@ export default function ReviewScreen() {
     setIsVisible(!isVisible)
   };
 
-  
- 
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
-        <Text style={styles.text}>Laisser un avis</Text>
-        </TouchableOpacity>
-        {isVisible && (
-        <View style={styles.inputtext}>
-          <TextInput
-              style={styles.input}
-              multiline={true}
-              placeholder="Votre avis"
-              value={reviewText}
-              onChangeText={setReviewText}
-              /><View style={styles.buttonreviewcontainer}>
-              <TouchableOpacity style={styles.buttonReview} onPress={setAddReview}>
-                <Text style={styles.textReview}>Deposer mon avis</Text>
-              </TouchableOpacity>
-              </View>
-        </View>
-            )}
-    </View>
-  );
-};
+    
 
+return (
+      <View>
+      
+        
+          <Text style={styles.text}>Laisser un avis</Text>
+       
+        
+        
+      </View>
+    );
+
+    };
+    
 
 const styles = StyleSheet.create({
   container: {

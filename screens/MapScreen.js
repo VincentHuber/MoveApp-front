@@ -104,23 +104,25 @@ export default function MapScreen() {
           <Message/>
         </TouchableOpacity>
 
-        <View style={styles.containerIcons}>
-      <TouchableOpacity style={getButtonStyle('foot')} onPress={() => handlePress('foot')}>
-        <Foot/>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={getButtonStyle('running')} onPress={() => handlePress('running')}>
-        <Running/>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={getButtonStyle('basket')} onPress={() => handlePress('basket')}>
-        <Basket/>
-      </TouchableOpacity>
       
-      <TouchableOpacity style={getButtonStyle('tennis')} onPress={() => handlePress('tennis')}>
-        <Tennis/>
-      </TouchableOpacity>
+        <View style={styles.containerIcons}>
+          <TouchableOpacity style={getButtonStyle('foot')} onPress={() => handlePress('foot')}>
+            <Foot/>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={getButtonStyle('running')} onPress={() => handlePress('running')}>
+            <Running/>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={getButtonStyle('basket')} onPress={() => handlePress('basket')}>
+            <Basket/>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={getButtonStyle('tennis')} onPress={() => handlePress('tennis')}>
+            <Tennis/>
+          </TouchableOpacity>
          </View>
+  
 
       </KeyboardAvoidingView>
 
@@ -213,10 +215,16 @@ const styles = StyleSheet.create({
 
 // icon sports container
   containerIcons:{
-    position: "absolute",
-    bottom:30,
-    right:80,
+    backgroundColor:'white',
+    borderRadius:20,
+    height: '14%',
+    width:'85%',
+    alignItems:'center',
+    justifyContent:'center',
     flexDirection:'row',
+    alignSelf:'center',
+    marginTop: 'auto',
+    marginBottom:20,
   },
 
   //Icon sports non actives
@@ -224,8 +232,8 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     backgroundColor:"#FFFFFF",
-    width:71,
-    height:69,
+    width:'24%',
+    height:'24%',
     borderRadius:12,
   },
 
@@ -234,8 +242,8 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     backgroundColor: '#4A46FF',
-    width:71,
-    height:69,
+    width:'24%',
+    height:'90%',
     borderRadius:12,
   },
 
