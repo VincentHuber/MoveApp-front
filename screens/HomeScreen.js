@@ -40,7 +40,7 @@ import Upload from '../assets/upload.js'
 import Close from '../assets/close.js'
 
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
 
     const dispatch = useDispatch();
     
@@ -127,6 +127,7 @@ export default function HomeScreen() {
             coverPicture: data.coverPicture,
             profilePicture: data.profilePicture,
          }));
+         navigation.navigate('Map');
       });
     }
 
@@ -350,7 +351,7 @@ export default function HomeScreen() {
                                     value={password}
                                 />
                             </View>
-                        <TouchableOpacity style={styles.buttonSignInOk}>
+                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => navigation.navigate('Map')}>
                             <Text style={styles.textButtonSignInOk}>Ok</Text>
                         </TouchableOpacity>
                     </View>
