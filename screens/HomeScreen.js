@@ -192,6 +192,7 @@ export default function HomeScreen({ navigation }) {
                     sports: data.sports,
                 }));
             }
+            
         })
         .catch(error => {
             console.error('Error signing up:', error);
