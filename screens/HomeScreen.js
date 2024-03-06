@@ -1,3 +1,4 @@
+import React, { useRef, useCallback, useState } from 'react'
 import { 
     StyleSheet, 
     Text, 
@@ -6,13 +7,18 @@ import {
     Modal,
     TextInput,
     Image,
+    KeyboardAvoidingView,
     ScrollView,
     } from 'react-native';
     
-import React, { useRef, useCallback, useState } from 'react'
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {launchCamera, launchImageLibrary} from "react-native-image-picker";
+import * as ImagePicker from 'expo-image-picker';
 
+import { useDispatch } from 'react-redux';
+import { user } from '../reducers/users';
+import {login} from '../reducers/users';
 
 import {
     useFonts, 
@@ -30,26 +36,101 @@ import Basket from '../assets/basket.js'
 import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
+import Upload from '../assets/upload.js'
+import Close from '../assets/close.js'
+
 
 export default function HomeScreen() {
+
+    const dispatch = useDispatch();
+    
+
     const [isModalVisible, setIsModalVisible] = useState(false)
-
-    const sheetRef = useRef(null);
-    const [isOpen, setIsOpen] =useState(false);
-    const snapPoints = ["40%"]
-
-    const handleSnapPress = useCallback((index)=>{
-        sheetRef.current?.snapToIndex(index)
-        setIsOpen(true)
-    },[])
-
     const [nickname, setNickname] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [adress, setAdress] = useState('');
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
+    const [sports, setSports] = useState([]);
 
+    // pour comprendre la BottomSheet modal : https://www.youtube.com/watch?v=SgeAfiz_j_w&t=184s
+    const sheetRef = useRef(null);
+    const [isOpen, setIsOpen] = useState(-1);
+    const snapPoints = ["45%"]
+
+    const handleSnapPress = useCallback((index)=>{
+        sheetRef.current?.snapToIndex(index)
+        setIsOpen(0)
+    },[])
+
+    
+    //Pictures upload
+    const [cover, setCover] = useState(null);
+
+    const uploadCover = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [3, 2],
+        quality: 1,
+        });
+        console.log(result);
+
+        if (!result.canceled) {
+        setCover(result.assets[0].uri);
+        }
+    };
+        
+    const [profile, setProfile] = useState(null);
+
+    const uploadProfile = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        });
+        console.log(result);
+
+        if (!result.canceled) {
+        setProfile(result.assets[0].uri);
+        }
+    };
+        
+    
+    //Profile creation
+    const createProfile = ()=> {
+        fetch('http://192.168.10.165:3000/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+            nickname, 
+            email, 
+            password, 
+            ambition, 
+            adress, 
+            sports, 
+            description, 
+            coverPicture: cover, 
+            profilePicture: profile, 
+        }),
+    }).then(response => response.json())
+      .then(data => {
+        // data.result &&
+        dispatch(login({ 
+            token: data.token, 
+            nickname: data.nickname, 
+            ambition: data.ambition,
+            adress: data.adress,
+            sports: data.sports,
+            coverPicture: data.coverPicture,
+            profilePicture: data.profilePicture,
+         }));
+      });
+    }
+
+    //Fonts
     const [fontsLoaded] = useFonts({
         Poppins_700Bold,
         Poppins_600SemiBold, 
@@ -65,6 +146,7 @@ export default function HomeScreen() {
 
 
   return (
+    
     <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={styles.container}>
 
@@ -94,7 +176,6 @@ export default function HomeScreen() {
                         <Text style={styles.title}>INSCRIPTION</Text>
                         <View style={styles.pseudo}>
                             <TextInput
-                                type="text"  
                                 style={styles.textPseudo}
                                 placeholder='Pseudo*'      
                                 onChangeText={(value) => setNickname(value)}
@@ -104,7 +185,7 @@ export default function HomeScreen() {
                         <View style={styles.email}>
                             <TextInput
                                 style={styles.textEmail}
-                                type="email"  
+                                 
                                 placeholder='Email*'   
                                 onChangeText={(value) => setEmail(value)}
                                 value={email}
@@ -113,8 +194,8 @@ export default function HomeScreen() {
                         <View style={styles.password}>
                             <TextInput
                                 style={styles.textPassword}
-                                type="password*"  
-                                placeholder='Password'     
+                                secureTextEntry={true}
+                                placeholder='Password*'     
                                 onChangeText={(value) => setPassword(value)}
                                 value={password}
                             />
@@ -127,7 +208,7 @@ export default function HomeScreen() {
                         <View style={styles.adress}>
                             <TextInput
                                 style={styles.textAdress}
-                                type="text"  
+                               
                                 placeholder='Adresse*'  
                                 onChangeText={(value) => setAdress(value)}
                                 value={adress}
@@ -136,7 +217,7 @@ export default function HomeScreen() {
                         <View style={styles.description}>
                             <TextInput
                                 style={styles.textDescription}
-                                type="text"  
+                                 
                                 placeholder='Description'  
                                 onChangeText={(value) => setDescription(value)}
                                 value={description}
@@ -144,16 +225,41 @@ export default function HomeScreen() {
                         </View>
                         <Text style={styles.textSports}>MES SPORTS*</Text>
                         <View style={styles.containerIcons}>
-                            <TouchableOpacity style={styles.iconFoot}>
-                                <Foot/>
+                            <TouchableOpacity style={styles.iconFoot} 
+                                onPress={()=>{
+                                    if (sports.includes('foot')) {
+                                        setSports(sports.filter(item => item !== 'foot'));
+                                    } else {
+                                        setSports([...sports, 'foot']);
+                                        }}}>
+
+                                    <Foot/>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconRunning}>
+                            <TouchableOpacity style={styles.iconRunning} 
+                                    onPress={()=>{
+                                    if (sports.includes('running')) {
+                                        setSports(sports.filter(item => item !== 'running'));
+                                    } else {
+                                        setSports([...sports, 'running']);
+                                        }}}>
                                 <Running/>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconBasket}>
+                            <TouchableOpacity style={styles.iconBasket}  
+                                    onPress={()=>{
+                                    if (sports.includes('basket')) {
+                                        setSports(sports.filter(item => item !== 'basket'));
+                                    } else {
+                                        setSports([...sports, 'basket']);
+                                        }}}>
                                 <Basket/>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconTennis}>
+                            <TouchableOpacity style={styles.iconTennis}  
+                                    onPress={()=>{
+                                    if (sports.includes('tennis')) {
+                                        setSports(sports.filter(item => item !== 'tennis'));
+                                    } else {
+                                        setSports([...sports, 'tennis']);
+                                        }}}>
                                 <Tennis/>
                             </TouchableOpacity>
                         </View>
@@ -166,7 +272,39 @@ export default function HomeScreen() {
                                 value={ambition}
                             />
                         </View>
-                            <TouchableOpacity style={styles.buttonOk} onPress={() => setIsModalVisible(false)}>
+
+                        <View style={styles.uploadContainer}>
+                
+                        
+                        {cover ? (
+                            <Image source={{ uri: cover }} style={styles.uploadCover} />
+                                        ) : (
+                                        <View style={styles.uploadCover}>
+                                            <Text style={styles.textUploadProfile}>
+                                            Photo de couverture
+                                            </Text>
+                                        </View>
+                                        )}
+                            <TouchableOpacity onPress={()=>uploadCover()}>
+                                <Upload style={styles.buttonUploadProfile}/>
+                            </TouchableOpacity>
+                           
+
+                        {profile ? (
+                            <Image source={{ uri: profile }} style={styles.uploadProfile} />
+                                        ) : (
+                                        <View style={styles.uploadProfile}>
+                                            <Text style={styles.textUploadProfile}>
+                                            Photo de profile
+                                            </Text>
+                                        </View>
+                                        )}
+                            <TouchableOpacity onPress={()=>uploadProfile()}>
+                                <Upload style={styles.buttonUploadProfile}/>
+                            </TouchableOpacity>
+
+                        </View>
+                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile()}>
                                <View style={styles.contenairButtonOk}>
                                     <Create style={styles.iconCreate}/>
                                     <Text style={styles.textButtonOk}>Créer ton profil</Text>
@@ -176,7 +314,7 @@ export default function HomeScreen() {
                                 <Text style={styles.textButtonBack}>Retour</Text>
                             </TouchableOpacity>
                             <View style={styles.containairLegend}>
-                            <Text style={styles.legend}>*Champ  obligatoire</Text>
+                            <Text style={styles.legend}>*Champ obligatoire</Text>
                             </View>
                     </View>
                     </ScrollView>
@@ -187,13 +325,36 @@ export default function HomeScreen() {
                 ref={sheetRef}
                 snapPoints={snapPoints}
                 enablePanDownToClose={true}
-                onClose={()=>setIsOpen(false)}
+                onClose={()=>setIsOpen(0)}
+                index={isOpen}
+                style={styles.bottomSheet}
                 >
-                <View style={styles.bottomSheetContent}>
-                    <Text>Connexion</Text>
-                </View>
-            </BottomSheet>
+                    <View style={styles.bottomSheetContent}>
 
+                        <Text style={styles.titleSignIn}>CONNEXION</Text>
+                        <View style={styles.email}>
+                                <TextInput
+                                    style={styles.textEmail}
+                                    type="email"  
+                                    placeholder='Email*'   
+                                    onChangeText={(value) => setEmail(value)}
+                                    value={email}
+                                />
+                            </View>
+                            <View style={styles.password}>
+                                <TextInput
+                                    style={styles.textPassword}
+                                    type="password*"  
+                                    placeholder='Password'     
+                                    onChangeText={(value) => setPassword(value)}
+                                    value={password}
+                                />
+                            </View>
+                        <TouchableOpacity style={styles.buttonSignInOk}>
+                            <Text style={styles.textButtonSignInOk}>Ok</Text>
+                        </TouchableOpacity>
+                    </View>
+            </BottomSheet>
 
         </View>
     </GestureHandlerRootView>
@@ -280,7 +441,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
       },
 
-    //MODAL SIGN IN
+    //MODAL SIGN UP
 
     title:{
         fontFamily: 'Poppins_700Bold',
@@ -544,4 +705,96 @@ const styles = StyleSheet.create({
         color: '#9F9F9F',
     },
 
+
+    //MODAL SIGN IN
+    bottomSheet:{
+    },
+
+    bottomSheetContent:{
+        width:'100%',
+        height:'100%',
+        backgroundColor:'#F4F4F4',
+    },
+
+    buttonSignInOk:{
+        width : '85%',
+        height: 53,
+        backgroundColor:'#4A46FF',
+        borderRadius:100,
+        justifyContent: 'center',
+        alignContent:'center',
+        alignSelf:'center',
+    },
+
+    textButtonSignInOk:{
+        fontFamily: 'Poppins_600SemiBold',
+        fontSize:16,
+        color:'white',
+        width:'44%',
+        textAlign: 'center',
+    },
+
+    titleSignIn:{
+        fontFamily: 'Poppins_700Bold',
+        fontSize:28,
+        color:'black',
+        textAlign: 'center',
+        marginTop: 5,
+        marginBottom:15, 
+    },
+
+    //UPLOAD
+
+    uploadContainer:{
+        position: 'relative',
+        width: '85%',
+        alignSelf: 'center',
+        marginBottom: 120,
+        justifyContent: 'center',
+    },
+
+    uploadCover: {
+        width: '100%',
+        backgroundColor: 'white',
+        height: 182,
+        borderRadius: 10,
+        justifyContent: 'center',
+        paddingLeft: 15,
+        marginBottom: 13,
+    },
+
+    textUploadCover: {
+        fontFamily: 'Poppins_600SemiBold',
+        fontSize: 14,
+        color: 'black',
+        alignItems: 'center',
+        textAlign: 'center',
+    },
+
+    uploadProfile: {
+        position: 'absolute',
+        top: '50%',
+        left: '20%',
+        right: '20%',
+        width: 182,
+        height: 182,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 100,
+        borderWidth: 6,
+        borderColor: '#F4F4F4',
+        backgroundColor: 'white',
+    },
+
+    textUploadProfile: {
+        fontFamily: 'Poppins_600SemiBold',
+        fontSize: 14,
+        color: 'black',
+        textAlign: 'center',
+    },
+
+    buttonUploadProfile:{
+
+
+    },
 })

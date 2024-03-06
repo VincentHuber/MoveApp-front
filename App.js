@@ -1,28 +1,25 @@
-
 import { StyleSheet, Text, View } from 'react-native';
 
-<<<<<<< HEAD
-// import EditProfile from './screens/Editprofile'; 
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import user from './reducers/users';
+
 import MapScreen from './screens/MapScreen';
 import HomeScreen from './screens/HomeScreen';
-=======
-import MapScreen from './screens/MapScreen';
->>>>>>> e16bc6bd75c2668f2ef0bab399a6cad5723d7996
+
+
+const store = configureStore({
+  reducer: { user },
+ });
 
 
 function App() {
   return (
-<<<<<<< HEAD
-    <View style={styles.container}>
-      <MapScreen/>
-=======
-   
-    <View style={styles.container}>
-
-      <MapScreen/>
-
->>>>>>> e16bc6bd75c2668f2ef0bab399a6cad5723d7996
-    </View>
+    <Provider store={store}>
+      <View style={styles.container}>
+        <HomeScreen/>
+      </View>
+    </Provider>
   );
 }
 
