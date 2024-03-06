@@ -1,13 +1,16 @@
 
-import { StyleSheet, Text, View } from 'react-native';
-import HomeScreen from './screens/HomeScreen';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import EditProfileScreen from './screens/Editprofile';
 
-
-function App() {
+export default function App() {
   return (
-    <View style={styles.container}>
-      <HomeScreen/>
-    </View>
+    <NavigationContainer>
+      <View style={styles.container}>
+        <EditProfileScreen />
+      </View>
+    </NavigationContainer>
   );
 }
 
@@ -17,7 +20,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
 
 
 
