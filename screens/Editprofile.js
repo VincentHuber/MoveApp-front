@@ -12,7 +12,6 @@ import {
   Poppins_300Light,
 } from '@expo-google-fonts/poppins';
 
-// Importez vos icônes de sport ici
 import Foot from '../assets/foot.js';
 import Basket from '../assets/basket.js';
 import Running from '../assets/running.js';
