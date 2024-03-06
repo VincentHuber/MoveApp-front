@@ -13,7 +13,6 @@ import {
     
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import * as ImagePicker from 'expo-image-picker';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,7 +43,6 @@ export default function HomeScreen({ navigation }) {
     const dispatch = useDispatch();
     const userProfilePicture = useSelector(state => state.user.value.profilePicture);
     const userCoverPicture = useSelector(state => state.user.value.coverPicture);
-    const formData = new FormData();
 
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [nickname, setNickname] = useState('');
@@ -54,7 +52,6 @@ export default function HomeScreen({ navigation }) {
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
 
-    // const [sports, setSports] = useState([]);
 
     const [selectedSports, setSelectedSports] = useState({
         Football: false,
