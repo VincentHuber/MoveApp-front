@@ -8,8 +8,7 @@ import user from './reducers/users';
 
 import MapScreen from './screens/MapScreen';
 import HomeScreen from './screens/HomeScreen';
-
-const Stack = createNativeStackNavigator();
+import EditProfileScreen from './screens/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +22,7 @@ export default function App() {
     <Provider store={store}> 
     <NavigationContainer>
      <Stack.Navigator screenOptions={{ headerShown: false }}>
+     <Stack.Screen name="EditProfile" component={EditProfileScreen} />
        <Stack.Screen name="Home" component={HomeScreen} />
        <Stack.Screen name="Map" component={MapScreen} />
      </Stack.Navigator>
