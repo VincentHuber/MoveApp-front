@@ -46,21 +46,37 @@ const EditProfileScreen = () => {
   const [photoCouverture, setPhotoCouverture] = useState('');
   const [message, setMessage] = useState('');
 
-  const [fontsLoaded] = useFonts({
-    Poppins_700Bold,
-    Poppins_600SemiBold, 
-    Poppins_400Regular, 
-    Poppins_400Regular_Italic, 
-    Poppins_500Medium, 
-    Poppins_300Light
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   const handleSubmit = () => {
-    console.log('Formulaire soumis');
+    const userData = {
+      token: 'votre_token',
+      nickname: pseudo,
+      mail: email,
+      password: password,
+      address: lieuPratique,
+      description: description,
+      sports: selectedSports,
+      ambition: ambition,
+      coverPicture: photoCouverture,
+      profilePicture: photoProfil
+    };
+  
+
+    fetch('http://192.168.10.137:3000/updateProfile/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.result) {
+        console.log('Profil mis à jour avec succès');
+      } else {
+        console.error('Erreur lors de la mise à jour du profil:', data.error);
+      }
+
+    });
   };
 
   const handleLogout = () => {
@@ -72,14 +88,6 @@ const EditProfileScreen = () => {
     navigation.goBack();
   };
 
-  const handleProfilePress = () => {
-    navigation.navigate('NomDeVotreProfil');
-  };
-
-  const handleReviewPress = () => {
-    navigation.navigate('ReviewScreen');
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
 
@@ -89,14 +97,11 @@ const EditProfileScreen = () => {
       
       <View style={styles.profileImageContainer}>
         <Image
-          source={{ uri: photoProfil }}
+          // source={{ uri: photoProfil }}
           style={styles.profileImage}
         />
         <View style={styles.textContainer}>
-          <Text style={styles.pseudoText}>Laure</Text>
-          <TouchableOpacity onPress={handleReviewPress}>
-            <Text style={styles.reviewText}>Voir les avis</Text>
-          </TouchableOpacity>
+          <Text style={styles.pseudoText}>{pseudo}</Text>
         </View>
       </View>
 
@@ -264,6 +269,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F4F4',
   },
 
+//Bouton retour en arrière
   backButton: {
     position: 'absolute',
     top: 100,
@@ -278,7 +284,7 @@ const styles = StyleSheet.create({
 
   //pseudo + image + avis
   profileImageContainer: {
-    marginTop: 20,
+    marginTop: 25,
     marginRight: 80,
   },
   profileImage: {
@@ -330,12 +336,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingBottom: 35,
   },
-  // backButtonContainer: {
-  //   position: 'absolute',
-  //   top: 1,
-  //   left: 10,
-  //   zIndex: 1,
-  // },
 
   //Bouton avis
   reviewText: {
@@ -435,4 +435,3 @@ const styles = StyleSheet.create({
 });
 
 export default EditProfileScreen;
-
