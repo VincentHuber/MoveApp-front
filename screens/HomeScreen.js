@@ -16,9 +16,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import * as ImagePicker from 'expo-image-picker';
 
-import { useDispatch } from 'react-redux';
-import { user } from '../reducers/users';
-import {login} from '../reducers/users';
+import { useDispatch, useSelector } from 'react-redux';
+import {user, login, addProfilePicture, addCoverPicture } from '../reducers/users';
 
 import {
     useFonts, 
@@ -40,10 +39,12 @@ import Upload from '../assets/upload.js'
 import Close from '../assets/close.js'
 
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
 
     const dispatch = useDispatch();
-    
+    const userProfilePicture = useSelector(state => state.user.value.profilePicture);
+    const userCoverPicture = useSelector(state => state.user.value.coverPicture);
+    const formData = new FormData();
 
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [nickname, setNickname] = useState('');
@@ -52,9 +53,24 @@ export default function HomeScreen() {
     const [adress, setAdress] = useState('');
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
-    const [sports, setSports] = useState([]);
 
-    // pour comprendre la BottomSheet modal : https://www.youtube.com/watch?v=SgeAfiz_j_w&t=184s
+    // const [sports, setSports] = useState([]);
+
+    const [selectedSports, setSelectedSports] = useState({
+        Football: false,
+        Basketball: false,
+        Running: false,
+        Tennis: false,
+      });
+    
+      const handleAddSport = (sport) => {
+        setSelectedSports(prevState => ({
+          ...prevState,
+          [sport]: !prevState[sport],
+        }));
+      };
+
+    // pour comprendre la modal BottomSheet : https://www.youtube.com/watch?v=SgeAfiz_j_w&t=184s
     const sheetRef = useRef(null);
     const [isOpen, setIsOpen] = useState(-1);
     const snapPoints = ["45%"]
@@ -100,35 +116,89 @@ export default function HomeScreen() {
         
     
     //Profile creation
-    const createProfile = ()=> {
-        fetch('http://192.168.10.165:3000/signin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-            nickname, 
-            email, 
-            password, 
-            ambition, 
-            adress, 
-            sports, 
-            description, 
-            coverPicture: cover, 
-            profilePicture: profile, 
-        }),
-    }).then(response => response.json())
-      .then(data => {
-        // data.result &&
-        dispatch(login({ 
-            token: data.token, 
-            nickname: data.nickname, 
-            ambition: data.ambition,
-            adress: data.adress,
-            sports: data.sports,
-            coverPicture: data.coverPicture,
-            profilePicture: data.profilePicture,
-         }));
-      });
-    }
+    const createProfile = () => {
+        const userData = {
+            nickname,
+            email,
+            password,
+            ambition,
+            adress,
+            sports: selectedSports,
+            description,
+            profilePicture: userProfilePicture,
+            coverPicture: userCoverPicture
+        };
+        // Check if profile and cover pictures are selected
+        if (profile && cover) {
+            // Upload cover picture
+            const formDataCover = new FormData();
+            formDataCover.append('coverPicture', {
+                uri: cover,
+                name: 'photo.jpg',
+                type: 'image/jpeg',
+            });
+            fetch('http://192.168.10.154:3000/user/uploadPictureCover', {
+                method: 'POST',
+                body: formDataCover,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('cover' + data.url);
+                dispatch(addCoverPicture(data.url));
+            })
+            .catch(error => {
+                console.error('Error uploading cover picture:', error);
+            });
+    
+            // Upload profile picture
+            const formDataProfile = new FormData();
+            formDataProfile.append('profilePicture', {
+                uri: profile,
+                name: 'photo.jpg',
+                type: 'image/jpeg',
+            });
+            fetch('http://192.168.10.154:3000/user/uploadProfileCover', {
+                method: 'POST',
+                body: formDataProfile,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('profile ' + data);
+                dispatch(addProfilePicture(data.url));
+            })
+            .catch(error => {
+                console.error('Error uploading profile picture:', error);
+            });
+        } else {
+            console.log('Profile or cover picture is missing');
+        }
+    
+        // Signup
+        fetch('http://192.168.10.154:3000/user/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('creation', data)
+            if (data.result) {
+                console.log('user created', data)
+                dispatch(login({
+                    token: data.token,
+                    nickname: data.nickname,
+                    ambition: data.ambition,
+                    adress: data.adress,
+                    sports: data.sports,
+                }));
+            }
+            
+        })
+        .catch(error => {
+            console.error('Error signing up:', error);
+        });
+    };
+    
 
     //Fonts
     const [fontsLoaded] = useFonts({
@@ -226,40 +296,20 @@ export default function HomeScreen() {
                         <Text style={styles.textSports}>MES SPORTS*</Text>
                         <View style={styles.containerIcons}>
                             <TouchableOpacity style={styles.iconFoot} 
-                                onPress={()=>{
-                                    if (sports.includes('foot')) {
-                                        setSports(sports.filter(item => item !== 'foot'));
-                                    } else {
-                                        setSports([...sports, 'foot']);
-                                        }}}>
+                                onPress={()=>handleAddSport('Football')}>
 
                                     <Foot/>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.iconRunning} 
-                                    onPress={()=>{
-                                    if (sports.includes('running')) {
-                                        setSports(sports.filter(item => item !== 'running'));
-                                    } else {
-                                        setSports([...sports, 'running']);
-                                        }}}>
+                                    onPress={()=>handleAddSport('Running')}>
                                 <Running/>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.iconBasket}  
-                                    onPress={()=>{
-                                    if (sports.includes('basket')) {
-                                        setSports(sports.filter(item => item !== 'basket'));
-                                    } else {
-                                        setSports([...sports, 'basket']);
-                                        }}}>
+                                    onPress={()=>handleAddSport('Basketball')}>
                                 <Basket/>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.iconTennis}  
-                                    onPress={()=>{
-                                    if (sports.includes('tennis')) {
-                                        setSports(sports.filter(item => item !== 'tennis'));
-                                    } else {
-                                        setSports([...sports, 'tennis']);
-                                        }}}>
+                                    onPress={()=>handleAddSport('Tennis')}>
                                 <Tennis/>
                             </TouchableOpacity>
                         </View>
@@ -350,7 +400,7 @@ export default function HomeScreen() {
                                     value={password}
                                 />
                             </View>
-                        <TouchableOpacity style={styles.buttonSignInOk}>
+                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => navigation.navigate('Map')}>
                             <Text style={styles.textButtonSignInOk}>Ok</Text>
                         </TouchableOpacity>
                     </View>

@@ -26,7 +26,7 @@ export default function ReviewScreen() {
   const handleAddReview = () => {
     setIsVisible(false);
     setIsReviewVisible(true);
-    setReviewText(''); // cette fonction au clik fait disparaitre le bouton "deposer mon avis"
+    setReviewText(''); // cette fonction au clik fait disparaitre le bouton "deposer mon avis" et aura pour but d'ajouter un avis via 
   }
 
   

@@ -46,21 +46,37 @@ const EditProfileScreen = () => {
   const [photoCouverture, setPhotoCouverture] = useState('');
   const [message, setMessage] = useState('');
 
-  const [fontsLoaded] = useFonts({
-    Poppins_700Bold,
-    Poppins_600SemiBold, 
-    Poppins_400Regular, 
-    Poppins_400Regular_Italic, 
-    Poppins_500Medium, 
-    Poppins_300Light
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   const handleSubmit = () => {
-    console.log('Formulaire soumis');
+    const userData = {
+      token: 'votre_token',
+      nickname: pseudo,
+      mail: email,
+      password: password,
+      address: lieuPratique,
+      description: description,
+      sports: selectedSports,
+      ambition: ambition,
+      coverPicture: photoCouverture,
+      profilePicture: photoProfil
+    };
+  
+
+    fetch('http://192.168.10.137:3000/updateProfile/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.result) {
+        console.log('Profil mis à jour avec succès');
+      } else {
+        console.error('Erreur lors de la mise à jour du profil:', data.error);
+      }
+
+    });
   };
 
   const handleLogout = () => {
@@ -72,27 +88,20 @@ const EditProfileScreen = () => {
     navigation.goBack();
   };
 
-  const handleProfilePress = () => {
-    navigation.navigate('NomDeVotreProfil');
-  };
-
-  const handleReviewPress = () => {
-    navigation.navigate('ReviewScreen');
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
+
+      <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+        <Text style={styles.backButtonText}>Retour</Text>
+      </TouchableOpacity>
       
       <View style={styles.profileImageContainer}>
         <Image
-          source={{ uri: photoProfil }}
+          // source={{ uri: photoProfil }}
           style={styles.profileImage}
         />
         <View style={styles.textContainer}>
-          <Text style={styles.pseudoText}>laure</Text>
-          <TouchableOpacity onPress={handleReviewPress}>
-            <Text style={styles.reviewText}>Voir les avis</Text>
-          </TouchableOpacity>
+          <Text style={styles.pseudoText}>{pseudo}</Text>
         </View>
       </View>
 
@@ -165,10 +174,10 @@ const EditProfileScreen = () => {
         <TouchableOpacity 
           style={[
             styles.iconContainer, 
-            selectedSports.Football ? { backgroundColor: '#4A46FF' } : null
+            selectedSports.Football ? { backgroundColor: '#4A46FF', borderRadius: 12} : null
           ]}
           onPress={() => handleAddSport('Football')}>
-          <View style={[styles.iconFoot, {backgroundColor: selectedSports.Football ? '#4A46FF' : 'white'}]}>
+          <View style={[styles.iconFoot, {backgroundColor: selectedSports.Football ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
             <Foot fill={selectedSports.Football ? 'white' : 'black'} />
           </View>
           <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Football')}>
@@ -179,10 +188,10 @@ const EditProfileScreen = () => {
         <TouchableOpacity 
           style={[
             styles.iconContainer, 
-            selectedSports.Basketball ? { backgroundColor: '#4A46FF' } : null
+            selectedSports.Basketball ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
           ]}
           onPress={() => handleAddSport('Basketball')}>
-          <View style={[styles.iconBasket, {backgroundColor: selectedSports.Basketball ? '#4A46FF' : 'white'}]}>
+          <View style={[styles.iconBasket, {backgroundColor: selectedSports.Basketball ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
             <Basket fill={selectedSports.Basketball ? 'white' : 'black'} />
           </View>
           <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Basketball')}>
@@ -193,10 +202,10 @@ const EditProfileScreen = () => {
         <TouchableOpacity 
           style={[
             styles.iconContainer, 
-            selectedSports.Running ? { backgroundColor: '#4A46FF' } : null
+            selectedSports.Running ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
           ]}
           onPress={() => handleAddSport('Running')}>
-          <View style={[styles.iconRunning, {backgroundColor: selectedSports.Running ? '#4A46FF' : 'white'}]}>
+          <View style={[styles.iconRunning, {backgroundColor: selectedSports.Running ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
             <Running fill={selectedSports.Running ? 'white' : 'black'} />
           </View>
           <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Running')}>
@@ -207,10 +216,10 @@ const EditProfileScreen = () => {
         <TouchableOpacity 
           style={[
             styles.iconContainer, 
-            selectedSports.Tennis ? { backgroundColor: '#4A46FF' } : null
+            selectedSports.Tennis ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
           ]}
           onPress={() => handleAddSport('Tennis')}>
-          <View style={[styles.iconTennis, {backgroundColor: selectedSports.Tennis ? '#4A46FF' : 'white'}]}>
+          <View style={[styles.iconTennis, {backgroundColor: selectedSports.Tennis ? '#4A46FF' : 'white',  borderRadius: 12, width: 65, height: 69}]}>
             <Tennis fill={selectedSports.Tennis ? 'white' : 'black'} />
           </View>
           <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Tennis')}>
@@ -262,9 +271,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F4F4',
   },
 
+//Bouton retour en arrière
+  backButton: {
+    position: 'absolute',
+    top: 100,
+    left: 20,
+    zIndex: 1,
+  },
+  backButtonText: {
+    color: '#4A46FF',
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+  },
+
   //pseudo + image + avis
   profileImageContainer: {
-    marginTop: 20,
+    marginTop: 25,
     marginRight: 80,
   },
   profileImage: {
@@ -278,7 +300,7 @@ const styles = StyleSheet.create({
   pseudoText: {
     position: 'absolute',
     left: 145,
-    bottom: 10,
+    bottom: 12,
     color: 'black',
     paddingVertical: 50,
     fontFamily: 'Poppins_700Bold',
@@ -316,12 +338,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingBottom: 35,
   },
-  // backButtonContainer: {
-  //   position: 'absolute',
-  //   top: 1,
-  //   left: 10,
-  //   zIndex: 1,
-  // },
 
   //Bouton avis
   reviewText: {
@@ -390,6 +406,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 
+  //Photo cover + profil
+
+  
+
   // Boutons pied de page
   buttonContainer: {
     width: '100%',
@@ -417,190 +437,3 @@ const styles = StyleSheet.create({
 });
 
 export default EditProfileScreen;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from 'react';
-// import { StyleSheet, View, TextInput, Text, TouchableOpacity } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
-
-// const EditProfileScreen = () => {
-//   const navigation = useNavigation();
-//   const [pseudo, setPseudo] = useState('');
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [lieuPratique, setLieuPratique] = useState('');
-//   const [description, setDescription] = useState('');
-//   const [choixSport, setChoixSport] = useState('');
-//   const [ambition, setAmbition] = useState('');
-//   const [photoProfil, setPhotoProfil] = useState('');
-//   const [photoCouverture, setPhotoCouverture] = useState('');
-//   const [message, setMessage] = useState('');
-
-//   const handleSubmit = () => {
-//     // Logique de mise à jour du profil, si 1 seule modif apportée = obligation d'enregistrer
-
-//     if (
-//       pseudo !== '' ||
-//       email !== '' ||
-//       password !== '' ||
-//       lieuPratique !== '' ||
-//       description !== '' ||
-//       choixSport !== '' ||
-//       ambition !== '' ||
-//       photoProfil !== '' ||
-//       photoCouverture !== ''
-//     ) {
-//       setMessage('Veuillez enregistrer vos modifications.');
-//     } else {
-//       setMessage('Profil mis à jour avec succès !');
-//     }
-//   };
-
-//   const handleLogout = () => {
-//     // redirection vers page d'accueil (il faudra modifier le chemin pour la page d'accueil)
-//     window.location.href = './HomeScreen'; 
-//     console.log('Déconnexion...');
-//   };
-
-//   const handleGoBack = () => {
-//     navigation.goBack(); // revenir en arrière
-//   };
-
-//   const handleProfilePress = () => {
-//     navigation.navigate('NomDeVotreProfil'); // bouton pour l'accès au profil (quand on clique sur notre photo de profil)
-//   };
-
-//   const handleReviewPress = () => {
-//     navigation.navigate('Avis'); //navigation vers page 'Avis'
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <TextInput
-//         style={[styles.input, { height: 60 }]}
-//         placeholder="Pseudo"
-//         onChangeText={(text) => {
-//           setPseudo(text);
-//           setMessage('');
-//         }}
-//       />
-//       <TextInput
-//         style={[styles.input, { height: 60 }]}
-//         placeholder="Email"
-//         onChangeText={(text) => {
-//           setPseudo(text);
-//           setMessage('');
-//         }}
-//       />
-//       <TextInput
-//         style={[styles.input, { height: 60 }]}
-//         placeholder="Password"
-//         onChangeText={(text) => {
-//           setPseudo(text);
-//           setMessage('');
-//         }}
-//       />
-//        <TextInput
-//         style={[styles.input, { height: 60 }]}
-//         placeholder="Lieu de pratique"
-//         onChangeText={(text) => {
-//           setPseudo(text);
-//           setMessage('');
-//         }}
-//       />
-//        <TextInput
-//         style={[styles.input, { height: 60 }]}
-//         placeholder="Description"
-//         onChangeText={(text) => {
-//           setPseudo(text);
-//           setMessage('');
-//         }}
-//       />
-//        <TextInput
-//         style={[styles.input, { height: 60 }]}
-//         placeholder="Choix du sport"
-//         onChangeText={(text) => {
-//           setPseudo(text);
-//           setMessage('');
-//         }}
-//       />
-//       <TextInput
-//         style={[styles.input, { height: 60 }]}
-//         placeholder="Ambition"
-//         onChangeText={(text) => {
-//           setPseudo(text);
-//           setMessage('');
-//         }}
-//       />
-    
-//     <View style={styles.container}>
-//         {/* <TouchableOpacity onPress={handleProfilePress}>
-//           <Image source={require('./chemin/vers/votre/photo/profil')} style={styles.profileImage} />
-//         </TouchableOpacity> */}
-//         <TouchableOpacity onPress={handleReviewPress}>
-//           <Text style={styles.reviewText}>Donner un avis</Text>
-//         </TouchableOpacity>
-//         <View style={styles.buttonContainer}>
-//           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-//             <Text style={styles.buttonText}>Valider les modifications</Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity onPress={handleLogout}>
-//             <Text style={styles.logoutText}>Se déconnecter</Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity onPress={handleGoBack}>
-//             <Text style={styles.backText}>Retourner en arrière</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     paddingHorizontal: 20,
-//     paddingTop: 300,
-//   },
-//   input: {
-//     width: '80%',
-//     marginBottom: 10,
-//     borderWidth: 1,
-//     padding: 10,
-//   },
-//   buttonContainer: {
-//     width: '100%',
-//     marginTop: 10,
-//     alignItems: 'center',
-//   },
-//   button: {
-//     backgroundColor: 'blue',
-//     padding: 10,
-//     borderRadius: 5,
-//     marginBottom: 10,
-//   },
-//   buttonText: {
-//     color: 'white',
-//     textAlign: 'center',
-//   },
-//   logoutText: {
-//     backgroundColorolor: 'red',
-//     textDecorationLine: 'underline',
-//   },
-// });
-
-// export default EditProfileScreen;
