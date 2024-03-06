@@ -21,13 +21,19 @@ export const userSlice = createSlice({
       state.value.token = action.payload.token;
       state.value.nickname = action.payload.username;
       state.value.description = action.payload.description;
-      state.value.coverPicture = action.payload.coverPicture;
       state.value.ambition = action.payload.ambition;
-      state.value.profilePicture = action.payload.profilePicture;
       state.value.sports.push(action.payload.sports)
     },
+
+    addProfilePicture: (state, action)=>{
+      state.value.profilePicture = action.payload.coverPicture;
+    },
+    addCoverPicture: (state, action) =>{
+      state.value.coverPicture = action.payload.coverPicture;
+    },
+  
   },
 });
 
-export const { login } = userSlice.actions;
+export const { login, addProfilePicture, addCoverPicture } = userSlice.actions;
 export default userSlice.reducer;
