@@ -9,7 +9,7 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
 
-const BACKEND_ASSRESS='http://192.168.10.145:3000'
+const BACKEND_ASSRESS='http://192.168.10.154:3000'
 
 
 export default function MapScreen() {
@@ -78,7 +78,7 @@ export default function MapScreen() {
 
   
   const handleModal = () => {
-    fetch(`${BACKEND_ASSRESS}/lay/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
+    fetch(`${BACKEND_ASSRESS}/user/lay/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
       .then(response => response.json())
       .then(data => {
         console.log(data)
