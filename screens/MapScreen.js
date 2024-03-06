@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput, Button, KeyboardAvoidingView, Platform, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Image, Modal, Text, StyleSheet, TextInput, KeyboardAvoidingView, Platform, SafeAreaView, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
@@ -9,10 +9,18 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
 
+const BACKEND_ASSRESS='http://192.168.10.145:3000'
+
+
 export default function MapScreen() {
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [userInfo, setUserInfo] = useState({ name: '', description: '', ambition: ''});
+  const [userNickname, setUserNickname] = useState('');
+
+  // État pour la modal
+  const [modalVisible, setModalVisible] = useState(false);
 
   // État pour le bouton actif
   const [activeButton, setActiveButton] = useState(null);
@@ -31,6 +39,10 @@ export default function MapScreen() {
   // Fonction qui modifie la couleur du bouton au click
   const getButtonStyle = (buttonName) => {
     return activeButton === buttonName ? styles.activeIcon : styles.icon;
+  };
+
+  const handleClose = () => {
+    setModalVisible(false);
   };
 
   useEffect(() => {
@@ -64,6 +76,28 @@ export default function MapScreen() {
     }
   };
 
+  
+  const handleModal = () => {
+    fetch(`${BACKEND_ASSRESS}/lay/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        if (data.result && data.users.length > 0) {
+          // Supposons que vous voulez afficher le premier utilisateur correspondant
+          const user = data.users[0];
+          setUserInfo({
+            nickname: user.nickname,
+            description: user.description,
+            ambition: user.ambition
+          });
+          setModalVisible(true);
+        }
+      })
+      .catch(error => {
+        console.error('Erreur lors de la récupération des informations de l\'utilisateur:', error);
+      });
+  };
+
   return (
 
     <SafeAreaView style={styles.container}>
@@ -90,6 +124,27 @@ export default function MapScreen() {
         )}
         
         <View style={styles.searchContainer}>
+
+        <Modal visible={modalVisible} animationType="fade" transparent>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+              <Text style={styles.textModal1}>{userInfo.nickname}</Text>
+              <Text style={styles.textModal2}>{userInfo.description}</Text>
+              <Text style={styles.textambition}>son ambition</Text>
+              <Text style={styles.textModal3}>{userInfo.ambition}</Text>
+          </View>
+          <View style={styles.modalClose}>
+          <TouchableOpacity onPress={() => handleClose()}>
+          <Image source={require('../assets/close.jpg')}/>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handlePress()} style={styles.frameChat} activeOpacity={0.8}>
+            <Image source={require('../assets/frameChat.jpg')}/>
+            </TouchableOpacity>
+          </View>
+         
+        </View>
+        </Modal>
+
           <TextInput
             style={styles.input}
             placeholder="votre recherche"
@@ -97,8 +152,12 @@ export default function MapScreen() {
             onChangeText={setSearchText}
             onSubmitEditing={handleSearch}
           />
-          <Button title="Search" onPress={handleSearch} />
-        </View>
+
+          <TouchableOpacity onPress={() => handleModal(userNickname)} style={styles.modaluser} activeOpacity={0.8}>
+            <Image source={require('../assets/imagePerso.png')}/>
+          </TouchableOpacity>
+          
+          </View>
 
         <TouchableOpacity style={styles.message}>
           <Message/>
@@ -122,7 +181,6 @@ export default function MapScreen() {
             <Tennis/>
           </TouchableOpacity>
          </View>
-  
 
       </KeyboardAvoidingView>
 
@@ -139,6 +197,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
   },
+
   keyboardAvoidingView: {
     flex: 1,
     width: '100%',
@@ -200,12 +259,109 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
 
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalView:{
+    position: "absolute",
+    backgroundColor: 'white',
+    height: 667,
+    width:352,
+    justifyContent:'center',
+    alignItems:'center',
+    borderRadius: 20,
+    padding: 180,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 5,
+      height: 5,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  textModal1:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    top:110,
+    right:180,
+    fontSize: 30,
+  },
+
+  textModal2:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    top:200,
+    left: 45,
+    fontSize: 20,
+    width: 299,
+  },
+
+  textModal3:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    bottom:100,
+    left: 45,
+    fontSize: 20,
+    width: 299,
+  },
+
+  textambition:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    bottom:200,
+    left: 120,
+    fontSize: 20,
+    width: 299,
+    fontWeight: 'bold'
+  },
+
+  modalClose:{
+    position: "absolute",
+    top:110,
+    right:20,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor: '#4A46FF',
+    width:44,
+    height:44,
+    borderRadius:50,
+  },
+
+  frameChat:{
+    position: "absolute",
+    top:650,
+    right:110,
+  },
+
+  // icon image perso
+  modaluser:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    top:40,
+    right:50,
+    width:78,
+    height:77,
+    borderRadius:57,
+  },
+
+
 // icon message
   message:{
     position: "absolute",
     justifyContent:'center',
     alignItems:'center',
-    bottom:120,
+    bottom:180,
     right:40,
     backgroundColor:"#FFFFFF",
     width:78,
@@ -215,9 +371,11 @@ const styles = StyleSheet.create({
 
 // icon sports container
   containerIcons:{
+    position: "absolute",
     backgroundColor:'white',
     borderRadius:20,
-    height: '14%',
+    bottom:'2%',
+    height:'12%',
     width:'85%',
     alignItems:'center',
     justifyContent:'center',
