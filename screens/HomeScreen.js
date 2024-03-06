@@ -122,7 +122,7 @@ export default function HomeScreen({ navigation }) {
                 name: 'photo.jpg',
                 type: 'image/jpeg',
             });
-            fetch('http://192.168.10.154:3000/uploadPictureCover', {
+            fetch('http://192.168.10.145:3000/uploadPictureCover', {
                 method: 'POST',
                 body: formDataCover,
             })
@@ -142,7 +142,7 @@ export default function HomeScreen({ navigation }) {
                 name: 'photo.jpg',
                 type: 'image/jpeg',
             });
-            fetch('http://192.168.10.154:3000/uploadProfileCover', {
+            fetch('http://192.168.10.145:3000/uploadProfileCover', {
                 method: 'POST',
                 body: formDataProfile,
             })
@@ -159,7 +159,7 @@ export default function HomeScreen({ navigation }) {
         }
     
         // Signup
-        fetch('http://192.168.10.154:3000/signup', {
+        fetch('http://192.168.10.145:3000/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
@@ -177,6 +177,7 @@ export default function HomeScreen({ navigation }) {
                     sports: data.sports,
                 }));
             }
+            
         })
         .catch(error => {
             console.error('Error signing up:', error);
