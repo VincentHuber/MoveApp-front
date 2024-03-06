@@ -8,9 +8,11 @@ import user from './reducers/users';
 
 import MapScreen from './screens/MapScreen';
 import HomeScreen from './screens/HomeScreen';
-import EditProfileScreen from './screens/EditProfileScreen';
+import ReviewScreen from './screens/ReviewScreen';
 
 const Stack = createNativeStackNavigator();
+
+
 
 const store = configureStore({
   reducer: { user },

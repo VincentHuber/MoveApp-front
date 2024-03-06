@@ -260,6 +260,8 @@ const EditProfileScreen = () => {
   );
 };
 
+//<Image source={require('./')} style={styles.profileImage} />
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
