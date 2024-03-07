@@ -11,13 +11,14 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
 
-const BACKEND_ASSRESS='http://192.168.10.154:3000'
+const BACKEND_ASSRESS='http://192.168.10.167:3000'
 
 
 export default function MapScreen({ navigation }) {
 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
+
 
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);

@@ -36,6 +36,8 @@ import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
 
+const BACKEND_ADDRESS = 'http://192.168.10.167:3000'
+const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 
 export default function HomeScreen({ navigation }) {
@@ -86,7 +88,7 @@ export default function HomeScreen({ navigation }) {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         aspect: [3, 2],
-        quality: 1,
+        quality: 0.5,
         });
         console.log(result);
 
@@ -102,7 +104,7 @@ export default function HomeScreen({ navigation }) {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 1,
+        quality: 0.5,
         });
         console.log(result);
 
@@ -134,7 +136,7 @@ export default function HomeScreen({ navigation }) {
                 name: 'photo.jpg',
                 type: 'image/jpeg',
             });
-            fetch('http://192.168.10.154:3000/user/uploadPictureCover', {
+            fetch(`${BACKEND_ADDRESS}/user/uploadPictureCover`, {
                 method: 'POST',
                 body: formDataCover,
             })
@@ -151,7 +153,7 @@ export default function HomeScreen({ navigation }) {
                     name: 'photo.jpg',
                     type: 'image/jpeg',
                 });
-                fetch('http://192.168.10.154:3000/user/uploadProfileCover', {
+                fetch(`${BACKEND_ADDRESS}/user/uploadProfileCover`, {
                     method: 'POST',
                     body: formDataProfile,
                 })
@@ -162,7 +164,7 @@ export default function HomeScreen({ navigation }) {
                 })
                 .then(() => {
                     // Signup
-                    fetch('http://192.168.10.154:3000/user/signup', {
+                    fetch(`${BACKEND_ADDRESS}/user/signup`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(userData),
@@ -197,23 +199,22 @@ export default function HomeScreen({ navigation }) {
         } else {
             console.log('Profile or cover picture is missing');
         }
-    
         
     };
     
     const loginProfile =() => {
 
-        fetch('http://192.168.10.154:3000/user/signin', {
+        fetch(`${BACKEND_ADDRESS}/user/signin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nickname, password }),
+            body: JSON.stringify({ email, password}),
           }).then(response => response.json())
             .then(data => {
-              data.result && dispatch(login({ token: data.token, nickname: data.nickname }));
+                console.log(data)
+              data.result && dispatch(login({ token: token, email: email }));
               setIsOpen(-1);
               navigation.navigate('Map');
             });
-      
         }
       
     //Fonts

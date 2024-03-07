@@ -4,6 +4,7 @@ const initialState = {
   value: { 
     token: null,
     nickname:null,
+    email:null,
     adress:null,
     description:null,
     ambition:null,
@@ -20,13 +21,14 @@ export const userSlice = createSlice({
     login: (state, action) => {
       state.value.token = action.payload.token;
       state.value.nickname = action.payload.username;
+      state.value.email = action.payload.email;
       state.value.description = action.payload.description;
       state.value.ambition = action.payload.ambition;
       state.value.sports.push(action.payload.sports)
     },
 
     addProfilePicture: (state, action)=>{
-      state.value.profilePicture = action.payload.coverPicture;
+      state.value.profilePicture = action.payload.profilePicture;
     },
     addCoverPicture: (state, action) =>{
       state.value.coverPicture = action.payload.coverPicture;
