@@ -25,6 +25,7 @@ export default function App() {
     <Provider store={store}> 
       <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Edit" component={EditProfileScreen} /> 
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Map" component={MapScreen} />
       </Stack.Navigator>

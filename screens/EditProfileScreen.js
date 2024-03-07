@@ -8,11 +8,15 @@ import Basket from '../assets/basket.js';
 import Running from '../assets/running.js';
 import Tennis from '../assets/tennis.js';
 
+import { useSelector } from 'react-redux';
+
 // Adresse du backend
 const BACKEND_ADDRESS = 'http://192.168.10.133:3000';
 
 
 const EditProfileScreen = () => {
+
+  const authToken = useSelector(state => state.user.value.token);
     
     const [cover, setCover] = useState(null);
     const [profile, setProfile] = useState(null);
@@ -75,26 +79,36 @@ const EditProfileScreen = () => {
     });
 
     const handleSubmit = () => {
-        fetch(`${BACKEND_ADDRESS}/updateProfile/`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result) {
-                console.log('Profil mis à jour avec succès');
-            } else {
-                console.error('Erreur lors de la mise à jour du profil:', data.error);
-            }
-        });
-    };
+      // Trouver les champs modifiés
+      const updatedFields = {};
+      for (const key in userData) {
+        if (userData[key] !== '') {
+          updatedFields[key] = userData[key];
+        }
+      }
+      console.log('Champs mis à jour :', updatedFields);
+
+      fetch(`${BACKEND_ADDRESS}/updateProfile/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(updatedFields), // Utilisez les champs modifiés ici
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.result) {
+            console.log('Profil mis à jour avec succès');
+        } else {
+            console.error('Erreur lors de la mise à jour du profil:', data.error);
+        }
+    });
+  };
 
     
     useEffect(() => {
-        fetch(`${BACKEND_ADDRESS}/user/Qw/${userData.nickname}`)
+        fetch(`${BACKEND_ADDRESS}/user/Feissoile/${userData.nickname}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
