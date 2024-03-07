@@ -77,7 +77,7 @@ export default function MapScreen() {
 
   
   const handleModal = () => {
-    fetch(`${BACKEND_ASSRESS}/user/Vincent/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
+    fetch(`${BACKEND_ASSRESS}/user/Qw/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
       .then(response => response.json())
       .then(data => {
         console.log(data)
