@@ -27,7 +27,7 @@ export default function ReviewScreen() {
     setIsVisible(false);
     setIsReviewVisible(true);
     setReviewText('');
-    //setAddReviews([...reviews, reviewText]); 
+    setAddReviews([...addReviews, reviewText]); 
   }//cette fonction au clik fait disparaitre le bouton "deposer mon avis" et aura pour but d'ecrire et ajouter un avis
 
   
@@ -62,7 +62,7 @@ return (
               </TouchableOpacity>
               </View>)}
               <View style={styles.reviewList}>
-          {reviews.map((review, index) => (
+          {addReviews.map((review, index) => (
             <View key={index} style={styles.reviewItem}>
               <Text>{review}</Text>
             </View>
@@ -162,17 +162,17 @@ const styles = StyleSheet.create({
     
   },
 
-  reviewList: {
+  /*reviewList: {
     backgroundColor:'red',
-    width: 1000000,
-    height:1000,
+    width: 10,
+    height:10,
     marginTop:199,
-  },
+  },*/
 
   reviewItem: {
-    backgroundColor: 'red',
+    backgroundColor: 'yellow',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
     marginBottom: 10,
   },
 

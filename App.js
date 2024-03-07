@@ -24,9 +24,9 @@ export default function App() {
     <Provider store={store}> 
     <NavigationContainer>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Home" component={HomeScreen} />
     <Stack.Screen name="Review" component={ReviewScreen}/>
-      <Stack.Screen name="Map" component={MapScreen} />
+    <Stack.Screen name="Home" component={HomeScreen} />
+    <Stack.Screen name="Map" component={MapScreen} />
       
     </Stack.Navigator>
     </NavigationContainer>
