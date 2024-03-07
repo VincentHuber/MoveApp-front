@@ -15,7 +15,6 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import * as ImagePicker from 'expo-image-picker';
-
 import { useDispatch, useSelector } from 'react-redux';
 import {user, login, addProfilePicture, addCoverPicture } from '../reducers/users';
 
@@ -53,6 +52,8 @@ export default function HomeScreen({ navigation }) {
     const [adress, setAdress] = useState('');
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
+    const [signInUsermail, setSignInUsermail] = useState('');
+	const [signInPassword, setSignInPassword] = useState('');
 
     const [selectedSports, setSelectedSports] = useState({
         Football: false,
@@ -198,9 +199,28 @@ export default function HomeScreen({ navigation }) {
         } else {
             console.log('Profile or cover picture is missing');
         }
-    
-        
     };
+
+
+    const handleConnection = () => {
+        console.log({ email: signInUsermail, password: signInPassword })
+		fetch('http://192.168.10.149:3000/user/signin', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
+		}).then(response => response.json())
+			.then(data => {
+                console.log(data)
+				if (data.result) {
+
+					dispatch(login({ email: signInUsermail, token: data.token }));
+					setSignInUsermail('');
+					setSignInPassword('');
+					setIsOpen(-1);
+                    navigation.navigate('Map')
+				}
+			});
+	};
     
 
     //Fonts
@@ -389,8 +409,8 @@ export default function HomeScreen({ navigation }) {
                                     style={styles.textEmail}
                                     type="email"  
                                     placeholder='Email*'   
-                                    onChangeText={(value) => setEmail(value)}
-                                    value={email}
+                                    onChangeText={(value) => setSignInUsermail(value)}
+                                    value={signInUsermail}
                                 />
                             </View>
                             <View style={styles.password}>
@@ -398,11 +418,11 @@ export default function HomeScreen({ navigation }) {
                                     style={styles.textPassword}
                                     type="password*"  
                                     placeholder='Password'     
-                                    onChangeText={(value) => setPassword(value)}
-                                    value={password}
+                                    onChangeText={(value) => setSignInPassword(value)}
+                                    value={signInPassword}
                                 />
                             </View>
-                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => navigation.navigate('Map')}>
+                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => handleConnection()}>
                             <Text style={styles.textButtonSignInOk}>Ok</Text>
                         </TouchableOpacity>
                     </View>
