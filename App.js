@@ -23,13 +23,12 @@ const store = configureStore({
 export default function App() {
   return (
     <Provider store={store}> 
-    <NavigationContainer>
-     <Stack.Navigator screenOptions={{ headerShown: false }}>
-     <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-       <Stack.Screen name="Home" component={HomeScreen} />
-       <Stack.Screen name="Map" component={MapScreen} />
-     </Stack.Navigator>
-   </NavigationContainer>
+      <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Map" component={MapScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
    </Provider>
   );
 }
