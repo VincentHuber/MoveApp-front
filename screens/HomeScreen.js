@@ -14,7 +14,6 @@ import {
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
-
 import { useDispatch, useSelector } from 'react-redux';
 import {user, login, addProfilePicture, addCoverPicture } from '../reducers/users';
 
@@ -36,8 +35,7 @@ import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
 
-const BACKEND_ADDRESS = 'http://192.168.10.167:3000'
-const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const BACKEND_ADRESS = 'http://192.168.10.167:3000'
 
 
 export default function HomeScreen({ navigation }) {
@@ -49,11 +47,11 @@ export default function HomeScreen({ navigation }) {
 
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [nickname, setNickname] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [adress, setAdress] = useState('');
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
+    const [signInUsermail, setSignInUsermail] = useState('');
+	const [signInPassword, setSignInPassword] = useState('');
 
     const [selectedSports, setSelectedSports] = useState({
         Football: false,
@@ -118,8 +116,8 @@ export default function HomeScreen({ navigation }) {
     const createProfile = () => {
         const userData = {
             nickname,
-            email,
-            password,
+            email: signInUsermail,
+            password : signInPassword,
             ambition,
             adress,
             sports :selectedSports,
@@ -136,7 +134,7 @@ export default function HomeScreen({ navigation }) {
                 name: 'photo.jpg',
                 type: 'image/jpeg',
             });
-            fetch(`${BACKEND_ADDRESS}/user/uploadPictureCover`, {
+            fetch(`${BACKEND_ADRESS}/user/uploadPictureCover`, {
                 method: 'POST',
                 body: formDataCover,
             })
@@ -153,7 +151,7 @@ export default function HomeScreen({ navigation }) {
                     name: 'photo.jpg',
                     type: 'image/jpeg',
                 });
-                fetch(`${BACKEND_ADDRESS}/user/uploadProfileCover`, {
+                fetch(`${BACKEND_ADRESS}/user/uploadProfileCover`, {
                     method: 'POST',
                     body: formDataProfile,
                 })
@@ -164,7 +162,7 @@ export default function HomeScreen({ navigation }) {
                 })
                 .then(() => {
                     // Signup
-                    fetch(`${BACKEND_ADDRESS}/user/signup`, {
+                    fetch(`${BACKEND_ADRESS}/user/signup`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(userData),
@@ -173,17 +171,11 @@ export default function HomeScreen({ navigation }) {
                     .then(data => {
                         console.log('creation', data)
                         if (data.result) {
-                            console.log('user created', data)
-                            dispatch(login({
-                                token: data.token,
-                                nickname: data.nickname,
-                                ambition: data.ambition,
-                                adress: data.adress,
-                                sports: data.sports,
-                            }));
-                            setIsModalVisible(false)
-                            navigation.navigate('Map')
-                        } 
+                            const { token, email, nickname, ambition, description, sports } = data.user;
+                            dispatch(login({ token, email, nickname, ambition, description, sports }))
+                            setIsModalVisible(false);
+                            navigation.navigate('Map');
+                        }
                     })
                     .catch(error => {
                         console.error('Error signing up:', error);
@@ -199,24 +191,30 @@ export default function HomeScreen({ navigation }) {
         } else {
             console.log('Profile or cover picture is missing');
         }
-        
     };
-    
-    const loginProfile =() => {
 
-        fetch(`${BACKEND_ADDRESS}/user/signin`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password}),
-          }).then(response => response.json())
-            .then(data => {
+
+    const handleConnection = () => {
+        console.log({ email: signInUsermail, password: signInPassword })
+		fetch(`${BACKEND_ADRESS}/user/signin`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
+		}).then(response => response.json())
+			.then(data => {
                 console.log(data)
-              data.result && dispatch(login({ token: token, email: email }));
-              setIsOpen(-1);
-              navigation.navigate('Map');
-            });
-        }
-      
+				if (data.result) {
+
+					dispatch(login({ email: signInUsermail, token: data.token }));
+					setSignInUsermail('');
+					setSignInPassword('');
+					setIsOpen(-1);
+                    navigation.navigate('Map')
+				}
+			});
+	};
+    
+
     //Fonts
     const [fontsLoaded] = useFonts({
         Poppins_700Bold,
@@ -272,10 +270,10 @@ export default function HomeScreen({ navigation }) {
                         <View style={styles.email}>
                             <TextInput
                                 style={styles.textEmail}
-                                 
+                                
                                 placeholder='Email*'   
-                                onChangeText={(value) => setEmail(value)}
-                                value={email}
+                                onChangeText={(value) => setSignInUsermail(value)}
+                                value={signInUsermail}
                             />
                         </View>
                         <View style={styles.password}>
@@ -283,8 +281,8 @@ export default function HomeScreen({ navigation }) {
                                 style={styles.textPassword}
                                 secureTextEntry={true}
                                 placeholder='Password*'     
-                                onChangeText={(value) => setPassword(value)}
-                                value={password}
+                                onChangeText={(value) => setSignInPassword(value)}
+                                value={signInPassword}
                             />
                         </View>
                         <View styles={styles.contenairExplicationAdress}>
@@ -403,8 +401,8 @@ export default function HomeScreen({ navigation }) {
                                     style={styles.textEmail}
                                     type="email"  
                                     placeholder='Email*'   
-                                    onChangeText={(value) => setEmail(value)}
-                                    value={email}
+                                    onChangeText={(value) => setSignInUsermail(value)}
+                                    value={signInUsermail}
                                 />
                             </View>
                             <View style={styles.password}>
@@ -412,11 +410,11 @@ export default function HomeScreen({ navigation }) {
                                     style={styles.textPassword}
                                     type="password*"  
                                     placeholder='Password'     
-                                    onChangeText={(value) => setPassword(value)}
-                                    value={password}
+                                    onChangeText={(value) => setSignInPassword(value)}
+                                    value={signInPassword}
                                 />
                             </View>
-                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => loginProfile()}>
+                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => handleConnection()}>
                             <Text style={styles.textButtonSignInOk}>Ok</Text>
                         </TouchableOpacity>
                     </View>
