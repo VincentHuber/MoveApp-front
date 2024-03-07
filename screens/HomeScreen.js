@@ -35,7 +35,7 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
-import Close from '../assets/close.js'
+
 
 
 export default function HomeScreen({ navigation }) {
@@ -43,6 +43,7 @@ export default function HomeScreen({ navigation }) {
     const dispatch = useDispatch();
     const userProfilePicture = useSelector(state => state.user.value.profilePicture);
     const userCoverPicture = useSelector(state => state.user.value.coverPicture);
+    
 
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [nickname, setNickname] = useState('');
@@ -52,14 +53,13 @@ export default function HomeScreen({ navigation }) {
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
 
-
     const [selectedSports, setSelectedSports] = useState({
         Football: false,
         Basketball: false,
         Running: false,
         Tennis: false,
       });
-    
+
       const handleAddSport = (sport) => {
         setSelectedSports(prevState => ({
           ...prevState,
@@ -120,7 +120,7 @@ export default function HomeScreen({ navigation }) {
             password,
             ambition,
             adress,
-            sports: selectedSports,
+            sports :selectedSports,
             description,
             profilePicture: userProfilePicture,
             coverPicture: userCoverPicture
@@ -143,60 +143,79 @@ export default function HomeScreen({ navigation }) {
                 console.log('cover' + data.url);
                 dispatch(addCoverPicture(data.url));
             })
+            .then(() => {
+                // Upload profile picture
+                const formDataProfile = new FormData();
+                formDataProfile.append('profilePicture', {
+                    uri: profile,
+                    name: 'photo.jpg',
+                    type: 'image/jpeg',
+                });
+                fetch('http://192.168.10.154:3000/user/uploadProfileCover', {
+                    method: 'POST',
+                    body: formDataProfile,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('profile ' + data);
+                    dispatch(addProfilePicture(data.url));
+                })
+                .then(() => {
+                    // Signup
+                    fetch('http://192.168.10.154:3000/user/signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(userData),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('creation', data)
+                        if (data.result) {
+                            console.log('user created', data)
+                            dispatch(login({
+                                token: data.token,
+                                nickname: data.nickname,
+                                ambition: data.ambition,
+                                adress: data.adress,
+                                sports: data.sports,
+                            }));
+                            setIsModalVisible(false)
+                            navigation.navigate('Map')
+                        } 
+                    })
+                    .catch(error => {
+                        console.error('Error signing up:', error);
+                    })
+                })
+                .catch(error => {
+                    console.error('Error uploading profile picture:', error);
+                });
+            })
             .catch(error => {
                 console.error('Error uploading cover picture:', error);
-            });
-    
-            // Upload profile picture
-            const formDataProfile = new FormData();
-            formDataProfile.append('profilePicture', {
-                uri: profile,
-                name: 'photo.jpg',
-                type: 'image/jpeg',
-            });
-            fetch('http://192.168.10.154:3000/user/uploadProfileCover', {
-                method: 'POST',
-                body: formDataProfile,
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('profile ' + data);
-                dispatch(addProfilePicture(data.url));
-            })
-            .catch(error => {
-                console.error('Error uploading profile picture:', error);
             });
         } else {
             console.log('Profile or cover picture is missing');
         }
     
-        // Signup
-        fetch('http://192.168.10.154:3000/user/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('creation', data)
-            if (data.result) {
-                console.log('user created', data)
-                dispatch(login({
-                    token: data.token,
-                    nickname: data.nickname,
-                    ambition: data.ambition,
-                    adress: data.adress,
-                    sports: data.sports,
-                }));
-            }
-            
-        })
-        .catch(error => {
-            console.error('Error signing up:', error);
-        });
+        
     };
     
+    const loginProfile =() => {
 
+        fetch('http://192.168.10.154:3000/user/signin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname, password }),
+          }).then(response => response.json())
+            .then(data => {
+              data.result && dispatch(login({ token: data.token, nickname: data.nickname }));
+              setIsOpen(-1);
+              navigation.navigate('Map');
+            });
+      
+        }
+      
     //Fonts
     const [fontsLoaded] = useFonts({
         Poppins_700Bold,
@@ -294,18 +313,17 @@ export default function HomeScreen({ navigation }) {
                         <View style={styles.containerIcons}>
                             <TouchableOpacity style={styles.iconFoot} 
                                 onPress={()=>handleAddSport('Football')}>
-
                                     <Foot/>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.iconRunning} 
                                     onPress={()=>handleAddSport('Running')}>
                                 <Running/>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconBasket}  
+                            <TouchableOpacity style={styles.iconBasket}
                                     onPress={()=>handleAddSport('Basketball')}>
                                 <Basket/>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconTennis}  
+                            <TouchableOpacity style={styles.iconTennis}
                                     onPress={()=>handleAddSport('Tennis')}>
                                 <Tennis/>
                             </TouchableOpacity>
@@ -397,7 +415,7 @@ export default function HomeScreen({ navigation }) {
                                     value={password}
                                 />
                             </View>
-                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => navigation.navigate('Map')}>
+                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => loginProfile()}>
                             <Text style={styles.textButtonSignInOk}>Ok</Text>
                         </TouchableOpacity>
                     </View>

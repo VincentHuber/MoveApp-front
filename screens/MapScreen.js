@@ -3,6 +3,8 @@ import { View, Image, Modal, Text, StyleSheet, TextInput, KeyboardAvoidingView, 
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
+import { useDispatch, useSelector } from 'react-redux';
+
 import Foot from '../assets/foot.js'
 import Basket from '../assets/basket.js'
 import Running from '../assets/running.js'
@@ -12,7 +14,11 @@ import Message from '../assets/message.js'
 const BACKEND_ASSRESS='http://192.168.10.154:3000'
 
 
-export default function MapScreen() {
+export default function MapScreen({ navigation }) {
+
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.value);
+
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
   const [searchText, setSearchText] = useState('');
@@ -24,6 +30,13 @@ export default function MapScreen() {
 
   // État pour le bouton actif
   const [activeButton, setActiveButton] = useState(null);
+
+ // Redirect to /login if not logged in
+  useEffect(() => {
+    if (!user.token) {
+      navigation.navigate('Home');
+    }
+    }, [])
 
   // Fonction pour gérer les cliques sur les boutons
   const handlePress = (buttonName) => {
@@ -78,7 +91,7 @@ export default function MapScreen() {
 
   
   const handleModal = () => {
-    fetch(`${BACKEND_ASSRESS}/user/lay/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
+    fetch(`${BACKEND_ASSRESS}/user/Vincent/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
       .then(response => response.json())
       .then(data => {
         console.log(data)
