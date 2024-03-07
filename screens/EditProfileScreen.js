@@ -61,7 +61,7 @@ const EditProfileScreen = () => {
     };
   
 
-    fetch('http://192.168.10.137:3000/updateProfile/', {
+    fetch('http://192.168.10.123:3000/updateProfile/', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

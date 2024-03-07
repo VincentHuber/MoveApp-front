@@ -137,7 +137,7 @@ export default function HomeScreen({ navigation }) {
                 name: 'photo.jpg',
                 type: 'image/jpeg',
             });
-            fetch('http://192.168.10.154:3000/user/uploadPictureCover', {
+            fetch('http://192.168.10.123:3000/user/uploadPictureCover', {
                 method: 'POST',
                 body: formDataCover,
             })
@@ -157,7 +157,7 @@ export default function HomeScreen({ navigation }) {
                 name: 'photo.jpg',
                 type: 'image/jpeg',
             });
-            fetch('http://192.168.10.154:3000/user/uploadProfileCover', {
+            fetch('http://192.168.10.123:3000/user/uploadProfileCover', {
                 method: 'POST',
                 body: formDataProfile,
             })
@@ -174,7 +174,7 @@ export default function HomeScreen({ navigation }) {
         }
     
         // Signup
-        fetch('http://192.168.10.154:3000/user/signup', {
+        fetch('http://192.168.10.123:3000/user/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),

@@ -14,7 +14,7 @@ export default function ReviewScreen() {
 
   const [isVisible, setIsVisible] = useState(false);
   const [reviewText, setReviewText] = useState('');
-  const [addReview, setAddReview] = useState('');
+  const [addReviews, setAddReviews] = useState([]);
   const [isTextInputVisible, setIsTextInputVisible] = useState(false);
   const [isReviewVisible, setIsReviewVisible] = useState(true);
 
@@ -26,8 +26,9 @@ export default function ReviewScreen() {
   const handleAddReview = () => {
     setIsVisible(false);
     setIsReviewVisible(true);
-    setReviewText(''); // cette fonction au clik fait disparaitre le bouton "deposer mon avis" et aura pour but d'ajouter un avis via la requete envoyer au backend
-  }
+    setReviewText('');
+    //setAddReviews([...reviews, reviewText]); 
+  }//cette fonction au clik fait disparaitre le bouton "deposer mon avis" et aura pour but d'ecrire et ajouter un avis
 
   
 
@@ -43,7 +44,7 @@ return (
       <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
         <Text style={styles.text}>Laisser un avis</Text>
         </TouchableOpacity>
-      )}
+        )}
         {isVisible  && (
         <View style={styles.inputWrapper}>
           <TextInput
@@ -56,27 +57,39 @@ return (
               </View>)}
               {isVisible && (
               <View style={styles.buttonreviewcontainer}>
-              <TouchableOpacity style={styles.buttonReview} onPress={handleAddReview}>
-                <Text style={styles.textReview}>Deposer mon avis</Text>
+              <TouchableOpacity style={styles.buttonreview} onPress={handleAddReview}>
+                <Text style={styles.buttontextreview}>Deposer mon avis</Text>
               </TouchableOpacity>
               </View>)}
+              <View style={styles.reviewList}>
+          {reviews.map((review, index) => (
+            <View key={index} style={styles.reviewItem}>
+              <Text>{review}</Text>
+            </View>
+          ))}</View>
+             
         
         </View>
       </KeyboardAvoidingView>
-        
-        
-      
         );
 
     };
+
+    /*<View style={styles.reviewList}>
+    {reviews.map((review, index) => (
+    <View key={index} style={styles.reviewItem}>
+  <Text>{review}</Text>
+</View>
+))}*/
     
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#CFCFCF',
+    color: 'grey',
     alignItems: 'center',
     justifyContent: 'center',
+    //marginTop:100,
     paddingTop: StatusBar.currentHeight || 0,
     
   },
@@ -86,9 +99,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 317,
     height: 53,
-    marginBottom: 300,
+    //marginBottom: 300,
+    marginTop:200,
     paddingVertical: 12,
-    borderRadius: 20,
+    borderRadius: 40,
     alignItems: 'center'
   },
   text: {
@@ -103,21 +117,22 @@ const styles = StyleSheet.create({
   
 
   inputWrapper: {
-    backgroundColor:"#FFFFFF",
+    backgroundColor:"yellow",
     width: 317,
-    height:328,
+    height:350,
     borderRadius: 20, 
-    overflow: 'hidden', 
+    overflow: 'hidden',
+    marginTop:100, 
     marginBottom: 10,},
     //maxHeight: Dimensions.get('window').height - (StatusBar.currentHeight || 0) - 100},
 
   input: {
     
     backgroundColor:'#F4F4F4',
-    color :'black',
+    //color :'black',
     height: 180,
     marginBottom:50,
-    marginTop:130,
+    marginTop:150,
     width: 300,
     marginLeft:8,
     paddingLeft:10,
@@ -127,7 +142,7 @@ const styles = StyleSheet.create({
     
   },
   
-  buttonReview:{
+  buttonreview:{
     fontFamily: 'Poppins_600SemiBold',
     backgroundColor:'#4A46FF',
     width: 317,
@@ -141,13 +156,29 @@ const styles = StyleSheet.create({
 
   },
 
-  textReview:{
+  buttontextreview:{
     color: 'white',
     paddingTop: 5,
     
   },
 
+  reviewList: {
+    backgroundColor:'red',
+    width: 1000000,
+    height:1000,
+    marginTop:199,
+  },
+
+  reviewItem: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+
 });
+
+
 
  
 

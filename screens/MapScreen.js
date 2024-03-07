@@ -9,7 +9,7 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
 
-const BACKEND_ASSRESS='http://192.168.10.154:3000'
+const BACKEND_ASSRESS='http://192.168.10.123:3000'
 
 
 export default function MapScreen() {
