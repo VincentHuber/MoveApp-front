@@ -43,17 +43,18 @@ export default function ReviewScreen() {
     return;
   }
 
-  // Vérifiez si la longueur du commentaire dépasse 250 caractères
+  const trimmedReviewText = reviewText.slice(0, 250);
+
+  // Vérifiez si la longueur du commentaire dépasse pas 250 caractères
     if (reviewText.length > 250) {
-      console.error('Le commentaire ne peut pas dépasser 250 caractères.');
-      return;
-    }
+      console.warn('Vous avez dépasser le nombre de caractère autorisé.');
+      }
   
   // Si le commentaire n'est pas vide, continuez le traitement
     setIsVisible(false);
     setIsReviewVisible(true);
     setReviewText('');
-    setAddReviews([...addReviews, reviewText]);
+    setAddReviews([...addReviews, trimmedReviewText]);
 
 
     console.log(reviewText)
