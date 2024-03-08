@@ -35,7 +35,7 @@ import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
 
-const BACKEND_ADRESS = 'http://192.168.10.167:3000'
+const BACKEND_ADRESS = 'http://172.20.10.11:3000'
 
 
 export default function HomeScreen({ navigation }) {
@@ -111,20 +111,9 @@ export default function HomeScreen({ navigation }) {
         }
     };
         
-    
     //Profile creation
-    const createProfile = async () => {
+    const createProfile = async (userData, profile, cover) => {
         try {
-            const userData = {
-                nickname,
-                email: signInUsermail,
-                password : signInPassword,
-                ambition,
-                adress,
-                sports :selectedSports,
-                description,
-            };
-    
             const resCreation = await fetch(`${BACKEND_ADRESS}/user/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -138,6 +127,7 @@ export default function HomeScreen({ navigation }) {
             dispatch(login({ token, adress, email, nickname, ambition, description, sports }))
     
             if (profile && cover) {
+                console.log("token", token);
                 // Upload cover picture
                 const formDataCover = new FormData();
                 formDataCover.append('coverPicture', {
@@ -152,7 +142,7 @@ export default function HomeScreen({ navigation }) {
                 })
     
                 const dataCover = await resCover.json()
-                if (!dataCover) throw new Error('Error uploading cover picture');
+                if (!dataCover.result) throw new Error('Error uploading cover picture');
                 dispatch(addCoverPicture(dataCover.url));
     
                 // Upload profile picture
@@ -169,13 +159,13 @@ export default function HomeScreen({ navigation }) {
                 })
     
                 const dataProfile = await resProfile.json()
-                if (!dataProfile) throw new Error('Error uploading profile picture');
+                if (!dataProfile.result) throw new Error('Error uploading profile picture');
                 dispatch(addProfilePicture(dataProfile.url));
             }
 
             setIsModalVisible(false);
             navigation.navigate('Map');
-            
+
         } catch (e) {
             alert(e.message)
         }
@@ -357,7 +347,15 @@ export default function HomeScreen({ navigation }) {
                             </TouchableOpacity>
 
                         </View>
-                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile()}>
+                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile({
+                                    nickname,
+                                    email: signInUsermail,
+                                    password : signInPassword,
+                                    ambition,
+                                    adress,
+                                    sports :selectedSports,
+                                    description,
+                                }, profile, cover)}>
                                <View style={styles.contenairButtonOk}>
                                     <Create style={styles.iconCreate}/>
                                     <Text style={styles.textButtonOk}>Créer ton profil</Text>
