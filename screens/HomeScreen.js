@@ -36,7 +36,7 @@ import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
 
-const BACKEND_ADRESS = 'http://192.168.10.133:3000'
+const BACKEND_ADRESS = 'http://192.168.10.167:3000'
 
 
 export default function HomeScreen({ navigation }) {
@@ -112,39 +112,40 @@ export default function HomeScreen({ navigation }) {
         }
     };
         
-    
     //Profile creation
-    const createProfile = () => {
-        const userData = {
-            nickname,
-            email: signInUsermail,
-            password : signInPassword,
-            ambition,
-            adress,
-            sports :selectedSports,
-            description,
-            profilePicture: userProfilePicture,
-            coverPicture: userCoverPicture
-        };
-        // Check if profile and cover pictures are selected
-        if (profile && cover) {
-            // Upload cover picture
-            const formDataCover = new FormData();
-            formDataCover.append('coverPicture', {
-                uri: cover,
-                name: 'photo.jpg',
-                type: 'image/jpeg',
-            });
-            fetch(`${BACKEND_ADRESS}/user/uploadPictureCover`, {
+    const createProfile = async (userData, profile, cover) => {
+        try {
+            const resCreation = await fetch(`${BACKEND_ADRESS}/user/signup`, {
                 method: 'POST',
-                body: formDataCover,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('cover' + data.url);
-                dispatch(addCoverPicture(data.url));
-            })
-            .then(() => {
+    
+            const dataCreation = await resCreation.json();
+            if (!dataCreation.result) throw new Error("Error signing up")
+    
+            const { token, adress, email, nickname, ambition, description, sports } = dataCreation.user;
+            dispatch(login({ token, adress, email, nickname, ambition, description, sports }))
+    
+            if (profile && cover) {
+                console.log("token", token);
+                // Upload cover picture
+                const formDataCover = new FormData();
+                formDataCover.append('coverPicture', {
+                    uri: cover,
+                    name: 'photo.jpg',
+                    type: 'image/jpeg',
+                });
+    
+                const resCover = await fetch(`${BACKEND_ADRESS}/user/uploadPictureCover/${token}`, {
+                    method: 'POST',
+                    body: formDataCover,
+                })
+    
+                const dataCover = await resCover.json()
+                if (!dataCover.result) throw new Error('Error uploading cover picture');
+                dispatch(addCoverPicture(dataCover.url));
+    
                 // Upload profile picture
                 const formDataProfile = new FormData();
                 formDataProfile.append('profilePicture', {
@@ -152,46 +153,24 @@ export default function HomeScreen({ navigation }) {
                     name: 'photo.jpg',
                     type: 'image/jpeg',
                 });
-                fetch(`${BACKEND_ADRESS}/user/uploadProfileCover`, {
+    
+                const resProfile = await fetch(`${BACKEND_ADRESS}/user/uploadProfileCover/${token}`, {
                     method: 'POST',
                     body: formDataProfile,
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('profile ' + data);
-                    dispatch(addProfilePicture(data.url));
-                })
-                .then(() => {
-                    // Signup
-                    fetch(`${BACKEND_ADRESS}/user/signup`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(userData),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('creation', data)
-                        if (data.result) {
-                            const { token, email, nickname, ambition, description, sports } = data.user;
-                            dispatch(login({ token, email, nickname, ambition, description, sports }))
-                            setIsModalVisible(false);
-                            navigation.navigate('Map');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error signing up:', error);
-                    })
-                })
-                .catch(error => {
-                    console.error('Error uploading profile picture:', error);
-                });
-            })
-            .catch(error => {
-                console.error('Error uploading cover picture:', error);
-            });
-        } else {
-            console.log('Profile or cover picture is missing');
+    
+                const dataProfile = await resProfile.json()
+                if (!dataProfile.result) throw new Error('Error uploading profile picture');
+                dispatch(addProfilePicture(dataProfile.url));
+            }
+
+            setIsModalVisible(false);
+            navigation.navigate('Map');
+
+        } catch (e) {
+            alert(e.message)
         }
+
     };
 
 
@@ -369,7 +348,15 @@ export default function HomeScreen({ navigation }) {
                             </TouchableOpacity>
 
                         </View>
-                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile()}>
+                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile({
+                                    nickname,
+                                    email: signInUsermail,
+                                    password : signInPassword,
+                                    ambition,
+                                    adress,
+                                    sports :selectedSports,
+                                    description,
+                                }, profile, cover)}>
                                <View style={styles.contenairButtonOk}>
                                     <Create style={styles.iconCreate}/>
                                     <Text style={styles.textButtonOk}>Créer ton profil</Text>
