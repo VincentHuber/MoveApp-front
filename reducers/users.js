@@ -22,6 +22,7 @@ export const userSlice = createSlice({
     login: (state, action) => {
       state.value.token = action.payload.token;
       state.value.email = action.payload.email;
+      state.value.adress = action.payload.adress;
       state.value.nickname = action.payload.nickname;
       state.value.description = action.payload.description;
       state.value.ambition = action.payload.ambition;
@@ -29,10 +30,10 @@ export const userSlice = createSlice({
     },
 
     addProfilePicture: (state, action)=>{
-      state.value.profilePicture = action.payload.profilePicture;
+      state.value.profilePicture = action.payload;
     },
     addCoverPicture: (state, action) =>{
-      state.value.coverPicture = action.payload.coverPicture;
+      state.value.coverPicture = action.payload;
     },
   
   },
