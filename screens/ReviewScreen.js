@@ -36,6 +36,20 @@ export default function ReviewScreen() {
   }; 
 
   const handleAddReview = () => {
+
+  // Vérifiez si le commentaire est vide
+  if (reviewText.trim() === '') {
+    console.error('Le commentaire ne peut pas être vide.');
+    return;
+  }
+
+  // Vérifiez si la longueur du commentaire dépasse 250 caractères
+    if (reviewText.length > 250) {
+      console.error('Le commentaire ne peut pas dépasser 250 caractères.');
+      return;
+    }
+  
+  // Si le commentaire n'est pas vide, continuez le traitement
     setIsVisible(false);
     setIsReviewVisible(true);
     setReviewText('');
@@ -44,6 +58,7 @@ export default function ReviewScreen() {
 
     console.log(reviewText)
 
+     // Envoi du commentaire au backend
     fetch(`${BACKEND_ASSRESS}/review/`, {
       method : 'POST',
       headers:{
