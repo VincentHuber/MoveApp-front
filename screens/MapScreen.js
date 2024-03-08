@@ -11,7 +11,7 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
 
-const BACKEND_ADRESS='http://192.168.10.167:3000'
+const BACKEND_ADRESS='http://192.168.10.149:3000'
 
 export default function MapScreen({ navigation }) {
 
@@ -32,7 +32,7 @@ export default function MapScreen({ navigation }) {
   // État pour le bouton actif
   const [activeButton, setActiveButton] = useState(null);
 
- // Redirect to /login if not logged in
+//  Redirect to /login if not logged in
   useEffect(() => {
     if (!user.token) {
       navigation.navigate('Home');
@@ -92,13 +92,15 @@ export default function MapScreen({ navigation }) {
 
   
   const handleModal = () => {
-    fetch(`${BACKEND_ADRESS}/user/Vincent/${userNickname}`) // Remplacez `BACKEND_ADDRESS` par l'adresse de votre serveur
+    console.log(user);
+    console.log("coucoyu");
+    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then(response => response.json())
       .then(data => {
-        console.log(data)
-        if (data.result && data.users.length > 0) {
-          // Supposons que vous voulez afficher le premier utilisateur correspondant
-          const user = data.users[0];
+       
+        if (data.result) {
+          console.log(data);
+          const user = data.user;
           setUserInfo({
             nickname: user.nickname,
             description: user.description,
@@ -167,8 +169,12 @@ export default function MapScreen({ navigation }) {
             onSubmitEditing={handleSearch}
           />
 
-          <TouchableOpacity onPress={() => handleModal(userNickname)} style={styles.modaluser} activeOpacity={0.8}>
+          <TouchableOpacity onPress={() => handleModal()} style={styles.modaluser} activeOpacity={0.8}>
             <Image source={require('../assets/imagePerso.png')}/>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => handleModal()} style={styles.modalProfil} activeOpacity={0.8}>
+            <Image source={require('../assets/photoProfil.jpg')}/>
           </TouchableOpacity>
           
           </View>
@@ -362,10 +368,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent:'center',
     alignItems:'center',
-    top:40,
-    right:50,
+    top:150,
+    right:150,
     width:78,
     height:77,
+    borderRadius:57,
+  },
+
+  modalProfil:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    bottom:'20%',
+    right:'5%',
+    width:48,
+    height:48,
     borderRadius:57,
   },
 

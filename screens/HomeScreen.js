@@ -36,7 +36,7 @@ import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
 
-const BACKEND_ADRESS = 'http://192.168.10.167:3000'
+const BACKEND_ADRESS = 'http://192.168.10.149:3000'
 
 
 export default function HomeScreen({ navigation }) {
