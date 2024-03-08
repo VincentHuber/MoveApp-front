@@ -11,7 +11,7 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
 
-const BACKEND_ADRESS='http://192.168.10.167:3000'
+const BACKEND_ADRESS='http://192.168.10.133:3000'
 
 export default function MapScreen({ navigation }) {
 

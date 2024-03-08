@@ -64,7 +64,7 @@ const EditProfileScreen = () => {
     };
 
     const navigation = useNavigation();
-
+    
     const [userData, setUserData] = useState({
         nickname: '',
         email: '',
@@ -88,11 +88,14 @@ const EditProfileScreen = () => {
       }
       console.log('Champs mis à jour :', updatedFields);
 
-      fetch(`${BACKEND_ADDRESS}/updateProfile/`, {
+      console.log("authToken => ", authToken);
+
+      const tokenTest = "idheV8xwzabRIo6BLHeKnfXkpXhDQcQy"
+
+      fetch(`${BACKEND_ADDRESS}/user/updateProfile/${tokenTest}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify(updatedFields), // Utilisez les champs modifiés ici
     })
@@ -101,14 +104,14 @@ const EditProfileScreen = () => {
         if (data.result) {
             console.log('Profil mis à jour avec succès');
         } else {
-            console.error('Erreur lors de la mise à jour du profil:', data.error);
+            console.error('Erreur lors de la mise à jour du profil', data.error);
         }
     });
   };
 
     
     useEffect(() => {
-        fetch(`${BACKEND_ADDRESS}/user/Feissoile/${userData.nickname}`)
+        fetch(`${BACKEND_ADDRESS}/user/Laure-Albane/${userData.nickname}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -135,7 +138,7 @@ const EditProfileScreen = () => {
             });
     }, []);
 
-    
+  
     const [fontsLoaded] = useFonts({
         Poppins_700Bold,
         Poppins_600SemiBold,
@@ -157,13 +160,15 @@ const EditProfileScreen = () => {
             </TouchableOpacity>
             
             <View style={styles.profileImageContainer}>
-                <Image
-                    source={{ uri: userData.profilePicture }}
-                    style={styles.profileImageTop}
-                />
-                <View style={styles.textContainer}>
-                    <Text style={styles.pseudoText}>{userData.nickname}</Text>
-                </View>
+              <Image
+                  source={{ uri: userData.profilePicture }}
+                  style={styles.profileImageTop}
+              />
+              <View style={styles.textContainer}>
+                  <Text style={[styles.pseudoText, { fontSize: userData.nickname.length > 10 ? 20 : 25 }]}> {/*Si pseudo > à 10 caractères alors taille de la police est à 20, sinon, elle est à 25 */}
+                      {userData.nickname}
+                  </Text>
+              </View>
             </View>
 
             <View style={styles.inputContainer}>
