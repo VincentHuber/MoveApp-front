@@ -3,11 +3,11 @@ import { View, Image, Modal, Text, StyleSheet, TextInput, KeyboardAvoidingView, 
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-import Foot from '../assets/foot.js'
-import Basket from '../assets/basket.js'
-import Running from '../assets/running.js'
-import Tennis from '../assets/tennis.js'
-import Message from '../assets/message.js'
+import Foot from '../../Move-front/assets/foot.js'
+import Basket from '../../Move-front/assets/basket.js'
+import Running from '../../Move-front/assets/running.js'
+import Tennis from '../../Move-front/assets/tennis.js'
+import Message from '../../Move-front/assets/message.js'
 
 const BACKEND_ASSRESS='http://192.168.10.123:3000'
 

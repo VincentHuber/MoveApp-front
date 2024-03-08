@@ -5,49 +5,97 @@ import {
   View,
   TouchableOpacity,
   Image,
-  Modal,
-  TextInput, KeyboardAvoidingView, Platform, StatusBar,
+  TextInput,
+  SafeAreaView,
+  KeyboardAvoidingView,ScrollView,
+  Platform, 
+  StatusBar,Dimensions
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+//import Icon from 'react-native-vector-icons/Ionicons';
+import Star from '../../Move-front/assets/star.js'
+
+
+const BACKEND_ASSRESS='http://192.168.10.122:3000'
+
+
 
 export default function ReviewScreen() {
 
   const [isVisible, setIsVisible] = useState(false);
+  const [ratingStars, setRatingStars] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [addReviews, setAddReviews] = useState([]);
   const [isTextInputVisible, setIsTextInputVisible] = useState(false);
   const [isReviewVisible, setIsReviewVisible] = useState(true);
 
+
+  // cette fonction au clik fait disparaitre le bouton "laisser un avis"
   const toggleVisibility = () => {
     setIsVisible(!isVisible)
     setIsReviewVisible(!isReviewVisible);
-  }; // cette fonction au clik fait disparaitre le bouton "laisser un avis"
+  }; 
 
   const handleAddReview = () => {
     setIsVisible(false);
     setIsReviewVisible(true);
     setReviewText('');
-    setAddReviews([...addReviews, reviewText]); 
-  }//cette fonction au clik fait disparaitre le bouton "deposer mon avis" et aura pour but d'ecrire et ajouter un avis
+    setAddReviews([...addReviews, reviewText]);
 
+
+    console.log(reviewText)
+
+    fetch(`${BACKEND_ASSRESS}/review/`, {
+      method : 'POST',
+      headers:{
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({review: reviewText}),
+  })
+  .then(response => response.json())
+  .then (data =>{
+    if (data.result){
+      console.log('Review ajouté avec succés');
+    }else{
+      console.error('Erreur lors de l\'ajout du review', data.error);
+    }
+  });
+
+};
+
+const handleStarPress = (index) => {
+  setRatingStars(index + 1);
+};
+
+
+
+return (<KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -StatusBar.currentHeight}
+        style={{ flex: 1 }}
+      >
   
-
-return (
-  <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
+  <View style={styles.container}>
+   
       <StatusBar backgroundColor="transparent" barStyle="dark-content" translucent={true}/>
-      <View>
+      
+     <View>
       {isReviewVisible && (
       <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
         <Text style={styles.text}>Laisser un avis</Text>
         </TouchableOpacity>
         )}
         {isVisible  && (
-        <View style={styles.inputWrapper}>
-          <TextInput
+        <View style={styles.starWrapper}>
+            <View style={styles.starContainer}>
+           {[...Array(5)].map((_, index) => (
+                  <Star key={index} filled={index < ratingStars} onPress={() => handleStarPress(index)} />
+                ))}
+                </View>
+              </View>
+              )}
+               {isVisible && ( 
+                <View style={styles.inputWrapper}>
+            <TextInput
               style={styles.input}
               multiline={true}
               placeholder="Votre avis"
@@ -61,36 +109,32 @@ return (
                 <Text style={styles.buttontextreview}>Deposer mon avis</Text>
               </TouchableOpacity>
               </View>)}
-              <View style={styles.reviewList}>
-          {addReviews.map((review, index) => (
-            <View key={index} style={styles.reviewItem}>
-              <Text>{review}</Text>
-            </View>
-          ))}</View>
-             
-        
-        </View>
-      </KeyboardAvoidingView>
-        );
+              <View>
+                {addReviews.map((review, index) => (
+                <View key={index} style={styles.reviewItem}>
+                  <Text>{review}</Text>
+                </View>
+                ))}
+                </View>
+     </View>
+     </View>
+     </KeyboardAvoidingView>
+  
+        )
 
     };
 
-    /*<View style={styles.reviewList}>
-    {reviews.map((review, index) => (
-    <View key={index} style={styles.reviewItem}>
-  <Text>{review}</Text>
-</View>
-))}*/
+    
     
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    color: 'grey',
+    color: 'blue',
     alignItems: 'center',
     justifyContent: 'center',
     //marginTop:100,
-    paddingTop: StatusBar.currentHeight || 0,
+    //paddingTop: StatusBar.currentHeight || 0,
     
   },
   
@@ -101,6 +145,7 @@ const styles = StyleSheet.create({
     height: 53,
     //marginBottom: 300,
     marginTop:200,
+    //marginLeft:100,
     paddingVertical: 12,
     borderRadius: 40,
     alignItems: 'center'
@@ -117,14 +162,29 @@ const styles = StyleSheet.create({
   
 
   inputWrapper: {
-    backgroundColor:"yellow",
+    backgroundColor:"black",
     width: 317,
     height:350,
     borderRadius: 20, 
     overflow: 'hidden',
     marginTop:100, 
-    marginBottom: 10,},
-    //maxHeight: Dimensions.get('window').height - (StatusBar.currentHeight || 0) - 100},
+    marginLeft:340,
+    marginBottom:10,
+    maxHeight: Dimensions.get('window').height - (StatusBar.currentHeight || 0) - 100
+  },
+
+  starContainer:{
+    flexDirection: 'row',
+    width:1000,
+    marginBottom: 0,
+    paddingLeft:125,
+    paddingTop:100,
+    alignItems: 'center',
+
+
+  },
+  
+   
 
   input: {
     
@@ -147,6 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor:'#4A46FF',
     width: 317,
     height: 53,
+    marginLeft:340,
     //marginBottom:5000,
     paddingVertical: 12,
     //paddingtop:100,
@@ -173,7 +234,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'yellow',
     padding: 10,
     borderRadius: 20,
-    marginBottom: 10,
+    marginTop:20,
+    //marginBottom: 10,
   },
 
 });
@@ -185,5 +247,26 @@ const styles = StyleSheet.create({
 
 
 
-//<Image source={require('./')} style={styles.profileImage} />
 
+
+
+
+
+
+
+
+/*const renderStars = () => {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <TouchableOpacity key={i} onPress={() => setRatingStars(i)}>
+        <Icon
+          name={ratingStars >= i ? 'ios-star' : 'ios-star-outline'}
+          size={32}
+          color={ratingStars >= i ? '#FFD700' : 'gray'}
+        />
+      </TouchableOpacity>
+    );
+  }
+  return stars };*/
+  
