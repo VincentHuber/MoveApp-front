@@ -9,6 +9,7 @@ import {
     Image,
     KeyboardAvoidingView,
     ScrollView,
+    Alert,
     } from 'react-native';
     
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -183,13 +184,13 @@ export default function HomeScreen({ navigation }) {
 			.then(data => {
                 console.log(data)
 				if (data.result) {
-
 					dispatch(login({ email: signInUsermail, token: data.token }));
 					setSignInUsermail('');
 					setSignInPassword('');
 					setIsOpen(-1);
                     navigation.navigate('Map')
-				}
+				}else {
+                    Alert.alert('Email et/ou mot de passe incorrect(s).')}
 			});
 	};
     
