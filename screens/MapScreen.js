@@ -11,7 +11,7 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
 
-const BACKEND_ADRESS='http://192.168.10.167:3000'
+const BACKEND_ADRESS='http://192.168.10.178:3000'
 
 export default function MapScreen({ navigation }) {
 
@@ -28,6 +28,7 @@ export default function MapScreen({ navigation }) {
 
   // État pour la modal
   const [modalVisible, setModalVisible] = useState(false);
+  const [modal2Visible, setModal2Visible] = useState(false);
 
   // État pour le bouton actif
   const [activeButton, setActiveButton] = useState(null);
@@ -57,6 +58,7 @@ export default function MapScreen({ navigation }) {
 
   const handleClose = () => {
     setModalVisible(false);
+    setModal2Visible(false);
   };
 
   useEffect(() => {
@@ -93,7 +95,6 @@ export default function MapScreen({ navigation }) {
   
   const handleModal = () => {
     console.log(user);
-    console.log("coucoyu");
     fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then(response => response.json())
       .then(data => {
@@ -107,11 +108,49 @@ export default function MapScreen({ navigation }) {
             ambition: user.ambition
           });
           setModalVisible(true);
+          setModal2Visible(false);
         }
       })
       .catch(error => {
         console.error('Erreur lors de la récupération des informations de l\'utilisateur:', error);
       });
+  };
+
+  const handleModal2 = () => {
+    console.log(user);
+    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
+      .then(response => response.json())
+      .then(data => {
+       
+        if (data.result) {
+          console.log(data);
+          const user = data.user;
+          setUserInfo({
+            nickname: user.nickname,
+            description: user.description,
+            ambition: user.ambition
+          });
+          setModal2Visible(true);
+          setModalVisible(false);
+        }
+      })
+      .catch(error => {
+        console.error('Erreur lors de la récupération des informations de l\'utilisateur:', error);
+      });
+  };
+
+  const handleModif = () => {
+    navigation.navigate('EditProfile');
+    setModalVisible(false);
+  };
+
+  const handle2Modif = () => {
+    navigation.navigate('Chat');
+    setModal2Visible(false);
+  };
+
+  const handleChat = () => {
+    navigation.navigate('Chat');
   };
 
   return (
@@ -146,14 +185,36 @@ export default function MapScreen({ navigation }) {
           <View style={styles.modalView}>
               <Text style={styles.textModal1}>{userInfo.nickname}</Text>
               <Text style={styles.textModal2}>{userInfo.description}</Text>
-              <Text style={styles.textambition}>son ambition</Text>
+              <Text style={styles.textSports}>MES SPORTS </Text>
+              <Text style={styles.textambition}>MON AMBITION </Text>
               <Text style={styles.textModal3}>{userInfo.ambition}</Text>
           </View>
           <View style={styles.modalClose}>
           <TouchableOpacity onPress={() => handleClose()}>
           <Image source={require('../assets/close.jpg')}/>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handlePress()} style={styles.frameChat} activeOpacity={0.8}>
+            <TouchableOpacity onPress={() => handleModif()} style={styles.frameChat} activeOpacity={0.8} >
+            <Image source={require('../assets/boutonModifier.jpg')}/>
+            </TouchableOpacity>
+          </View>
+         
+        </View>
+        </Modal>
+
+        <Modal visible={modal2Visible} animationType="fade" transparent>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+              <Text style={styles.textModal1}>{userInfo.nickname}</Text>
+              <Text style={styles.textModal2}>{userInfo.description}</Text>
+              <Text style={styles.textSports}>SES SPORTS </Text>
+              <Text style={styles.textambition}>SON AMBITION </Text>
+              <Text style={styles.textModal3}>{userInfo.ambition}</Text>
+          </View>
+          <View style={styles.modalClose}>
+          <TouchableOpacity onPress={() => handleClose()}>
+          <Image source={require('../assets/close.jpg')}/>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handle2Modif()} style={styles.frameChat} activeOpacity={0.8} >
             <Image source={require('../assets/frameChat.jpg')}/>
             </TouchableOpacity>
           </View>
@@ -169,7 +230,7 @@ export default function MapScreen({ navigation }) {
             onSubmitEditing={handleSearch}
           />
 
-          <TouchableOpacity onPress={() => handleModal()} style={styles.modaluser} activeOpacity={0.8}>
+          <TouchableOpacity onPress={() => handleModal2()} style={styles.modaluser} activeOpacity={0.8}>
             <Image source={require('../assets/imagePerso.png')}/>
           </TouchableOpacity>
 
@@ -179,7 +240,7 @@ export default function MapScreen({ navigation }) {
           
           </View>
 
-        <TouchableOpacity style={styles.message}>
+        <TouchableOpacity style={styles.message} onPress={() => handleChat()}>
           <Message/>
         </TouchableOpacity>
 
@@ -339,6 +400,17 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     bottom:200,
+    left: 120,
+    fontSize: 20,
+    width: 299,
+    fontWeight: 'bold'
+  },
+
+  textSports:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    bottom:350,
     left: 120,
     fontSize: 20,
     width: 299,

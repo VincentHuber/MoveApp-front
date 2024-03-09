@@ -11,7 +11,7 @@ import Tennis from '../assets/tennis.js';
 import { useSelector } from 'react-redux';
 
 // Adresse du backend
-const BACKEND_ADDRESS = 'http://192.168.10.133:3000';
+const BACKEND_ADDRESS = 'http://192.168.10.178:3000';
 
 
 const EditProfileScreen = () => {
