@@ -93,7 +93,7 @@ export default function MapScreen({ navigation }) {
   
   const handleModal = () => {
     console.log(user);
-    console.log("coucoyu");
+    console.log("coucou");
     fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then(response => response.json())
       .then(data => {
