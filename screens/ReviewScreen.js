@@ -13,12 +13,14 @@ import {
   StatusBar,
   Dimensions,
 } from "react-native";
-import Star from "../../Move-front/assets/star.js";
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faStar as farStar, faStarHalf as farStarHalf, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 
+//import Star from "../../Move-front/assets/star.js";
+//import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+//import { faStar as farStar, faStarHalf as farStarHalf, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
 
-const BACKEND_ASSRESS = "http://192.168.10.122:3000";
+const BACKEND_ASSRESS = "http://192.168.1.179:3000";
 
 export default function ReviewScreen() {
   const [isVisible, setIsVisible] = useState(false);
@@ -28,23 +30,25 @@ export default function ReviewScreen() {
   const [isTextInputVisible, setIsTextInputVisible] = useState(false);
   const [isReviewVisible, setIsReviewVisible] = useState(true);
 
-  // cette fonction au clik fait disparaitre le bouton "laisser un avis"
+  // cette fonction au clik fait disparaitre le bouton "laisser un avis" pour faire apparaitre l champs de commentaire. j'ai opté pour ceci a la place d'une modale
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
     setIsReviewVisible(!isReviewVisible);
   };
 
   const handleAddReview = () => {
-    // Vérifiez si le commentaire est vide
+    // Vérifiez si le commentaire est vide (la methode trim permet d'enlever les espaces vides)
+    //avec cette conditon l'utilisateur ne pourra pas laisser un commentaire vide
+
     if (reviewText.trim() === "") {
       console.error("Veuillez laisser un commentaire.");
       return;
     }
-    // la methode slice (...)
+    // la methode slice permet de limiter la longueur du texte a 250 caractère
     const trimmedReviewText = reviewText.slice(0, 250);
 
     // Vérifiez si la longueur du commentaire dépasse pas 250 caractères
-    //la propriété warn (...)
+    //la methode warn génère dans la console un message d'avertissment
     if (reviewText.length > 250) {
       console.warn("Vous avez dépasser le nombre de caractère autorisé.");
     }
@@ -56,14 +60,13 @@ export default function ReviewScreen() {
     setAddReviews([...addReviews, trimmedReviewText]);
 
     console.log(reviewText);
+    console.log(renderStars());
 
-    // Envoi du commentaire au backend
+    // Envoi du commentaire au backend pour que ensuite la requéte puisse etre enregistré dans la bdd
     fetch(`${BACKEND_ASSRESS}/review/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ review: reviewText }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ review: reviewText, stars: ratingStars }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -75,8 +78,29 @@ export default function ReviewScreen() {
       });
   };
 
+  //le systéme de notatation par etoile
   const handleStarPress = (index) => {
     setRatingStars(index + 1);
+  };
+
+  const renderStars = () => {
+    const starSize = 36;
+    return (
+      <View style={styles.starContainer}>
+        {[...Array(5)].map((_, index) => (
+          <TouchableOpacity key={index} onPress={() => handleStarPress(index)}>
+            <FontAwesomeIcon
+              icon={faStar}
+              size={starSize}
+              style={[
+                styles.star,
+                index < ratingStars ? styles.filledStar : null,
+              ]}
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
   };
 
   return (
@@ -109,16 +133,7 @@ export default function ReviewScreen() {
               }}
             >
               <View style={styles.inputWrapper}>
-                <View>
-                  {[...Array(5)].map((_, index) => (
-                    <Star
-                      key={index}
-                      style={styles.buttonstars}
-                      filled={index < ratingStars}
-                      onPress={() => handleStarPress(index)}
-                    />
-                  ))}
-                </View>
+                <View>{renderStars()}</View>
                 <TextInput
                   style={styles.input}
                   multiline={true}
@@ -157,8 +172,6 @@ const styles = StyleSheet.create({
     color: "blue",
     alignItems: "center",
     justifyContent: "center",
-    //marginTop:100,
-    //paddingTop: StatusBar.currentHeight || 0,
   },
 
   button: {
@@ -189,38 +202,33 @@ const styles = StyleSheet.create({
       Dimensions.get("window").height - (StatusBar.currentHeight || 0) - 100,
   },
 
-  starWrapper: {
-    color: "red",
-  },
-
   starContainer: {
+    position: "absolute",
     flexDirection: "row",
-    width: 100,
-    marginBottom: 0,
-    paddingLeft: 460,
-    paddingTop: 100,
-    //justifyContent:'center',
     alignItems: "center",
-    color: "red",
+    paddingLeft: 55,
+    paddingTop: 110,
   },
 
-  buttonstars: {
-    backgroundColor: "yellow",
-    height: 20,
-    width: 20,
+  star: {
+    marginRight: 5,
+    alignItems: "center",
+    color: "gray",
+    width: 10,
+  },
+  filledStar: {
+    color: "#4A46FF",
   },
 
   input: {
     backgroundColor: "#F4F4F4",
     height: 180,
     marginBottom: 50,
-    marginTop: 100,
+    marginTop: 160,
     width: 300,
     marginLeft: 8,
-    paddingTop:20,
+    paddingTop: 20,
     borderRadius: 20,
-    //justifyContent: 'flex-start',
-    //alignItems: 'center',
   },
 
   buttonreview: {
@@ -239,34 +247,11 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
 
-  /*reviewList: {
-    backgroundColor:'red',
-    width: 10,
-    height:10,
-    marginTop:199,
-  },*/
-
   reviewItem: {
     backgroundColor: "white",
-    //height:173,
     padding: 10,
     borderRadius: 20,
     marginTop: 20,
     marginBottom: 1,
   },
 });
-
-/*const renderStars = () => {
-  const stars = [];
-  for (let i = 1; i <= 5; i++) {
-    stars.push(
-      <TouchableOpacity key={i} onPress={() => setRatingStars(i)}>
-        <Icon
-          name={ratingStars >= i ? 'ios-star' : 'ios-star-outline'}
-          size={32}
-          color={ratingStars >= i ? '#FFD700' : 'gray'}
-        />
-      </TouchableOpacity>
-    );
-  }
-  return stars };*/
