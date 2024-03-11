@@ -11,44 +11,22 @@ import Tennis from '../assets/tennis.js';
 import { useSelector } from 'react-redux';
 
 // Adresse du backend
-const BACKEND_ADDRESS = 'http://192.168.10.165:3000';
+const BACKEND_ADDRESS = 'http://192.168.10.178:3000';
 
 
 const EditProfileScreen = () => {
 
+//const pour ajuster taille inputs de manière dynamique 
+const [descriptionHeight, setDescriptionHeight] = useState(0);
+const [ambitionHeight, setAmbitionHeight] = useState(0);
+
   const authToken = useSelector(state => state.user.value.token);
-    
-    const [cover, setCover] = useState(null);
-    const [profile, setProfile] = useState(null);
 
-    // Fonction pour télécharger une image de couverture
-    const uploadCover = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [3, 2],
-            quality: 1,
-        });
-
-        if (!result.cancelled) {
-            setCover(result.assets[0].uri);
-        }
-    };
-
-    // Fonction pour télécharger une image de profil
-    const uploadProfile = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
-
-        if (!result.cancelled) {
-            setProfile(result.assets[0].uri);
-        }
-    };
-
+// Logique pour gérer l'interaction avec le bouton "Avis"
+  const handleReview = () => {
+    console.log('Bouton Avis cliqué');
+};
+ 
     const [selectedSports, setSelectedSports] = useState({
         Football: false,
         Basketball: false,
@@ -78,8 +56,40 @@ const EditProfileScreen = () => {
         message: '',
     });
 
+    //pour upload photo profile: 
+    const uploadProfile = async () => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    
+      console.log(result);
+    
+      if (!result.cancelled) {
+        setUserData({ ...userData, profilePicture: result.uri });
+      }
+    };
+
+    //pour upload photo couverture: 
+    const uploadCover = async () => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    
+      console.log(result);
+    
+      if (!result.cancelled) {
+        setUserData({ ...userData, coverPicture: result.uri });
+      }
+    };
+
     const handleSubmit = () => {
-      // Trouver les champs modifiés
+      // Trouver champs modifiés
       const updatedFields = {};
       for (const key in userData) {
         if (userData[key] !== '') {
@@ -90,14 +100,14 @@ const EditProfileScreen = () => {
 
       console.log("authToken => ", authToken);
 
-      const tokenTest = "idheV8xwzabRIo6BLHeKnfXkpXhDQcQy"
+      const tokenTest2 = "BzDXT_ZEUOMIu4eNerbF-g9-mjDxZO45"
 
-      fetch(`${BACKEND_ADDRESS}/user/updateProfile/${tokenTest}`, {
+      fetch(`${BACKEND_ADDRESS}/user/updateProfile/${tokenTest2}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFields), // Utilisez les champs modifiés ici
+        body: JSON.stringify(updatedFields), 
     })
     .then(response => response.json())
     .then(data => {
@@ -109,35 +119,36 @@ const EditProfileScreen = () => {
     });
   };
 
-    
-    useEffect(() => {
-        fetch(`${BACKEND_ADDRESS}/user/Laure-Albane/${userData.nickname}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.result && data.users.length > 0) {
-                    const user = data.users[0];
-                    setUserData({
-                        ...userData,
-                        nickname: user.nickname,
-                        email: user.email,
-                        password: user.password,
-                        adress: user.adress,
-                        description: user.description,
-                        sports: user.sports,
-                        ambition: user.ambition,
-                        coverPicture: user.photoCouverture,
-                        profilePicture: user.photoProfil,
-                    });
-                } else {
-                    console.error('Aucun utilisateur trouvé.');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors de la récupération des informations de l\'utilisateur:', error);
-            });
-    }, []);
-
+  const BACKEND_ADDRESS = 'http://192.168.10.124:3000';
+  const tokenTest = "BzDXT_ZEUOMIu4eNerbF-g9-mjDxZO45"
+  const user = useSelector((state) => state.user.value);
+  console.log(user.token)
+  useEffect(() => {
+    fetch(`${BACKEND_ADDRESS}/user/${tokenTest}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          console.log(data);
+          const user = data.user;
+          setUserData({
+            nickname: user.nickname,
+            email: user.email,
+            password: user.password,
+            adress: user.adress,
+            description: user.description,
+            sports: user.sports,
+            ambition: user.ambition,
+            coverPicture: user.coverPicture,
+            profilePicture: user.profilePicture,
+          });
+        } else {
+          console.error('Aucun utilisateur trouvé.');
+        }
+      })
+      .catch(error => {
+        console.error('Erreur lors de la récupération des informations de l\'utilisateur:', error);
+      });
+}, []);
   
     const [fontsLoaded] = useFonts({
         Poppins_700Bold,
@@ -165,9 +176,12 @@ const EditProfileScreen = () => {
                   style={styles.profileImageTop}
               />
               <View style={styles.textContainer}>
-                  <Text style={[styles.pseudoText, { fontSize: userData.nickname.length > 10 ? 20 : 25 }]}> {/*Si pseudo > à 10 caractères alors taille de la police est à 20, sinon, elle est à 25 */}
-                      {userData.nickname}
-                  </Text>
+                <Text style={[styles.pseudoText, { fontSize: userData.nickname && userData.nickname.length > 10 ? 20 : 25 }]}>
+                    {userData.nickname}
+                </Text>
+                <TouchableOpacity style={styles.reviewButton} onPress={() => navigation.navigate('ReviewScreen')}>
+                    <Text style={styles.reviewText}>.</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -178,6 +192,7 @@ const EditProfileScreen = () => {
                     placeholder="Pseudo"
                     value={userData.nickname}
                     onChangeText={(text) => setUserData({ ...userData, nickname: text })}
+                    selectionColor="#4A46FF"
                 />
             </View>
 
@@ -188,6 +203,7 @@ const EditProfileScreen = () => {
                     placeholder="Email"
                     value={userData.email}
                     onChangeText={(text) => setUserData({ ...userData, email: text })}
+                    selectionColor="#4A46FF"
                 />
             </View>
 
@@ -199,6 +215,7 @@ const EditProfileScreen = () => {
                     value={userData.password}
                     onChangeText={(text) => setUserData({ ...userData, password: text })}
                     secureTextEntry={true}
+                    selectionColor="#4A46FF"
                 />
             </View>
 
@@ -209,18 +226,21 @@ const EditProfileScreen = () => {
                     placeholder="Lieu de pratique"
                     value={userData.adress}
                     onChangeText={(text) => setUserData({ ...userData, adress: text })}
+                    selectionColor="#4A46FF"
                 />
             </View>
 
             <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Description</Text>
                 <TextInput
-                    style={[styles.input, styles.multilineInput, styles.boldText]} 
-                    placeholder="Description"
-                    value={userData.description}
-                    onChangeText={(text) => setUserData({ ...userData, description: text })}
-                    multiline={true} 
-                    textAlignVertical="top" 
+                  style={[styles.input, styles.multilineInput, styles.boldText, { textAlign: 'justify' }, { height: Math.max(80, descriptionHeight) }]}
+                  placeholder="Description"
+                  value={userData.description}
+                  onChangeText={(text) => setUserData({ ...userData, description: text })}
+                  multiline={true}
+                  textAlignVertical="top"
+                  onContentSizeChange={(event) => setDescriptionHeight(event.nativeEvent.contentSize.height)}
+                  selectionColor="#4A46FF"
                 />
             </View>
 
@@ -274,7 +294,7 @@ const EditProfileScreen = () => {
                 <TouchableOpacity 
                     style={[
                         styles.iconContainer, 
-                        selectedSports.Tennis ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
+                        selectedSports.Tennis ? { backgroundColor: '#4A46FF', borderRadius: 12} : null
                     ]}
                     onPress={() => handleAddSport('Tennis')}>
                     <View style={[styles.iconTennis, {backgroundColor: selectedSports.Tennis ? '#4A46FF' : 'white',  borderRadius: 12, width: 65, height: 69}]}>
@@ -289,38 +309,35 @@ const EditProfileScreen = () => {
             <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Ambition</Text>
                 <TextInput
-                    style={[styles.input, styles.multilineInput, styles.boldText]} 
-                    placeholder="Ambition"
-                    value={userData.ambition}
-                    onChangeText={(text) => setUserData({ ...userData, ambition: text })}
-                    multiline={true} 
-                    textAlignVertical="top"
+                  style={[styles.input, styles.multilineInput, styles.boldText, { textAlign: 'justify' }, { height: Math.max(110, ambitionHeight) }]}
+                  placeholder="Ambition"
+                  value={userData.ambition}
+                  onChangeText={(text) => setUserData({ ...userData, ambition: text })}
+                  multiline={true}
+                  textAlignVertical="top"
+                  onContentSizeChange={(event) => setAmbitionHeight(event.nativeEvent.contentSize.height)}
+                  selectionColor="#4A46FF"
                 />
             </View>
           
-            <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Photo de profil et de couverture</Text>
-              <TouchableOpacity style={styles.addButton} onPress={uploadCover}>
-                  <Text style={styles.addButtonImage}>+</Text>
-              </TouchableOpacity>
-              <Image
-                  source={{ uri: userData.coverPicture }}
-                  style={styles.coverImage}
-            />
-
-              <View style={styles.profileImageBottomContainer}>
-                  <TouchableOpacity style={styles.addButton} onPress={uploadProfile}>
-                      <Text style={styles.addButtonCover}>+</Text>
+            <View style={styles.inputContainerPhotos}>
+                <Text style={styles.inputLabel}>Photo de profile et de couverture</Text>
+                
+                <View style={styles.profileImagesContainer}>
+                  <Image source={{ uri: userData.coverPicture }} style={styles.profileCover} />
+                  <TouchableOpacity style={styles.addButtonCover} onPress={uploadCover}>
+                   <Text style={styles.addButtonText}>+</Text>
                   </TouchableOpacity>
-                  <Image
-                      source={{ uri: userData.profilePicture }}
-                      style={styles.profileImageBottom}
-                  />
-              </View>
+                </View>
+                <View style={styles.profileImagesContainer}>
+                  <Image source={{ uri: userData.profilePicture }} style={styles.profileImageBottom} />
+                  <TouchableOpacity style={styles.addButtonProfile} onPress={uploadProfile}>
+                    <Text style={styles.addButtonText}>+</Text>
+                  </TouchableOpacity>
+                </View>
             </View>
 
             <View style={styles.buttonContainer}>
-             
                 <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Ok</Text>
                 </TouchableOpacity>
@@ -344,7 +361,7 @@ const styles = StyleSheet.create({
 //Bouton retour en arrière
 backButton: {
   position: 'absolute',
-  top: 100,
+  top: 90,
   left: 20,
   Index: 1,
 },
@@ -355,26 +372,26 @@ backButtonText: {
   fontFamily: 'Poppins_400Regular',
 },
 
-//pseudo + image + avis
+//pseudo + image 
 profileImageContainer: {
   marginTop: 25,
   alignItems: 'center',
 },
   
 profileImageTop: {
-  width: 130,
-  height: 130,
+  width: 100,
+  height: 100,
   borderRadius: 75,
   borderWidth: 4,
   borderColor: 'white',
-  marginTop: 20,
+  marginTop: 40,
   right: 50,
 },
 
 pseudoText: {
   position: 'absolute',
   left: 20,
-  bottom: 12,
+  bottom: 0,
   color: 'black',
   paddingVertical: 50,
   fontFamily: 'Poppins_700Bold',
@@ -387,11 +404,11 @@ inputContainer: {
   marginHorizontal: 0,
   marginTop: 20,
   alignSelf: "center",
+  borderWidth: 2,
 },
 
 inputLabel: {
   fontSize: 16,
-  marginBottom: 5,
   fontFamily: 'Poppins_400Regular',
 },
 
@@ -405,16 +422,16 @@ input: {
   fontSize: 14,
 },
 
-inputArea: {
-  backgroundColor: 'white',
-  borderRadius: 10,
-  height: 90,
-  paddingHorizontal: 10,
-  width: "100%",
-  fontFamily: 'Poppins_700Bold',
-  fontSize: 14,
-  paddingBottom: 35,
-},
+// inputArea: {
+//   backgroundColor: 'white',
+//   borderRadius: 10,
+//   height: 90,
+//   paddingHorizontal: 10,
+//   width: "100%",
+//   fontFamily: 'Poppins_700Bold',
+//   fontSize: 14,
+//   paddingBottom: 35,
+// },
 
 boldText: {
   fontWeight: 'bold',
@@ -432,119 +449,135 @@ reviewText: {
   marginBottom: 10,
 },
 
-//Icones sports
-sportIconsContainer: {
-  flexDirection: 'row',
-  alignItems: 'center', 
-  width: '86%',
-},
-
-iconFoot:{
-  justifyContent:'center',
-  alignItems:'center',
-  backgroundColor:"white",
-  width:65,
-  height:69,
-  borderRadius:12,
-  marginHorizontal: 6,
-},
-
-iconBasket:{
-  justifyContent:'center',
-  alignItems:'center',
-  backgroundColor:"white",
-  width:65,
-  height:69,
-  borderRadius:12,
-  marginHorizontal: 6,
-},
-
-iconRunning:{
-  justifyContent:'center',
-  alignItems:'center',
-  backgroundColor:"white",
-  width:65,
-  height:69,
-  borderRadius:12,
-  marginHorizontal: 6,
-},
-
-iconTennis:{
-  justifyContent:'center',
-  alignItems:'center',
-  backgroundColor:"white",
-  width:65,
-  height:69,
-  borderRadius:12,
-  marginHorizontal: 6,
-},
-addButtonText: {
-  color: 'white',
-  fontSize: 20,
-},
-
-//Bouton ajouter photo cover + profil
+//Bouton pour icones sports
 addButton: {
   position: 'absolute',
   bottom: -5,
-  right: -5,
+  left: 45,
   backgroundColor: '#4A46FF',
-  width: 25,
-  height: 25,
+  width: 22,
+  height: 22,
   borderRadius: 30,
   justifyContent: 'center',
   alignItems: 'center',
   color: 'white',
 },
 
-addButtonCover: {
+addButtonText: {
   color: 'white',
-  fontSize: 20,
+  fontSize: 25,
+  bottom: 5,
 },
 
-addButtonImage: {
-  color: 'white',
-  fontSize: 20,
+//Icones sports
+sportIconsContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignSelf: 'center',
+  borderWidth: 2,
+  width: '80%',
 },
 
-//Photo cover + profil
-profileImageBottomContainer: {
-  position: 'absolute',
-  top: '50%',  
-  left: '50%', 
-  transform: [{ translateX: -65 }, { translateY: -65 }], 
+iconFoot: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: "white",
+  width: '30%', 
+  height: 69,
+  borderRadius: 12,
 },
 
-coverImage: {
+iconBasket: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: "white",
+  width: '30%', 
+  height: 69,
+  borderRadius: 12,
+},
+
+iconRunning: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: "white",
+  width: '30%', 
+  height: 69,
+  borderRadius: 12,
+},
+
+iconTennis: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: "white",
+  width: '30%', 
+  height: 69,
+  borderRadius: 12,
+},
+
+//Photo cover + profil bas
+inputContainerPhotos: {
+width: '80%',
+marginHorizontal: 0,
+marginTop: 20,
+alignSelf: "center",
+borderWidth: 2,
+}, 
+
+profileCover: {
   width: '100%',
   backgroundColor: 'white',
   height: 182,
   borderRadius: 10,
   justifyContent: 'center',
   paddingLeft: 15,
-  marginBottom: 13,
 },
 
 profileImageBottom: {
-  width: 130,
-  height: 130,
-  borderRadius: 75,
+  width: 120, 
+  height: 120, 
+  borderRadius: 60, 
   borderWidth: 4,
-  borderColor: '#F4F4F4',
+  borderColor: 'white',
+  bottom: 70, 
+  alignSelf: 'center',
+  position: 'relative',
+},
+
+addButtonCover:{
+  position: 'absolute',
+  top: 170,
+  right: 0,
   backgroundColor: '#4A46FF',
-  marginTop: 10,
-  top: 80,
+  width: 22,
+  height: 22,
+  borderRadius: 30,
+  justifyContent: 'center',
+  alignItems: 'center',
+  color: 'white',
+},
+
+addButtonProfile:{
+  position: 'absolute',
+  top: 20, 
+  left: 180, 
+  backgroundColor: '#4A46FF',
+  width: 22, 
+  height: 22, 
+  borderRadius: 30, 
+  alignItems: 'center',
+  color: 'white',
 },
 
 // Boutons pied de page
 buttonContainer: {
   width: '100%',
-  marginTop: 90,
+  marginTop: 10,
   alignItems: 'center',
 },
 
 button: {
-  width: '80%',
+  width : '85%',
+  height: 53,
   backgroundColor: '#4A46FF',
   padding: 15,
   borderRadius: 40,
