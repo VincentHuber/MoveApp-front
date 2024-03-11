@@ -16,11 +16,13 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 
+
+
 //import Star from "../../Move-front/assets/star.js";
 //import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 //import { faStar as farStar, faStarHalf as farStarHalf, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
 
-const BACKEND_ASSRESS = "http://192.168.1.179:3000";
+const BACKEND_ASSRESS = "http://192.168.10.123:3000";
 
 export default function ReviewScreen() {
   const [isVisible, setIsVisible] = useState(false);
@@ -30,7 +32,8 @@ export default function ReviewScreen() {
   const [isTextInputVisible, setIsTextInputVisible] = useState(false);
   const [isReviewVisible, setIsReviewVisible] = useState(true);
 
-  // cette fonction au clik fait disparaitre le bouton "laisser un avis" pour faire apparaitre l champs de commentaire. j'ai opté pour ceci a la place d'une modale
+  // cette fonction au clik fait disparaitre le bouton "laisser un avis" pour faire apparaitre le champs de commentaire. 
+  //j'ai opté pour ceci a la place d'une modale
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
     setIsReviewVisible(!isReviewVisible);
@@ -44,7 +47,7 @@ export default function ReviewScreen() {
       console.error("Veuillez laisser un commentaire.");
       return;
     }
-    // la methode slice permet de limiter la longueur du texte a 250 caractère
+    // la methode slice permet de limiter la longueur du texte a 250 caractères
     const trimmedReviewText = reviewText.slice(0, 250);
 
     // Vérifiez si la longueur du commentaire dépasse pas 250 caractères
@@ -61,6 +64,7 @@ export default function ReviewScreen() {
 
     console.log(reviewText);
     console.log(renderStars());
+    
 
     // Envoi du commentaire au backend pour que ensuite la requéte puisse etre enregistré dans la bdd
     fetch(`${BACKEND_ASSRESS}/review/`, {
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontFamily: "Poppins_600SemiBold",
+    fontFamily: "Montserrat_600SemiBold",
     fontSize: 16,
     textAlign: "center",
     color: "#4A46FF",
@@ -232,7 +236,7 @@ const styles = StyleSheet.create({
   },
 
   buttonreview: {
-    fontFamily: "Poppins_600SemiBold",
+    fontFamily: "Montserrat_600SemiBold",
     backgroundColor: "#4A46FF",
     width: 317,
     height: 53,
