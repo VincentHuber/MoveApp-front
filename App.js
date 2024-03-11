@@ -8,7 +8,7 @@ import user from './reducers/users';
 
 import MapScreen from './screens/MapScreen';
 import HomeScreen from './screens/HomeScreen';
-import ReviewScreen from './screens/ReviewScreen';
+import ChatScreen from './screens/ChatScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 
 
@@ -26,9 +26,10 @@ export default function App() {
     <Provider store={store}> 
       <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Edit" component={EditProfileScreen} /> 
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Map" component={MapScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="Chat" component={ChatScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
    </Provider>
