@@ -11,7 +11,7 @@ import Tennis from '../assets/tennis.js';
 import { useSelector } from 'react-redux';
 
 // Adresse du backend
-const BACKEND_ADDRESS = 'http://192.168.84.75:3000';
+const BACKEND_ADDRESS = 'http://192.168.10.124:3000';
 
 
 const EditProfileScreen = () => {
@@ -89,7 +89,7 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
     };
 
     const handleSubmit = () => {
-      // Trouver les champs modifiés
+      // Trouver champs modifiés
       const updatedFields = {};
       for (const key in userData) {
         if (userData[key] !== '') {
@@ -107,7 +107,7 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFields), // Utilisez les champs modifiés ici
+        body: JSON.stringify(updatedFields), 
     })
     .then(response => response.json())
     .then(data => {
@@ -119,7 +119,7 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
     });
   };
 
-  const BACKEND_ADDRESS = 'http://192.168.84.75:3000';
+  const BACKEND_ADDRESS = 'http://192.168.10.124:3000';
   const tokenTest = "BzDXT_ZEUOMIu4eNerbF-g9-mjDxZO45"
   const user = useSelector((state) => state.user.value);
   console.log(user.token)
@@ -179,12 +179,10 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
                 <Text style={[styles.pseudoText, { fontSize: userData.nickname && userData.nickname.length > 10 ? 20 : 25 }]}>
                     {userData.nickname}
                 </Text>
+                <TouchableOpacity style={styles.reviewButton} onPress={() => navigation.navigate('ReviewScreen')}>
+                    <Text style={styles.reviewText}>.</Text>
+                </TouchableOpacity>
               </View>
-                <View>
-                  <TouchableOpacity style={styles.reviewButton} onPress={() => navigation.navigate('ReviewScreen')}>
-                      <Text style={styles.reviewText}>.</Text>
-                  </TouchableOpacity>
-                </View>
             </View>
 
             <View style={styles.inputContainer}>
@@ -340,7 +338,6 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
             </View>
 
             <View style={styles.buttonContainer}>
-             
                 <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Ok</Text>
                 </TouchableOpacity>
@@ -456,7 +453,7 @@ reviewText: {
 addButton: {
   position: 'absolute',
   bottom: -5,
-  right: 8,
+  left: 45,
   backgroundColor: '#4A46FF',
   width: 22,
   height: 22,
@@ -479,10 +476,6 @@ sportIconsContainer: {
   alignSelf: 'center',
   borderWidth: 2,
   width: '80%',
-},
-
-iconContainer: {
-  flex: 1,
 },
 
 iconFoot: {
