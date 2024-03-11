@@ -65,10 +65,10 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
         quality: 1,
       });
     
-      console.log(result);
+      console.log("result =>", result);
     
-      if (!result.cancelled) {
-        setUserData({ ...userData, profilePicture: result.uri });
+      if (!result.canceled) {
+        setUserData({ ...userData, profilePicture: result.assets[0].uri });
       }
     };
 
@@ -83,8 +83,8 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
     
       console.log(result);
     
-      if (!result.cancelled) {
-        setUserData({ ...userData, coverPicture: result.uri });
+      if (!result.canceled) {
+        setUserData({ ...userData, coverPicture: result.assets[0].uri });
       }
     };
 
