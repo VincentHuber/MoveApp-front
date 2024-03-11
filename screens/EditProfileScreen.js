@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TextInput, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useFonts, Poppins_700Bold, Poppins_600SemiBold, Poppins_400Regular, Poppins_400Regular_Italic, Poppins_500Medium, Poppins_300Light } from '@expo-google-fonts/poppins';
@@ -16,16 +17,26 @@ const BACKEND_ADDRESS = 'http://192.168.10.178:3000';
 
 const EditProfileScreen = () => {
 
+const navigation = useNavigation();
+
+// Logique pour gérer l'interaction avec le bouton "Avis"
+const handleReview = () => {
+  console.log('Bouton Avis cliqué');
+  navigation.navigate('Review');
+};
+
+// Fonction pour afficher 8 étoiles à la place du mdp
+const getPasswordStars = () => {
+  return '**********';
+};
+
+const [successMessage, setSuccessMessage] = useState(false);
+
 //const pour ajuster taille inputs de manière dynamique 
 const [descriptionHeight, setDescriptionHeight] = useState(0);
 const [ambitionHeight, setAmbitionHeight] = useState(0);
 
-  const authToken = useSelector(state => state.user.value.token);
-
-// Logique pour gérer l'interaction avec le bouton "Avis"
-  const handleReview = () => {
-    console.log('Bouton Avis cliqué');
-};
+const authToken = useSelector(state => state.user.value.token);
  
     const [selectedSports, setSelectedSports] = useState({
         Football: false,
@@ -40,8 +51,6 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
             [sport]: !prevState[sport],
         }));
     };
-
-    const navigation = useNavigation();
     
     const [userData, setUserData] = useState({
         nickname: '',
@@ -100,31 +109,35 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
 
       console.log("authToken => ", authToken);
 
-      const tokenTest2 = "BzDXT_ZEUOMIu4eNerbF-g9-mjDxZO45"
 
-      fetch(`${BACKEND_ADDRESS}/user/updateProfile/${tokenTest2}`, {
+      fetch(`${BACKEND_ADDRESS}/user/updateProfile/${authToken}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFields), 
+        body: JSON.stringify(updatedFields),
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.result) {
-            console.log('Profil mis à jour avec succès');
-        } else {
-            console.error('Erreur lors de la mise à jour du profil', data.error);
-        }
-    });
-  };
+        .then(response => response.json())
+        .then(data => {
+            if (data.result) {
+                console.log('Profil mis à jour avec succès');
+                setSuccessMessage(true); // Afficher le message de succès
+                setTimeout(() => {
+                    setSuccessMessage(false); // Masquer le message après quelques secondes
+                    navigation.goBack(); // retour en arrière
+                }, 2000); // Durée du message de succès en millisecondes 
+            } else {
+                console.error('Erreur lors de la mise à jour du profil', data.error);
+            }
+        });
+};
 
   const BACKEND_ADDRESS = 'http://192.168.10.124:3000';
-  const tokenTest = "BzDXT_ZEUOMIu4eNerbF-g9-mjDxZO45"
+ 
   const user = useSelector((state) => state.user.value);
   console.log(user.token)
   useEffect(() => {
-    fetch(`${BACKEND_ADDRESS}/user/${tokenTest}`)
+    fetch(`${BACKEND_ADDRESS}/user/${authToken}`)
       .then(response => response.json())
       .then(data => {
         if (data.result) {
@@ -150,6 +163,10 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
       });
 }, []);
   
+const handleGoBack = () => {
+  navigation.goBack();
+}
+
     const [fontsLoaded] = useFonts({
         Poppins_700Bold,
         Poppins_600SemiBold,
@@ -165,10 +182,14 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-           
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+
+         
+           {/* <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                 <Text style={styles.backButtonText}>Retour</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+            <AntDesign name="left" size={24} color="#4A46FF" />
+          </TouchableOpacity>
             
             <View style={styles.profileImageContainer}>
               <Image
@@ -179,9 +200,11 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
                 <Text style={[styles.pseudoText, { fontSize: userData.nickname && userData.nickname.length > 10 ? 20 : 25 }]}>
                     {userData.nickname}
                 </Text>
-                <TouchableOpacity style={styles.reviewButton} onPress={() => navigation.navigate('ReviewScreen')}>
-                    <Text style={styles.reviewText}>.</Text>
+                <View>
+                <TouchableOpacity style={styles.reviewButton} onPress={handleReview}>
+                  <Text style={styles.reviewText}>avis</Text>
                 </TouchableOpacity>
+                </View>
               </View>
             </View>
 
@@ -210,13 +233,15 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
             <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Password</Text>
                 <TextInput
-                    style={[styles.input, styles.boldText]}
-                    placeholder="Password"
-                    value={userData.password}
-                    onChangeText={(text) => setUserData({ ...userData, password: text })}
-                    secureTextEntry={true}
-                    selectionColor="#4A46FF"
+                  style={[styles.input, styles.boldText]}
+                  placeholder="Password"
+                  value={getPasswordStars()} // Utiliser la fonction getPasswordStars pour afficher les étoiles
+                  onChangeText={(text) => setUserData({ ...userData, password: text })}
+                  secureTextEntry={true}
+                  selectionColor="#4A46FF"
+                  editable={false} // Ajoutez cette ligne pour désactiver le champ de mot de passe
                 />
+                <Text style={styles.passwordMessage}>Pour modifier votre mot de passe, veuillez contacter l'éditeur</Text>
             </View>
 
             <View style={styles.inputContainer}>
@@ -342,7 +367,7 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
                     <Text style={styles.buttonText}>Ok</Text>
                 </TouchableOpacity>
                 
-                <TouchableOpacity style={[styles.button, { backgroundColor: 'white' }]} onPress={() => navigation.navigate('HomeScreen')}>
+                <TouchableOpacity style={[styles.button, { backgroundColor: 'white' }]} onPress={() => navigation.navigate('Home')}>
                     <Text style={[styles.buttonText, { color: 'black' }]}>Se déconnecter</Text>
                 </TouchableOpacity>
             </View>
@@ -363,7 +388,7 @@ backButton: {
   position: 'absolute',
   top: 90,
   left: 20,
-  Index: 1,
+  bottom: '90%',
 },
 
 backButtonText: {
@@ -390,12 +415,21 @@ profileImageTop: {
 
 pseudoText: {
   position: 'absolute',
-  left: 20,
-  bottom: 0,
+  left: 30,
+  bottom: '90%',
   color: 'black',
   paddingVertical: 50,
   fontFamily: 'Poppins_700Bold',
   fontSize: 28,
+},
+
+//Bouton avis
+reviewText: {
+  color: '#4A46FF',
+  textAlign: 'center',
+  marginBottom: 10,
+  bottom: '180%',
+  left: "260%",
 },
 
 //Inputs 
@@ -404,7 +438,6 @@ inputContainer: {
   marginHorizontal: 0,
   marginTop: 20,
   alignSelf: "center",
-  borderWidth: 2,
 },
 
 inputLabel: {
@@ -442,11 +475,11 @@ multilineInput: {
   paddingTop: 10, 
 },
 
-//Bouton avis
-reviewText: {
-  color: '#4A46FF',
-  textAlign: 'center',
-  marginBottom: 10,
+passwordMessage: {
+fontSize: 12,
+fontFamily: 'Poppins_400Regular_Italic',
+left: 10,
+top: 1,
 },
 
 //Bouton pour icones sports
@@ -474,7 +507,6 @@ sportIconsContainer: {
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignSelf: 'center',
-  borderWidth: 2,
   width: '80%',
 },
 
@@ -520,7 +552,6 @@ width: '80%',
 marginHorizontal: 0,
 marginTop: 20,
 alignSelf: "center",
-borderWidth: 2,
 }, 
 
 profileCover: {
@@ -530,17 +561,18 @@ profileCover: {
   borderRadius: 10,
   justifyContent: 'center',
   paddingLeft: 15,
+  borderWidth: 4,
 },
 
 profileImageBottom: {
   width: 120, 
   height: 120, 
   borderRadius: 60, 
-  borderWidth: 4,
   borderColor: 'white',
   bottom: 70, 
   alignSelf: 'center',
   position: 'relative',
+  borderWidth: 4,
 },
 
 addButtonCover:{
@@ -559,7 +591,7 @@ addButtonCover:{
 addButtonProfile:{
   position: 'absolute',
   top: 20, 
-  left: 180, 
+  left: 190, 
   backgroundColor: '#4A46FF',
   width: 22, 
   height: 22, 
@@ -599,3 +631,6 @@ logoutText: {
 });
 
 export default EditProfileScreen;
+
+
+
