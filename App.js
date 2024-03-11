@@ -10,6 +10,7 @@ import MapScreen from './screens/MapScreen';
 import HomeScreen from './screens/HomeScreen';
 import ChatScreen from './screens/ChatScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
+import ReviewScreen from './screens/ReviewScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -30,6 +31,7 @@ export default function App() {
         <Stack.Screen name="Map" component={MapScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} /> 
+        <Stack.Screen name="Review" component={ReviewScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
    </Provider>

@@ -26,7 +26,8 @@ export const userSlice = createSlice({
       state.value.nickname = action.payload.nickname;
       state.value.description = action.payload.description;
       state.value.ambition = action.payload.ambition;
-      state.value.sports = action.payload.sports;
+      state.value.coverPicture = action.payload.coverPicture;
+      state.value.profilePicture = action.payload.profilePicture;
     },
 
     addProfilePicture: (state, action)=>{

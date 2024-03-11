@@ -2,28 +2,43 @@ import React, { useState, useEffect } from 'react';
 import { View, Image, Modal, Text, StyleSheet, TextInput, KeyboardAvoidingView, Platform, SafeAreaView, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 
 import { useDispatch, useSelector } from 'react-redux';
+
+import {
+  useFonts, 
+  Poppins_700Bold, 
+  Poppins_600SemiBold, 
+  Poppins_400Regular, 
+  Poppins_400Regular_Italic, 
+  Poppins_500Medium, 
+  Poppins_300Light
+  } 
+  from '@expo-google-fonts/poppins'
 
 import Foot from '../assets/foot.js'
 import Basket from '../assets/basket.js'
 import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Message from '../assets/message.js'
+import Position from '../assets/position.js'
+import Close from '../assets/close.js'
 
-const BACKEND_ADRESS='http://192.168.10.178:3000'
+
+const BACKEND_ADRESS='http://192.168.10.165:3000'
 
 export default function MapScreen({ navigation }) {
 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
-  console.log(user)
+
 
 
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
   const [searchText, setSearchText] = useState('');
-  const [userInfo, setUserInfo] = useState({ name: '', description: '', ambition: ''});
+  const [userInfo, setUserInfo] = useState({ name: '', description: '', ambition: '', profilePicture:'', coverPicture:''});
   const [userNickname, setUserNickname] = useState('');
 
   // État pour la modal
@@ -39,6 +54,34 @@ export default function MapScreen({ navigation }) {
       navigation.navigate('Home');
     }
     }, [])
+
+    // Fonction pour télécharger une image de couverture
+    const uploadCover = async () => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [3, 2],
+          quality: 1,
+      });
+
+      if (!result.cancelled) {
+          setCover(result.assets[0].uri);
+      }
+  };
+
+  // Fonction pour télécharger une image de profil
+  const uploadProfile = async () => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+      });
+
+      if (!result.cancelled) {
+          setProfile(result.assets[0].uri);
+      }
+  };
 
   // Fonction pour gérer les cliques sur les boutons
   const handlePress = (buttonName) => {
@@ -92,20 +135,41 @@ export default function MapScreen({ navigation }) {
     }
   };
 
+  useEffect(() => {
+    console.log('hello');
+    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          console.log(data);
+          
+          setUserInfo(prevState => ({
+            ...prevState, 
+            profilePicture: data.user.profilePicture, 
+          }));
+        }
+      })
+      .catch(error => console.error('Erreur lors de la récupération des données', error));
+  }, []);
+
+  // image par défaut au cas ou il n'y pas d'image trouvée
+const defaultImage = '../assets/imagePerso.png';
+
   
   const handleModal = () => {
-    console.log(user);
     fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then(response => response.json())
       .then(data => {
        
         if (data.result) {
-          console.log(data);
+          //console.log(data);
           const user = data.user;
           setUserInfo({
             nickname: user.nickname,
             description: user.description,
-            ambition: user.ambition
+            ambition: user.ambition,
+            coverPicture: user.coverPicture,
+            profilePicture: user.profilePicture
           });
           setModalVisible(true);
           setModal2Visible(false);
@@ -117,18 +181,19 @@ export default function MapScreen({ navigation }) {
   };
 
   const handleModal2 = () => {
-    console.log(user);
     fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then(response => response.json())
       .then(data => {
        
         if (data.result) {
-          console.log(data);
+          //console.log(data);
           const user = data.user;
           setUserInfo({
             nickname: user.nickname,
             description: user.description,
-            ambition: user.ambition
+            ambition: user.ambition,
+            coverPicture: user.coverPicture,
+            profilePicture: user.profilePicture
           });
           setModal2Visible(true);
           setModalVisible(false);
@@ -138,7 +203,7 @@ export default function MapScreen({ navigation }) {
         console.error('Erreur lors de la récupération des informations de l\'utilisateur:', error);
       });
   };
-
+  
   const handleModif = () => {
     navigation.navigate('EditProfile');
     setModalVisible(false);
@@ -149,9 +214,43 @@ export default function MapScreen({ navigation }) {
     setModal2Visible(false);
   };
 
+  const handleReviews = () => {
+    //navigation.navigate('Review');
+    setModalVisible(false);
+  };
+
+  const handle2Reviews = () => {
+    //navigation.navigate('Review');
+    setModal2Visible(false);
+  };
+
   const handleChat = () => {
     navigation.navigate('Chat');
   };
+
+  const handleReturnToLocation = async () => {
+    let currentLocation = await Location.getCurrentPositionAsync({});
+    setRegion({
+      latitude: currentLocation.coords.latitude,
+      longitude: currentLocation.coords.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    });
+  };
+
+  //Fonts
+  const [fontsLoaded] = useFonts({
+    Poppins_700Bold,
+    Poppins_600SemiBold, 
+    Poppins_400Regular, 
+    Poppins_400Regular_Italic, 
+    Poppins_500Medium, 
+    Poppins_300Light
+})
+
+if(!fontsLoaded){
+    return null
+}
 
   return (
 
@@ -183,16 +282,25 @@ export default function MapScreen({ navigation }) {
         <Modal visible={modalVisible} animationType="fade" transparent>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
+              <Image style={styles.photoCoverModal} source={{ uri: userInfo.coverPicture}}/>
+              <Image style={styles.photoProfilModal} source={{ uri: userInfo.profilePicture}}/>
               <Text style={styles.textModal1}>{userInfo.nickname}</Text>
               <Text style={styles.textModal2}>{userInfo.description}</Text>
               <Text style={styles.textSports}>MES SPORTS </Text>
               <Text style={styles.textambition}>MON AMBITION </Text>
               <Text style={styles.textModal3}>{userInfo.ambition}</Text>
           </View>
+
           <View style={styles.modalClose}>
-          <TouchableOpacity onPress={() => handleClose()}>
-          <Image source={require('../assets/close.jpg')}/>
+
+            <TouchableOpacity onPress={() => handleClose()}>
+            <Image source={require('../assets/close.jpg')}/>
             </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleReviews()} style={styles.boutonAvis} >
+            <Image source={require('../assets/boutonAvis.jpg')}/>
+            </TouchableOpacity>
+
             <TouchableOpacity onPress={() => handleModif()} style={styles.frameChat} activeOpacity={0.8} >
             <Image source={require('../assets/boutonModifier.jpg')}/>
             </TouchableOpacity>
@@ -202,18 +310,28 @@ export default function MapScreen({ navigation }) {
         </Modal>
 
         <Modal visible={modal2Visible} animationType="fade" transparent>
+
         <View style={styles.centeredView}>
+
           <View style={styles.modalView}>
+          <Image style={styles.photoCoverModal} source={{ uri: userInfo.coverPicture}}/>
+              <Image style={styles.photoProfilModal} source={{ uri: userInfo.profilePicture}}/>
               <Text style={styles.textModal1}>{userInfo.nickname}</Text>
               <Text style={styles.textModal2}>{userInfo.description}</Text>
               <Text style={styles.textSports}>SES SPORTS </Text>
               <Text style={styles.textambition}>SON AMBITION </Text>
               <Text style={styles.textModal3}>{userInfo.ambition}</Text>
           </View>
-          <View style={styles.modalClose}>
-          <TouchableOpacity onPress={() => handleClose()}>
-          <Image source={require('../assets/close.jpg')}/>
+
+            <View style={styles.modalClose}>
+            <TouchableOpacity style={getButtonStyle('close')} onPress={() => handleClose('close')}>
+              <Close/>
             </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleReviews()} style={styles.boutonAvis} >
+            <Image source={require('../assets/boutonAvis.jpg')}/>
+            </TouchableOpacity>
+
             <TouchableOpacity onPress={() => handle2Modif()} style={styles.frameChat} activeOpacity={0.8} >
             <Image source={require('../assets/frameChat.jpg')}/>
             </TouchableOpacity>
@@ -235,9 +353,15 @@ export default function MapScreen({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => handleModal()} style={styles.modalProfil} activeOpacity={0.8}>
-            <Image source={require('../assets/photoProfil.jpg')}/>
+          <Image source={{ uri: userInfo.profilePicture || defaultImage }} style={{width: 48, height: 48, borderRadius:57,}}/>
           </TouchableOpacity>
-          
+
+              <View style={styles.buttonLocation}>
+              <TouchableOpacity style={getButtonStyle('position')} onPress={() => handleReturnToLocation('position')}>
+              <Position/>
+              </TouchableOpacity>
+              </View>
+         
           </View>
 
         <TouchableOpacity style={styles.message} onPress={() => handleChat()}>
@@ -366,55 +490,77 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
+  photoCoverModal:{
+    position: "absolute",
+    width: 323,
+    height: 183,
+    borderRadius: 10,
+    justifyContent: 'center',
+    paddingLeft: 15,
+    alignItems:'center',
+    top: '5%',
+},
+
+photoProfilModal: {
+    position: 'absolute',
+    top: '40%',
+    width: 134,
+    height: 134,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 100,
+    borderWidth: 6,
+    borderColor: '#F4F4F4',
+    backgroundColor: 'white',
+},
+
   textModal1:{
     position: "absolute",
     justifyContent:'center',
     alignItems:'center',
-    top:110,
-    right:180,
-    fontSize: 30,
+    top:'82%',
+    width: 299,
+    fontSize: 28,
+    left: 130,
+    fontFamily: 'Poppins_700Bold'
   },
 
   textModal2:{
     position: "absolute",
     justifyContent:'center',
     alignItems:'center',
-    top:200,
-    left: 45,
-    fontSize: 20,
+    top:'94%',
+    fontSize: 14,
     width: 299,
-  },
-
-  textModal3:{
-    position: "absolute",
-    justifyContent:'center',
-    alignItems:'center',
-    bottom:100,
-    left: 45,
-    fontSize: 20,
-    width: 299,
-  },
-
-  textambition:{
-    position: "absolute",
-    justifyContent:'center',
-    alignItems:'center',
-    bottom:200,
-    left: 120,
-    fontSize: 20,
-    width: 299,
-    fontWeight: 'bold'
+    fontFamily: 'Poppins_400Regular_Italic',
   },
 
   textSports:{
     position: "absolute",
     justifyContent:'center',
     alignItems:'center',
-    bottom:350,
-    left: 120,
-    fontSize: 20,
+    top:'115%',
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold'
+  },
+
+  textambition:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    top:'150%',
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold'
+  },
+
+  textModal3:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    top:'160%',
+    fontSize: 14,
     width: 299,
-    fontWeight: 'bold'
+    fontFamily: 'Poppins_400Regular_Italic'
   },
 
   modalClose:{
@@ -424,6 +570,17 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     backgroundColor: '#4A46FF',
+    width:44,
+    height:44,
+    borderRadius:50,
+  },
+
+  boutonAvis:{
+    position: "absolute",
+    top:'620%',
+    right:100,
+    justifyContent:'center',
+    alignItems:'center',
     width:44,
     height:44,
     borderRadius:50,
@@ -453,6 +610,17 @@ const styles = StyleSheet.create({
     alignItems:'center',
     bottom:'20%',
     right:'5%',
+    width:48,
+    height:48,
+    borderRadius:57,
+  },
+
+  buttonLocation:{
+    position: "absolute",
+    justifyContent:'center',
+    alignItems:'center',
+    bottom:'20%',
+    right:'82%',
     width:48,
     height:48,
     borderRadius:57,
