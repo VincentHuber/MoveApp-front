@@ -12,7 +12,7 @@ import Tennis from '../assets/tennis.js';
 import { useSelector } from 'react-redux';
 
 // Adresse du backend
-const BACKEND_ADDRESS = 'http://192.168.10.178:3000';
+const BACKEND_ADDRESS = 'http://192.168.84.75:3000';
 
 
 const EditProfileScreen = () => {
@@ -132,7 +132,7 @@ const authToken = useSelector(state => state.user.value.token);
         });
 };
 
-  const BACKEND_ADDRESS = 'http://192.168.10.124:3000';
+  const BACKEND_ADDRESS = 'http://192.168.84.75:3000';
  
   const user = useSelector((state) => state.user.value);
   console.log(user.token)
@@ -154,6 +154,9 @@ const authToken = useSelector(state => state.user.value.token);
             coverPicture: user.coverPicture,
             profilePicture: user.profilePicture,
           });
+
+          // Mettre à jour les sports sélectionnés
+          setSelectedSports(user.sports);
         } else {
           console.error('Aucun utilisateur trouvé.');
         }
@@ -239,7 +242,7 @@ const handleGoBack = () => {
                   onChangeText={(text) => setUserData({ ...userData, password: text })}
                   secureTextEntry={true}
                   selectionColor="#4A46FF"
-                  editable={false} // Ajoutez cette ligne pour désactiver le champ de mot de passe
+                  editable={false} // Désactiver le champ de mot de passe
                 />
                 <Text style={styles.passwordMessage}>Pour modifier votre mot de passe, veuillez contacter l'éditeur</Text>
             </View>
@@ -284,7 +287,7 @@ const handleGoBack = () => {
                         <Foot fill={selectedSports.Football ? 'white' : 'black'} />
                     </View>
                     <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Football')}>
-                        <Text style={styles.addButtonText}>+</Text>
+                      <Text style={styles.addButtonText}>{selectedSports.Football ? '-' : '+'}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
 
@@ -298,7 +301,7 @@ const handleGoBack = () => {
                         <Basket fill={selectedSports.Basketball ? 'white' : 'black'} />
                     </View>
                     <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Basketball')}>
-                        <Text style={styles.addButtonText}>+</Text>
+                      <Text style={styles.addButtonText}>{selectedSports.Basketball ? '-' : '+'}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
 
@@ -312,7 +315,7 @@ const handleGoBack = () => {
                         <Running fill={selectedSports.Running ? 'white' : 'black'} />
                     </View>
                     <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Running')}>
-                        <Text style={styles.addButtonText}>+</Text>
+                      <Text style={styles.addButtonText}>{selectedSports.Running ? '-' : '+'}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
 
@@ -326,7 +329,7 @@ const handleGoBack = () => {
                         <Tennis fill={selectedSports.Tennis ? 'white' : 'black'} />
                     </View>
                     <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Tennis')}>
-                        <Text style={styles.addButtonText}>+</Text>
+                      <Text style={styles.addButtonText}>{selectedSports.Tennis ? '-' : '+'}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
             </View>

@@ -36,7 +36,7 @@ import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
 
-const BACKEND_ADRESS = 'http://192.168.10.124:3000'
+const BACKEND_ADRESS = 'http://192.168.84.75:3000'
 
 
 export default function HomeScreen({ navigation }) {
@@ -175,24 +175,25 @@ export default function HomeScreen({ navigation }) {
 
 
     const handleConnection = () => {
-        console.log({ email: signInUsermail, password: signInPassword })
-		fetch(`${BACKEND_ADRESS}/user/signin`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
-		}).then(response => response.json())
-			.then(data => {
-                console.log(data)
-				if (data.result) {
-					dispatch(login({ email: signInUsermail, token: data.token }));
-					setSignInUsermail('');
-					setSignInPassword('');
-					setIsOpen(-1);
-                    navigation.navigate('Map')
-				}else {
-                    Alert.alert('Email et/ou mot de passe incorrect(s).')}
-			});
-	};
+    console.log({ email: signInUsermail, password: '********' }); // Cacher le mot de passe dans les logs
+    fetch(`${BACKEND_ADRESS}/user/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
+    }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.result) {
+                dispatch(login({ email: signInUsermail, token: data.token }));
+                setSignInUsermail('');
+                setSignInPassword('');
+                setIsOpen(-1);
+                navigation.navigate('Map');
+            } else {
+                Alert.alert('Email et/ou mot de passe incorrect(s).');
+            }
+        });
+};
     
 
     //Fonts
@@ -245,6 +246,7 @@ export default function HomeScreen({ navigation }) {
                                 placeholder='Pseudo*'      
                                 onChangeText={(value) => setNickname(value)}
                                 value={nickname}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View style={styles.email}>
@@ -254,6 +256,7 @@ export default function HomeScreen({ navigation }) {
                                 placeholder='Email*'   
                                 onChangeText={(value) => setSignInUsermail(value)}
                                 value={signInUsermail}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View style={styles.password}>
@@ -263,6 +266,7 @@ export default function HomeScreen({ navigation }) {
                                 placeholder='Password*'     
                                 onChangeText={(value) => setSignInPassword(value)}
                                 value={signInPassword}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View styles={styles.contenairExplicationAdress}>
@@ -277,43 +281,90 @@ export default function HomeScreen({ navigation }) {
                                 placeholder='Adresse*'  
                                 onChangeText={(value) => setAdress(value)}
                                 value={adress}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View style={styles.description}>
                             <TextInput
                                 style={styles.textDescription}
-                                 
+                                
                                 placeholder='Description'  
+                                multiline={true} // Permettre plusieurs lignes
+                                numberOfLines={3} // NB lignes à afficher dès le départ
                                 onChangeText={(value) => setDescription(value)}
                                 value={description}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <Text style={styles.textSports}>MES SPORTS*</Text>
                         <View style={styles.containerIcons}>
-                            <TouchableOpacity style={styles.iconFoot} 
-                                onPress={()=>handleAddSport('Football')}>
-                                    <Foot/>
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Football ? { backgroundColor: '#4A46FF', borderRadius: 12} : null
+                                ]}
+                                onPress={() => handleAddSport('Football')}>
+                            <View style={[styles.iconFoot, {backgroundColor: selectedSports.Football ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
+                                <Foot fill={selectedSports.Football ? 'white' : 'black'} />
+                            </View>
+                            <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Football')}>
+                                <Text style={styles.addButtonText}>{selectedSports.Football ? '-' : '+'}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconRunning} 
-                                    onPress={()=>handleAddSport('Running')}>
-                                <Running/>
+                                </TouchableOpacity>
+
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Basketball ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
+                                ]}
+                                onPress={() => handleAddSport('Basketball')}>
+                                <View style={[styles.iconBasket, {backgroundColor: selectedSports.Basketball ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
+                                    <Basket fill={selectedSports.Basketball ? 'white' : 'black'} />
+                                </View>
+                                <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Basketball')}>
+                                    <Text style={styles.addButtonText}>{selectedSports.Basketball ? '-' : '+'}</Text>
+                                </TouchableOpacity>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconBasket}
-                                    onPress={()=>handleAddSport('Basketball')}>
-                                <Basket/>
+
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Running ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
+                                ]}
+                                onPress={() => handleAddSport('Running')}>
+                                <View style={[styles.iconRunning, {backgroundColor: selectedSports.Running ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
+                                    <Running fill={selectedSports.Running ? 'white' : 'black'} />
+                                </View>
+                                <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Running')}>
+                                    <Text style={styles.addButtonText}>{selectedSports.Running ? '-' : '+'}</Text>
+                                </TouchableOpacity>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconTennis}
-                                    onPress={()=>handleAddSport('Tennis')}>
-                                <Tennis/>
+
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Tennis ? { backgroundColor: '#4A46FF', borderRadius: 12} : null
+                                ]}
+                                onPress={() => handleAddSport('Tennis')}>
+                                <View style={[styles.iconTennis, {backgroundColor: selectedSports.Tennis ? '#4A46FF' : 'white',  borderRadius: 12, width: 65, height: 69}]}>
+                                    <Tennis fill={selectedSports.Tennis ? 'white' : 'black'} />
+                                </View>
+                                <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Tennis')}>
+                                    <Text style={styles.addButtonText}>{selectedSports.Tennis ? '-' : '+'}</Text>
+                                </TouchableOpacity>
                             </TouchableOpacity>
                         </View>
+
                         <View style={styles.ambition}>
                             <TextInput  
                                 style={styles.textAmbition}  
                                 type="text"  
                                 placeholder='Ambition'
+                                multiline={true} // Permettre plusieurs lignes
+                                numberOfLines={3} // NB lignes à afficher dès le départ
                                 onChangeText={(value) => setAmbition(value)}
                                 value={ambition}
+                                selectionColor="#4A46FF"
                             />
                         </View>
 
@@ -391,15 +442,18 @@ export default function HomeScreen({ navigation }) {
                                     placeholder='Email*'   
                                     onChangeText={(value) => setSignInUsermail(value)}
                                     value={signInUsermail}
+                                    selectionColor="#4A46FF"
                                 />
                             </View>
                             <View style={styles.password}>
                                 <TextInput
                                     style={styles.textPassword}
                                     type="password*"  
+                                    secureTextEntry={true} // pour cacher le mot de passe
                                     placeholder='Password'     
                                     onChangeText={(value) => setSignInPassword(value)}
                                     value={signInPassword}
+                                    selectionColor="#4A46FF"
                                 />
                             </View>
                         <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => handleConnection()}>
@@ -616,6 +670,26 @@ const styles = StyleSheet.create({
         borderRadius:12,
         marginHorizontal: 6,
     },
+
+//Bouton pour icones sports
+addButton: {
+    position: 'absolute',
+    bottom: -5,
+    left: 55,
+    backgroundColor: '#4A46FF',
+    width: 22,
+    height: 22,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
+  },
+  
+  addButtonText: {
+    color: 'white',
+    fontSize: 25,
+    bottom: 5,
+  },
 
     // INPUT
     
@@ -846,7 +920,7 @@ const styles = StyleSheet.create({
     },
 
     buttonUploadProfile:{
-
+    
 
     },
 })

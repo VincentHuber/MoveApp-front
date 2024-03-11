@@ -26,7 +26,7 @@ import Position from '../assets/position.js'
 import Close from '../assets/close.js'
 
 
-const BACKEND_ADRESS='http://192.168.10.124:3000'
+const BACKEND_ADRESS='http://192.168.84.75:3000'
 
 export default function MapScreen({ navigation }) {
 
@@ -346,6 +346,7 @@ if(!fontsLoaded){
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={handleSearch}
+            selectionColor="#4A46FF"
           />
 
           <TouchableOpacity onPress={() => handleModal2()} style={styles.modaluser} activeOpacity={0.8}>
