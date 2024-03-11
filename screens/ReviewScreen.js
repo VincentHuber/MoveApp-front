@@ -15,14 +15,9 @@ import {
 } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesome, AntDesign } from "@expo/vector-icons";
 
-
-
-//import Star from "../../Move-front/assets/star.js";
-//import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-//import { faStar as farStar, faStarHalf as farStarHalf, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
-
-const BACKEND_ASSRESS = "http://192.168.10.123:3000";
+const BACKEND_ADDRESS = "http://192.168.10.123:3000";
 
 export default function ReviewScreen() {
   const [isVisible, setIsVisible] = useState(false);
@@ -31,8 +26,44 @@ export default function ReviewScreen() {
   const [addReviews, setAddReviews] = useState([]);
   const [isTextInputVisible, setIsTextInputVisible] = useState(false);
   const [isReviewVisible, setIsReviewVisible] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Etat pour stocker la date sélectionnée
 
-  // cette fonction au clik fait disparaitre le bouton "laisser un avis" pour faire apparaitre le champs de commentaire. 
+  const [userData, setUserData] = useState({
+    nickname: "",
+    profilePicture: "",
+  });
+
+  //const user = useSelector((state) => state.user.value);
+
+  /*useEffect(() => {
+    fetch(`${BACKEND_ADDRESS}/user/`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result) {
+          console.log(data);
+          const user = data.user;
+          setUserData({
+            nickname: user.nickname,
+            profilePicture: user.profilePicture,
+          });
+        } else {
+          console.error("Aucun utilisateur trouvé.");
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Erreur lors de la récupération des informations de l'utilisateur:",
+          error
+        );
+      });
+  }, []);*/
+
+  //fonction bouton retour pour revenir au screen precedent
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
+  // cette fonction au clik fait disparaitre le bouton "laisser un avis" pour faire apparaitre le champs de commentaire.
   //j'ai opté pour ceci a la place d'une modale
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
@@ -60,17 +91,27 @@ export default function ReviewScreen() {
     setIsVisible(false);
     setIsReviewVisible(true);
     setReviewText("");
-    setAddReviews([...addReviews, trimmedReviewText]);
+    const newReview = {
+      review: trimmedReviewText,
+      stars: ratingStars,
+      date: selectedDate,
+    };
+
+    setAddReviews([...addReviews, newReview]);
 
     console.log(reviewText);
+    console.log(selectedDate);
     console.log(renderStars());
-    
 
     // Envoi du commentaire au backend pour que ensuite la requéte puisse etre enregistré dans la bdd
-    fetch(`${BACKEND_ASSRESS}/review/`, {
+    fetch(`${BACKEND_ADDRESS}/review/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ review: reviewText, stars: ratingStars }),
+      body: JSON.stringify({
+        review: reviewText,
+        stars: ratingStars,
+        date: selectedDate,
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -123,6 +164,12 @@ export default function ReviewScreen() {
         />
 
         <View>
+          <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+            <AntDesign name="left" size={24} color="#4A46FF" />
+          </TouchableOpacity>
+        </View>
+
+        <View>
           {isReviewVisible && (
             <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
               <Text style={styles.text}>Laisser un avis</Text>
@@ -138,6 +185,9 @@ export default function ReviewScreen() {
             >
               <View style={styles.inputWrapper}>
                 <View>{renderStars()}</View>
+                <Text style={{ marginLeft: 118, marginTop: 110 }}>
+                  {selectedDate.toLocaleDateString()}
+                </Text>
                 <TextInput
                   style={styles.input}
                   multiline={true}
@@ -160,7 +210,20 @@ export default function ReviewScreen() {
           <View>
             {addReviews.map((review, index) => (
               <View key={index} style={styles.reviewItem}>
-                <Text>{review}</Text>
+                <View style={styles.starItem}>
+                  {[...Array(review.stars)].map((_, i) => (
+                    <FontAwesomeIcon
+                      key={i}
+                      icon={faStar}
+                      style={[
+                        styles.star,
+                        { color: i < review.stars ? "#4A46FF" : "grey" },
+                      ]}
+                    />
+                  ))}
+                </View>
+                <Text>{review.date.toLocaleDateString()}</Text>
+                <Text>{review.review}</Text>
               </View>
             ))}
           </View>
@@ -178,7 +241,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
+  backButton: {
+    flexDirection: "absolute",
+    marginBottom: 50,
+    marginRight: 280,
+  },
+
   button: {
+    flexDirection: "absolute",
     borderColor: "#4A46FF",
     borderWidth: 2,
     width: 317,
@@ -197,9 +267,10 @@ const styles = StyleSheet.create({
   },
 
   inputWrapper: {
+    flexDirection: "absolute",
     backgroundColor: "white",
     width: 317,
-    height: 350,
+    height: 390,
     borderRadius: 20,
     overflow: "hidden",
     maxHeight:
@@ -211,7 +282,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingLeft: 55,
-    paddingTop: 110,
+    paddingTop: 140,
   },
 
   star: {
@@ -226,9 +297,10 @@ const styles = StyleSheet.create({
 
   input: {
     backgroundColor: "#F4F4F4",
+    position: "absolute",
     height: 180,
     marginBottom: 50,
-    marginTop: 160,
+    marginTop: 200,
     width: 300,
     marginLeft: 8,
     paddingTop: 20,
@@ -252,10 +324,15 @@ const styles = StyleSheet.create({
   },
 
   reviewItem: {
+    flexDirection: "absolute",
     backgroundColor: "white",
     padding: 10,
     borderRadius: 20,
     marginTop: 20,
     marginBottom: 1,
+  },
+
+  starItem: {
+    flexDirection: "row",
   },
 });
