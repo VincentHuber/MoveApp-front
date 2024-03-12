@@ -15,7 +15,19 @@ import {
 } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesome, AntDesign } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
+
+import * as ImagePicker from "expo-image-picker";
+import {
+  useFonts,
+  Poppins_700Bold,
+  Poppins_600SemiBold,
+  Poppins_400Regular,
+  Poppins_400Regular_Italic,
+  Poppins_500Medium,
+  Poppins_300Light,
+ 
+} from "@expo-google-fonts/poppins";
 
 const BACKEND_ADDRESS = "http://192.168.10.123:3000";
 
@@ -171,7 +183,7 @@ export default function ReviewScreen() {
                   {
                     fontSize:
                       userData.nickname && userData.nickname.length > 10
-                        ? 20
+                        ? 40
                         : 25,
                   },
                 ]}
@@ -250,7 +262,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "blue",
     alignItems: "center",
-    justifyContent: "center",
+    //justifyContent: "center",
   },
 
   backButton: {
@@ -278,13 +290,14 @@ const styles = StyleSheet.create({
 
   pseudoText: {
     position: "absolute",
-    left: 0,
+    //left: 0,
     //top:0,
     bottom: 1,
-    //right:10,
+    //right:1,
+    
     color: "black",
-    paddingVertical: 50,
-    fontFamily: "Poppins",
+    paddingVertical: 30,
+    fontFamily: "Poppins_600SemiBold",
     fontSize: 28,
   },
 
@@ -299,12 +312,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontFamily: "Montserrat_600SemiBold",
-    fontSize: 16,
+    fontFamily:"Poppins_600SemiBold",
+    fontSize: 18,
     textAlign: "center",
     color: "#4A46FF",
     fontWeight: "SemiBold",
-    paddingTop: 4,
+    paddingTop: 2,
   },
 
   inputWrapper: {
@@ -348,7 +361,7 @@ const styles = StyleSheet.create({
   },
 
   buttonreview: {
-    fontFamily: "Montserrat_600SemiBold",
+    fontFamily: "Poppins_600SemiBold",
     //position:"absolute",
     backgroundColor: "#4A46FF",
     width: 317,
@@ -360,7 +373,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 20,
     alignItems: "center",
-    marginTop:10,
+    marginTop: 10,
 
     //marginBottom: 20,
   },
