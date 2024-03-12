@@ -26,7 +26,7 @@ import Position from '../assets/position.js'
 import Close from '../assets/close.js'
 
 
-const BACKEND_ADRESS='http://192.168.84.75:3000'
+const BACKEND_ADRESS='http://192.168.10.135:3000'
 
 export default function MapScreen({ navigation }) {
 
