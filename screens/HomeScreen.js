@@ -9,13 +9,12 @@ import {
     Image,
     KeyboardAvoidingView,
     ScrollView,
+    Alert,
     } from 'react-native';
     
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import * as ImagePicker from 'expo-image-picker';
-
 import { useDispatch, useSelector } from 'react-redux';
 import {user, login, addProfilePicture, addCoverPicture } from '../reducers/users';
 
@@ -36,7 +35,8 @@ import Running from '../assets/running.js'
 import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
-import Close from '../assets/close.js'
+
+const BACKEND_ADRESS = 'http://192.168.10.165:3000'
 
 
 export default function HomeScreen({ navigation }) {
@@ -44,17 +44,15 @@ export default function HomeScreen({ navigation }) {
     const dispatch = useDispatch();
     const userProfilePicture = useSelector(state => state.user.value.profilePicture);
     const userCoverPicture = useSelector(state => state.user.value.coverPicture);
-    const formData = new FormData();
+    
 
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [nickname, setNickname] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [adress, setAdress] = useState('');
     const [description, setDescription] = useState('');
     const [ambition, setAmbition] = useState('');
-
-    // const [sports, setSports] = useState([]);
+    const [signInUsermail, setSignInUsermail] = useState('');
+	const [signInPassword, setSignInPassword] = useState('');
 
     const [selectedSports, setSelectedSports] = useState({
         Football: false,
@@ -62,7 +60,7 @@ export default function HomeScreen({ navigation }) {
         Running: false,
         Tennis: false,
       });
-    
+
       const handleAddSport = (sport) => {
         setSelectedSports(prevState => ({
           ...prevState,
@@ -89,7 +87,7 @@ export default function HomeScreen({ navigation }) {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         aspect: [3, 2],
-        quality: 1,
+        quality: 0.5,
         });
         console.log(result);
 
@@ -105,7 +103,7 @@ export default function HomeScreen({ navigation }) {
         mediaTypes: ImagePicker.MediaTypeOptions.All,
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 1,
+        quality: 0.5,
         });
         console.log(result);
 
@@ -114,90 +112,88 @@ export default function HomeScreen({ navigation }) {
         }
     };
         
-    
     //Profile creation
-    const createProfile = () => {
-        const userData = {
-            nickname,
-            email,
-            password,
-            ambition,
-            adress,
-            sports: selectedSports,
-            description,
-            profilePicture: userProfilePicture,
-            coverPicture: userCoverPicture
-        };
-        // Check if profile and cover pictures are selected
-        if (profile && cover) {
-            // Upload cover picture
-            const formDataCover = new FormData();
-            formDataCover.append('coverPicture', {
-                uri: cover,
-                name: 'photo.jpg',
-                type: 'image/jpeg',
-            });
-            fetch('http://192.168.10.123:3000/user/uploadPictureCover', {
+    const createProfile = async (userData, profile, cover) => {
+        try {
+            const resCreation = await fetch(`${BACKEND_ADRESS}/user/signup`, {
                 method: 'POST',
-                body: formDataCover,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('cover' + data.url);
-                dispatch(addCoverPicture(data.url));
-            })
-            .catch(error => {
-                console.error('Error uploading cover picture:', error);
-            });
     
-            // Upload profile picture
-            const formDataProfile = new FormData();
-            formDataProfile.append('profilePicture', {
-                uri: profile,
-                name: 'photo.jpg',
-                type: 'image/jpeg',
-            });
-            fetch('http://192.168.10.123:3000/user/uploadProfileCover', {
-                method: 'POST',
-                body: formDataProfile,
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('profile ' + data);
-                dispatch(addProfilePicture(data.url));
-            })
-            .catch(error => {
-                console.error('Error uploading profile picture:', error);
-            });
-        } else {
-            console.log('Profile or cover picture is missing');
-        }
+            const dataCreation = await resCreation.json();
+            if (!dataCreation.result) throw new Error("Error signing up")
     
-        // Signup
-        fetch('http://192.168.10.123:3000/user/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('creation', data)
-            if (data.result) {
-                console.log('user created', data)
-                dispatch(login({
-                    token: data.token,
-                    nickname: data.nickname,
-                    ambition: data.ambition,
-                    adress: data.adress,
-                    sports: data.sports,
-                }));
+            const { token, adress, email, nickname, ambition, description, sports } = dataCreation.user;
+            dispatch(login({ token, adress, email, nickname, ambition, description, sports }))
+    
+            if (profile && cover) {
+                console.log("token", token);
+                // Upload cover picture
+                const formDataCover = new FormData();
+                formDataCover.append('coverPicture', {
+                    uri: cover,
+                    name: 'photo.jpg',
+                    type: 'image/jpeg',
+                });
+    
+                const resCover = await fetch(`${BACKEND_ADRESS}/user/uploadPictureCover/${token}`, {
+                    method: 'POST',
+                    body: formDataCover,
+                })
+    
+                const dataCover = await resCover.json()
+                if (!dataCover.result) throw new Error('Error uploading cover picture');
+                dispatch(addCoverPicture(dataCover.url));
+    
+                // Upload profile picture
+                const formDataProfile = new FormData();
+                formDataProfile.append('profilePicture', {
+                    uri: profile,
+                    name: 'photo.jpg',
+                    type: 'image/jpeg',
+                });
+    
+                const resProfile = await fetch(`${BACKEND_ADRESS}/user/uploadProfileCover/${token}`, {
+                    method: 'POST',
+                    body: formDataProfile,
+                })
+    
+                const dataProfile = await resProfile.json()
+                if (!dataProfile.result) throw new Error('Error uploading profile picture');
+                dispatch(addProfilePicture(dataProfile.url));
             }
-            
-        })
-        .catch(error => {
-            console.error('Error signing up:', error);
-        });
+
+            setIsModalVisible(false);
+            navigation.navigate('Map');
+
+        } catch (e) {
+            alert(e.message)
+        }
+
     };
+
+
+    const handleConnection = () => {
+    console.log({ email: signInUsermail, password: '********' }); // Cacher le mot de passe dans les logs
+    fetch(`${BACKEND_ADRESS}/user/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
+    }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.result) {
+                dispatch(login({ email: signInUsermail, token: data.token }));
+                setSignInUsermail('');
+                setSignInPassword('');
+                setIsOpen(-1);
+                navigation.navigate('Map');
+            } else {
+                Alert.alert('Email et/ou mot de passe incorrect(s).');
+            }
+        });
+};
     
 
     //Fonts
@@ -250,15 +246,17 @@ export default function HomeScreen({ navigation }) {
                                 placeholder='Pseudo*'      
                                 onChangeText={(value) => setNickname(value)}
                                 value={nickname}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View style={styles.email}>
                             <TextInput
                                 style={styles.textEmail}
-                                 
+                                
                                 placeholder='Email*'   
-                                onChangeText={(value) => setEmail(value)}
-                                value={email}
+                                onChangeText={(value) => setSignInUsermail(value)}
+                                value={signInUsermail}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View style={styles.password}>
@@ -266,8 +264,9 @@ export default function HomeScreen({ navigation }) {
                                 style={styles.textPassword}
                                 secureTextEntry={true}
                                 placeholder='Password*'     
-                                onChangeText={(value) => setPassword(value)}
-                                value={password}
+                                onChangeText={(value) => setSignInPassword(value)}
+                                value={signInPassword}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View styles={styles.contenairExplicationAdress}>
@@ -282,44 +281,90 @@ export default function HomeScreen({ navigation }) {
                                 placeholder='Adresse*'  
                                 onChangeText={(value) => setAdress(value)}
                                 value={adress}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <View style={styles.description}>
                             <TextInput
                                 style={styles.textDescription}
-                                 
+                                
                                 placeholder='Description'  
+                                multiline={true} // Permettre plusieurs lignes
+                                numberOfLines={3} // NB lignes à afficher dès le départ
                                 onChangeText={(value) => setDescription(value)}
                                 value={description}
+                                selectionColor="#4A46FF"
                             />
                         </View>
                         <Text style={styles.textSports}>MES SPORTS*</Text>
                         <View style={styles.containerIcons}>
-                            <TouchableOpacity style={styles.iconFoot} 
-                                onPress={()=>handleAddSport('Football')}>
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Football ? { backgroundColor: '#4A46FF', borderRadius: 12} : null
+                                ]}
+                                onPress={() => handleAddSport('Football')}>
+                            <View style={[styles.iconFoot, {backgroundColor: selectedSports.Football ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
+                                <Foot fill={selectedSports.Football ? 'white' : 'black'} />
+                            </View>
+                            <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Football')}>
+                                <Text style={styles.addButtonText}>{selectedSports.Football ? '-' : '+'}</Text>
+                            </TouchableOpacity>
+                                </TouchableOpacity>
 
-                                    <Foot/>
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Basketball ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
+                                ]}
+                                onPress={() => handleAddSport('Basketball')}>
+                                <View style={[styles.iconBasket, {backgroundColor: selectedSports.Basketball ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
+                                    <Basket fill={selectedSports.Basketball ? 'white' : 'black'} />
+                                </View>
+                                <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Basketball')}>
+                                    <Text style={styles.addButtonText}>{selectedSports.Basketball ? '-' : '+'}</Text>
+                                </TouchableOpacity>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconRunning} 
-                                    onPress={()=>handleAddSport('Running')}>
-                                <Running/>
+
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Running ? { backgroundColor: '#4A46FF', borderRadius: 12 } : null
+                                ]}
+                                onPress={() => handleAddSport('Running')}>
+                                <View style={[styles.iconRunning, {backgroundColor: selectedSports.Running ? '#4A46FF' : 'white', borderRadius: 12, width: 65, height: 69}]}>
+                                    <Running fill={selectedSports.Running ? 'white' : 'black'} />
+                                </View>
+                                <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Running')}>
+                                    <Text style={styles.addButtonText}>{selectedSports.Running ? '-' : '+'}</Text>
+                                </TouchableOpacity>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconBasket}  
-                                    onPress={()=>handleAddSport('Basketball')}>
-                                <Basket/>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconTennis}  
-                                    onPress={()=>handleAddSport('Tennis')}>
-                                <Tennis/>
+
+                            <TouchableOpacity 
+                                style={[
+                                    styles.iconContainer, 
+                                    selectedSports.Tennis ? { backgroundColor: '#4A46FF', borderRadius: 12} : null
+                                ]}
+                                onPress={() => handleAddSport('Tennis')}>
+                                <View style={[styles.iconTennis, {backgroundColor: selectedSports.Tennis ? '#4A46FF' : 'white',  borderRadius: 12, width: 65, height: 69}]}>
+                                    <Tennis fill={selectedSports.Tennis ? 'white' : 'black'} />
+                                </View>
+                                <TouchableOpacity style={styles.addButton} onPress={() => handleAddSport('Tennis')}>
+                                    <Text style={styles.addButtonText}>{selectedSports.Tennis ? '-' : '+'}</Text>
+                                </TouchableOpacity>
                             </TouchableOpacity>
                         </View>
+
                         <View style={styles.ambition}>
                             <TextInput  
                                 style={styles.textAmbition}  
                                 type="text"  
                                 placeholder='Ambition'
+                                multiline={true} // Permettre plusieurs lignes
+                                numberOfLines={3} // NB lignes à afficher dès le départ
                                 onChangeText={(value) => setAmbition(value)}
                                 value={ambition}
+                                selectionColor="#4A46FF"
                             />
                         </View>
 
@@ -354,7 +399,15 @@ export default function HomeScreen({ navigation }) {
                             </TouchableOpacity>
 
                         </View>
-                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile()}>
+                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile({
+                                    nickname,
+                                    email: signInUsermail,
+                                    password : signInPassword,
+                                    ambition,
+                                    adress,
+                                    sports :selectedSports,
+                                    description,
+                                }, profile, cover)}>
                                <View style={styles.contenairButtonOk}>
                                     <Create style={styles.iconCreate}/>
                                     <Text style={styles.textButtonOk}>Créer ton profil</Text>
@@ -387,20 +440,23 @@ export default function HomeScreen({ navigation }) {
                                     style={styles.textEmail}
                                     type="email"  
                                     placeholder='Email*'   
-                                    onChangeText={(value) => setEmail(value)}
-                                    value={email}
+                                    onChangeText={(value) => setSignInUsermail(value)}
+                                    value={signInUsermail}
+                                    selectionColor="#4A46FF"
                                 />
                             </View>
                             <View style={styles.password}>
                                 <TextInput
                                     style={styles.textPassword}
                                     type="password*"  
+                                    secureTextEntry={true} // pour cacher le mot de passe
                                     placeholder='Password'     
-                                    onChangeText={(value) => setPassword(value)}
-                                    value={password}
+                                    onChangeText={(value) => setSignInPassword(value)}
+                                    value={signInPassword}
+                                    selectionColor="#4A46FF"
                                 />
                             </View>
-                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => navigation.navigate('Map')}>
+                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => handleConnection()}>
                             <Text style={styles.textButtonSignInOk}>Ok</Text>
                         </TouchableOpacity>
                     </View>
@@ -614,6 +670,26 @@ const styles = StyleSheet.create({
         borderRadius:12,
         marginHorizontal: 6,
     },
+
+//Bouton pour icones sports
+addButton: {
+    position: 'absolute',
+    bottom: -5,
+    left: 55,
+    backgroundColor: '#4A46FF',
+    width: 22,
+    height: 22,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
+  },
+  
+  addButtonText: {
+    color: 'white',
+    fontSize: 25,
+    bottom: 5,
+  },
 
     // INPUT
     
@@ -844,7 +920,7 @@ const styles = StyleSheet.create({
     },
 
     buttonUploadProfile:{
-
+    
 
     },
 })
