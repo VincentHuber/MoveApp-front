@@ -35,11 +35,12 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADRESS = "http://192.168.10.153:3000";
+const BACKEND_ADRESS = "http://192.168.10.140:3000";
 
 export default function MapScreen({ navigation }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
+  const [usersWithCoordinates, setUsersWithCoordinates] = useState([]);
 
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
@@ -51,11 +52,17 @@ export default function MapScreen({ navigation }) {
     profilePicture: "",
     coverPicture: "",
   });
-  const [userNickname, setUserNickname] = useState("");
+  const [userInfo2, setUserInfo2] = useState({
+    name: "",
+    description: "",
+    ambition: "",
+    profilePicture: "",
+    coverPicture: "",
+  });
 
   // État pour la modal
   const [modalVisible, setModalVisible] = useState(false);
-  const [modal2Visible, setModal2Visible] = useState(false);
+  const [modalMakerVisible, setModalMarkerVisible] = useState(false);
 
   // État pour le bouton actif
   const [activeButton, setActiveButton] = useState(null);
@@ -65,7 +72,72 @@ export default function MapScreen({ navigation }) {
     if (!user.token) {
       navigation.navigate("Home");
     }
-  }, []);
+  }, [user, navigation]);
+
+  // fonction pour afficher les users sur la Map via leurs adresses
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!user.token) {
+        console.error("Token de l'utilisateur non disponible.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BACKEND_ADRESS}/users`);
+        const userData = await response.json();
+
+        console.log("Réponse du backend:", userData);
+
+        if (!userData.result || !Array.isArray(userData.users)) {
+          console.error(
+            "Les données récupérées depuis le backend ne sont pas un tableau."
+          );
+          return;
+        }
+
+        const usersWithCoordinatesPromises = userData.users.map(
+          async (user) => {
+            try {
+              const address = user.adress;
+              const geoResponse = await fetch(
+                `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(
+                  address
+                )}`
+              );
+              const geoData = await geoResponse.json();
+
+              if (geoData.features.length > 0) {
+                const coordinates = {
+                  latitude: geoData.features[0].geometry.coordinates[1],
+                  longitude: geoData.features[0].geometry.coordinates[0],
+                };
+                return { ...user, coordinates };
+              }
+              return null;
+            } catch (error) {
+              console.error(
+                `Erreur lors du géocodage de l'adresse ${user.adress}:`,
+                error
+              );
+              return null;
+            }
+          }
+        );
+
+        const filteredUsersWithCoordinates = (
+          await Promise.all(usersWithCoordinatesPromises)
+        ).filter(Boolean);
+        setUsersWithCoordinates(filteredUsersWithCoordinates);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des utilisateurs depuis le backend:",
+          error
+        );
+      }
+    };
+
+    fetchUsers();
+  }, [user.token]); // fin de la fonction pour afficher les users sur la Map via leurs adresses
 
   // Fonction pour télécharger une image de couverture
   const uploadCover = async () => {
@@ -113,7 +185,7 @@ export default function MapScreen({ navigation }) {
 
   const handleClose = () => {
     setModalVisible(false);
-    setModal2Visible(false);
+    setModalMarkerVisible(false);
   };
 
   useEffect(() => {
@@ -148,12 +220,11 @@ export default function MapScreen({ navigation }) {
   };
 
   useEffect(() => {
-    console.log("hello");
     fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
-          console.log(data);
+          //console.log(data);
 
           setUserInfo((prevState) => ({
             ...prevState,
@@ -184,7 +255,7 @@ export default function MapScreen({ navigation }) {
             profilePicture: user.profilePicture,
           });
           setModalVisible(true);
-          setModal2Visible(false);
+          setModalMarkerVisible(false);
         }
       })
       .catch((error) => {
@@ -195,30 +266,17 @@ export default function MapScreen({ navigation }) {
       });
   };
 
-  const handleModal2 = () => {
-    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.result) {
-          //console.log(data);
-          const user = data.user;
-          setUserInfo({
-            nickname: user.nickname,
-            description: user.description,
-            ambition: user.ambition,
-            coverPicture: user.coverPicture,
-            profilePicture: user.profilePicture,
-          });
-          setModal2Visible(true);
-          setModalVisible(false);
-        }
-      })
-      .catch((error) => {
-        console.error(
-          "Erreur lors de la récupération des informations de l'utilisateur:",
-          error
-        );
-      });
+  // fonction qui gèree l'affichage de la modale lors du 'click'
+  const onMarkerPress = (user) => {
+    setUserInfo2({
+      nickname: user.nickname,
+      description: user.description,
+      ambition: user.ambition,
+      coverPicture: user.coverPicture,
+      profilePicture: user.profilePicture,
+    });
+    setModalMarkerVisible(true);
+    setModalVisible(false);
   };
 
   const handleModif = () => {
@@ -257,7 +315,7 @@ export default function MapScreen({ navigation }) {
 
   const handle2Reviews = () => {
     //navigation.navigate('Review');
-    setModal2Visible(false);
+    setModalMarkerVisible(false);
   };
 
   const handleChat = () => {
@@ -307,6 +365,22 @@ export default function MapScreen({ navigation }) {
                 <View style={styles.blueDot} />
               </Marker>
             )}
+
+            {Array.isArray(usersWithCoordinates) &&
+              usersWithCoordinates.map((user, index) => (
+                <Marker
+                  key={index}
+                  coordinate={user.coordinates}
+                  //tracksViewChanges={true}
+                >
+                  <TouchableOpacity onPress={() => onMarkerPress(user)}>
+                    <Image
+                      source={{ uri: user.profilePicture }}
+                      style={{ width: 50, height: 50, borderRadius: 25 }}
+                    />
+                  </TouchableOpacity>
+                </Marker>
+              ))}
           </MapView>
         )}
 
@@ -352,22 +426,22 @@ export default function MapScreen({ navigation }) {
             </View>
           </Modal>
 
-          <Modal visible={modal2Visible} animationType="fade" transparent>
+          <Modal visible={modalMakerVisible} animationType="fade" transparent>
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
                 <Image
                   style={styles.photoCoverModal}
-                  source={{ uri: userInfo.coverPicture }}
+                  source={{ uri: userInfo2.coverPicture }}
                 />
                 <Image
                   style={styles.photoProfilModal}
-                  source={{ uri: userInfo.profilePicture }}
+                  source={{ uri: userInfo2.profilePicture }}
                 />
-                <Text style={styles.textModal1}>{userInfo.nickname}</Text>
-                <Text style={styles.textModal2}>{userInfo.description}</Text>
+                <Text style={styles.textModal1}>{userInfo2.nickname}</Text>
+                <Text style={styles.textModal2}>{userInfo2.description}</Text>
                 <Text style={styles.textSports}>SES SPORTS </Text>
                 <Text style={styles.textambition}>SON AMBITION </Text>
-                <Text style={styles.textModal3}>{userInfo.ambition}</Text>
+                <Text style={styles.textModal3}>{userInfo2.ambition}</Text>
               </View>
 
               <View style={styles.modalClose}>
@@ -386,7 +460,7 @@ export default function MapScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => handle2Modif()}
+                  onPress={() => handleFrameChat()}
                   style={styles.frameChat}
                   activeOpacity={0.8}
                 >
@@ -402,15 +476,8 @@ export default function MapScreen({ navigation }) {
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={handleSearch}
+            selectionColor="#4A46FF"
           />
-
-          <TouchableOpacity
-            onPress={() => handleModal2()}
-            style={styles.modaluser}
-            activeOpacity={0.8}
-          >
-            <Image source={require("../assets/imagePerso.png")} />
-          </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => handleModal()}
@@ -487,6 +554,7 @@ const styles = StyleSheet.create({
 
   // Map
   map: {
+    flex: 1,
     position: "absolute",
     top: 0,
     left: 0,
@@ -549,7 +617,7 @@ const styles = StyleSheet.create({
 
   modalView: {
     position: "absolute",
-    backgroundColor: "white",
+    backgroundColor: "#f4f4f4",
     height: 667,
     width: 352,
     justifyContent: "center",
@@ -679,6 +747,7 @@ const styles = StyleSheet.create({
     width: 78,
     height: 77,
     borderRadius: 57,
+    borderColor: "#F4F4F4",
   },
 
   modalProfil: {
@@ -690,6 +759,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 57,
+    borderColor: "#F4F4F4",
   },
 
   buttonLocation: {
