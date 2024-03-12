@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -33,22 +33,12 @@ export default function ReviewScreen() {
     profilePicture: "",
   });
 
-  //const user = useSelector((state) => state.user.value);
-
-  /*useEffect(() => {
-    fetch(`${BACKEND_ADDRESS}/user/`)
+  //ce fetch permet de recuperer la data nickname et profilepicture
+  useEffect(() => {
+    fetch(`${BACKEND_ADDRESS}/user/ReviewUser`)
       .then((response) => response.json())
       .then((data) => {
-        if (data.result) {
-          console.log(data);
-          const user = data.user;
-          setUserData({
-            nickname: user.nickname,
-            profilePicture: user.profilePicture,
-          });
-        } else {
-          console.error("Aucun utilisateur trouvé.");
-        }
+        setUserData(data.user);
       })
       .catch((error) => {
         console.error(
@@ -56,7 +46,7 @@ export default function ReviewScreen() {
           error
         );
       });
-  }, []);*/
+  }, []);
 
   //fonction bouton retour pour revenir au screen precedent
   const handleGoBack = () => {
@@ -162,12 +152,35 @@ export default function ReviewScreen() {
           barStyle="dark-content"
           translucent={true}
         />
-
         <View>
           <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
             <AntDesign name="left" size={24} color="#4A46FF" />
           </TouchableOpacity>
         </View>
+
+        {!isVisible && (
+          <View style={styles.profileImageContainer}>
+            <Image
+              source={{ uri: userData.profilePicture }}
+              style={styles.profileImageTop}
+            />
+            <View style={styles.textNickname}>
+              <Text
+                style={[
+                  styles.pseudoText,
+                  {
+                    fontSize:
+                      userData.nickname && userData.nickname.length > 10
+                        ? 20
+                        : 25,
+                  },
+                ]}
+              >
+                {userData.nickname}
+              </Text>
+            </View>
+          </View>
+        )}
 
         <View>
           {isReviewVisible && (
@@ -178,9 +191,8 @@ export default function ReviewScreen() {
           {isVisible && (
             <View
               style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                borderColor: "white",
+                //borderWidth: 1,
               }}
             >
               <View style={styles.inputWrapper}>
@@ -242,17 +254,46 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    flexDirection: "absolute",
-    marginBottom: 50,
-    marginRight: 280,
+    position: "absolute",
+    marginTop: 40,
+    right: 140,
+    //bottom:90
+  },
+
+  //pseudo + image
+  profileImageContainer: {
+    //position:'absolute',
+    marginBottom: 30,
+    alignItems: "center",
+  },
+
+  profileImageTop: {
+    width: 100,
+    height: 100,
+    borderRadius: 75,
+    borderWidth: 3,
+    borderColor: "white",
+    right: 80,
+  },
+
+  pseudoText: {
+    position: "absolute",
+    left: 0,
+    //top:0,
+    bottom: 1,
+    //right:10,
+    color: "black",
+    paddingVertical: 50,
+    fontFamily: "Poppins",
+    fontSize: 28,
   },
 
   button: {
-    flexDirection: "absolute",
     borderColor: "#4A46FF",
     borderWidth: 2,
     width: 317,
     height: 53,
+    //bottom: 500,
     paddingVertical: 12,
     borderRadius: 40,
     alignItems: "center",
@@ -267,7 +308,6 @@ const styles = StyleSheet.create({
   },
 
   inputWrapper: {
-    flexDirection: "absolute",
     backgroundColor: "white",
     width: 317,
     height: 390,
@@ -309,13 +349,20 @@ const styles = StyleSheet.create({
 
   buttonreview: {
     fontFamily: "Montserrat_600SemiBold",
+    //position:"absolute",
     backgroundColor: "#4A46FF",
     width: 317,
     height: 53,
+    //left:5,
+    //right:10,
+    //bottom:1,
+    alignItems: "center",
     paddingVertical: 12,
     borderRadius: 20,
     alignItems: "center",
-    marginTop: 20,
+    marginTop:10,
+
+    //marginBottom: 20,
   },
 
   buttontextreview: {
@@ -328,8 +375,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 10,
     borderRadius: 20,
-    marginTop: 20,
-    marginBottom: 1,
+    marginTop: 10,
+    //marginBottom: 1,
   },
 
   starItem: {
