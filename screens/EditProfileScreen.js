@@ -11,7 +11,7 @@ import Tennis from '../assets/tennis.js';
 import { useSelector } from 'react-redux';
 
 // Adresse du backend
-const BACKEND_ADDRESS = 'http://192.168.10.178:3000';
+const BACKEND_ADDRESS = 'http://192.168.10.153:3000';
 
 
 const EditProfileScreen = () => {
@@ -101,7 +101,7 @@ const [ambitionHeight, setAmbitionHeight] = useState(0);
       console.log("authToken => ", authToken);
 
       const tokenTest2 = "BzDXT_ZEUOMIu4eNerbF-g9-mjDxZO45"
-
+      
       fetch(`${BACKEND_ADDRESS}/user/updateProfile/${tokenTest2}`, {
         method: 'PUT',
         headers: {
