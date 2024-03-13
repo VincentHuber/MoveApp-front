@@ -35,7 +35,7 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADRESS = "http://192.168.10.154:3000";
+const BACKEND_ADRESS = "http://192.168.10.168:3000";
 
 export default function MapScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -293,9 +293,28 @@ export default function MapScreen({ navigation }) {
     setModalVisible(false);
   };
 
-  const handleFrameChat = () => {
+  const handle2Modif = () => {
+    
+    const updateMatch = "";
+
+    fetch(`${BACKEND_ADRESS}/user/match/${user.token}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateMatch),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result) {
+          console.log("Profil mis à jour avec succès");
+        } else {
+          console.error("Erreur lors de la mise à jour du profil", data.error);
+        }
+      });
+
     navigation.navigate("Chat");
-    setModalMarkerVisible(false);
+    setModal2Visible(false);
   };
 
   const handleReviews = () => {
