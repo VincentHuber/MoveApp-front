@@ -5,7 +5,6 @@ import { StyleSheet, View, TextInput, Text, TouchableOpacity, ScrollView, Image 
 
 export default function ChatScreen ({ navigation }){
     
-
     return (
         <ScrollView contentContainerStyle={styles.container}>
            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -16,9 +15,7 @@ export default function ChatScreen ({ navigation }){
             <Image source={require('../assets/Chat.jpg')} style={{ width: 350, height: 800 }}/>
             </View>
         </ScrollView>
-    );
-
-    
+    ); 
 };
 
 const styles = StyleSheet.create({
