@@ -35,7 +35,7 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADRESS='http://192.168.10.165:3000'
+const BACKEND_ADRESS = "http://192.168.10.135:3000";
 
 export default function MapScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -73,6 +73,7 @@ export default function MapScreen({ navigation }) {
       navigation.navigate("Home");
     }
   }, [user, navigation]);
+
 
   // fonction pour afficher les users sur la Map via leurs adresses
   useEffect(() => {
@@ -369,15 +370,26 @@ export default function MapScreen({ navigation }) {
           <Modal visible={modalVisible} animationType="fade" transparent>
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
-                <Image
-                  style={styles.photoCoverModal}
-                  source={{ uri: userInfo.coverPicture }}
-                />
-                <Image
-                  style={styles.photoProfilModal}
-                  source={{ uri: userInfo.profilePicture }}
-                />
-                <Text style={styles.textModal1}>{userInfo.nickname}</Text>
+                <View style={styles.profileImagesContainer}>
+                  <Image
+                    style={styles.photoCoverModal}
+                    source={{ uri: userInfo.coverPicture }}
+                  />
+                  <Image
+                    style={styles.photoProfilModal}
+                    source={{ uri: userInfo.profilePicture }}
+                  />
+                  </View>
+                <View style={styles.infosUser}>
+                  <Text style={styles.textModal1}>{userInfo.nickname}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleReviews()}
+                    style={styles.boutonAvis}
+                  >
+                    <Text style={{width:50, borderWidth:3}}>avis</Text>
+                  </TouchableOpacity>
+                </View>
+
                 <Text style={styles.textModal2}>{userInfo.description}</Text>
                 <Text style={styles.textSports}>MES SPORTS </Text>
                 <Text style={styles.textambition}>MON AMBITION </Text>
@@ -385,15 +397,11 @@ export default function MapScreen({ navigation }) {
               </View>
 
               <View style={styles.modalClose}>
-                <TouchableOpacity onPress={() => handleClose()}>
-                  <Image source={require("../assets/close.jpg")} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleReviews()}
-                  style={styles.boutonAvis}
-                >
-                  <Image source={require("../assets/boutonAvis.jpg")} />
+                <TouchableOpacity onPress={handleClose}>
+                  <View style={styles.circle}>
+                    <View style={styles.cross}></View>
+                    <View style={[styles.cross, styles.crossVertical]}></View>
+                  </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -418,11 +426,21 @@ export default function MapScreen({ navigation }) {
                   style={styles.photoProfilModal}
                   source={{ uri: userInfo2.profilePicture }}
                 />
-                <Text style={styles.textModal1}>{userInfo2.nickname}</Text>
-                <Text style={styles.textModal2}>{userInfo2.description}</Text>
-                <Text style={styles.textSports}>SES SPORTS </Text>
-                <Text style={styles.textambition}>SON AMBITION </Text>
-                <Text style={styles.textModal3}>{userInfo2.ambition}</Text>
+                <View>
+                  <Text style={styles.textModal1}>{userInfo2.nickname}</Text>
+                </View>
+                <View>
+                  <Text style={styles.textModal2}>{userInfo2.description}</Text>
+                </View>
+                <View>
+                  <Text style={styles.textSports}>SES SPORTS </Text>
+                </View>
+                <View>
+                  <Text style={styles.textambition}>SON AMBITION </Text>
+                </View>
+                <View>
+                  <Text style={styles.textModal3}>{userInfo2.ambition}</Text>
+                </View>
               </View>
 
               <View style={styles.modalClose}>
@@ -545,11 +563,11 @@ const styles = StyleSheet.create({
 
   // Input recherche
   searchContainer: {
-    position: "absolute",
+    //position: "absolute",
     top: 20,
     width: "100%",
     alignItems: "center",
-    zIndex: 1,
+    // zIndex:1,
   },
   input: {
     width: "90%",
@@ -616,20 +634,23 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
+  profileImagesContainer: {
+    position: 'absolute',
+    borderWidth:2,
+    top: 10,
+    width: '100%', 
+    alignItems: 'center', 
+  },
+
   photoCoverModal: {
-    position: "absolute",
-    width: 323,
-    height: 183,
+    width: 340,
+    height: 182,
     borderRadius: 10,
-    justifyContent: "center",
-    paddingLeft: 15,
-    alignItems: "center",
-    top: "5%",
+    justifyContent: 'center',
   },
 
   photoProfilModal: {
-    position: "absolute",
-    top: "40%",
+    bottom: "20%",
     width: 134,
     height: 134,
     justifyContent: "center",
@@ -637,25 +658,31 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth: 6,
     borderColor: "#F4F4F4",
-    backgroundColor: "white",
+  },
+
+  infosUser: {
+    textAlign:'center',
+    borderWidth: 1,
+    width:230,
+    bottom: "10%",
+    flexDirection: 'row',
   },
 
   textModal1: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: "82%",
-    width: 299,
+    textAlign:'center',
     fontSize: 28,
-    left: 130,
     fontFamily: "Poppins_700Bold",
+  },
+
+  boutonAvis: {
+  
   },
 
   textModal2: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "94%",
+    top: "100%",
     fontSize: 14,
     width: 299,
     fontFamily: "Poppins_400Regular_Italic",
@@ -665,7 +692,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "115%",
+    top: "130%",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
   },
@@ -674,7 +701,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "150%",
+    top: "160%",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
   },
@@ -683,33 +710,46 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "160%",
+    top: "170%",
     fontSize: 14,
     width: 299,
-    fontFamily: "Poppins_400Regular_Italic",
+    fontFamily: "Poppins_400Regular",
   },
 
   modalClose: {
     position: "absolute",
-    top: 110,
-    right: 20,
+    top: 50,
+    right: 14,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#4A46FF",
-    width: 44,
-    height: 44,
+    width: 30,
+    height: 30,
     borderRadius: 50,
   },
 
-  boutonAvis: {
-    position: "absolute",
-    top: "620%",
-    right: 100,
+  circle: {
+    width: "50%",
+    height: 50,
+    borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-    width: 44,
-    height: 44,
-    borderRadius: 50,
+    position: "relative",
+    fontFamily: "Poppins_700Bold",
+  },
+
+  cross: {
+    width: "150%",
+    height: 2,
+    transform: [{ rotate: "45deg" }],
+    backgroundColor: "white",
+    position: "absolute",
+    fontFamily: "Poppins_700Bold",
+  },
+
+  crossVertical: {
+    transform: [{ rotate: "-45deg" }],
+    top: "50%",
   },
 
   frameChat: {

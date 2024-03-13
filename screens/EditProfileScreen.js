@@ -28,8 +28,7 @@ import Tennis from "../assets/tennis.js";
 import { useSelector } from "react-redux";
 
 // Adresse du backend
-const BACKEND_ADDRESS = 'http://192.168.10.178:3000';
-
+const BACKEND_ADDRESS = "http://192.168.10.135:3000";
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
@@ -53,17 +52,20 @@ const EditProfileScreen = () => {
 
   const authToken = useSelector((state) => state.user.value.token);
 
+  //stocker les sports
   const [selectedSports, setSelectedSports] = useState({
     Football: false,
     Basketball: false,
     Running: false,
     Tennis: false,
   });
-
+  //pour gérer sélec/désélec sports
   const handleAddSport = (sport) => {
+    console.log(sport);
     setSelectedSports((prevState) => ({
       ...prevState,
       [sport]: !prevState[sport],
+      
     }));
   };
 
@@ -124,13 +126,12 @@ const EditProfileScreen = () => {
 
     console.log("authToken => ", authToken);
 
-
-      fetch(`${BACKEND_ADDRESS}/user/updateProfile/${authToken}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedFields), 
+    fetch(`${BACKEND_ADDRESS}/user/updateProfile/${authToken}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedFields),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -147,14 +148,12 @@ const EditProfileScreen = () => {
       });
   };
 
-  const BACKEND_ADDRESS = 'http://192.168.10.124:3000';
-  const tokenTest = "BzDXT_ZEUOMIu4eNerbF-g9-mjDxZO45"
   const user = useSelector((state) => state.user.value);
   console.log(user.token);
   useEffect(() => {
     fetch(`${BACKEND_ADDRESS}/user/${authToken}`)
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (data.result) {
           console.log(data);
           const user = data.user;
@@ -269,7 +268,7 @@ const EditProfileScreen = () => {
           editable={false} // Désactiver le champ de mot de passe
         />
         <Text style={styles.passwordMessage}>
-          Pour modifier votre mot de passe, veuillez contacter l'éditeur
+          Pour modifier votre mot de passe, veuillez contacter l'administrateur.
         </Text>
       </View>
 
@@ -335,10 +334,26 @@ const EditProfileScreen = () => {
             <Foot fill={selectedSports.Football ? "white" : "black"} />
           </View>
           <TouchableOpacity
-            style={styles.addButton}
+            style={[
+              styles.addButton,
+              selectedSports.Football
+                ? { backgroundColor: "white", elevation: 3}
+                : { backgroundColor: "#4A46FF" },
+            ]}
             onPress={() => handleAddSport("Football")}
           >
-            <Text style={styles.addButtonText}>
+            <Text
+              style={[
+                styles.addButtonText,
+                selectedSports.Football
+                  ? {
+                      color: "#4A46FF",
+                      fontSize: 25,
+                      fontFamily: "Poppins_600SemiBold",
+                    }
+                  : null,
+              ]}
+            >
               {selectedSports.Football ? "-" : "+"}
             </Text>
           </TouchableOpacity>
@@ -369,10 +384,26 @@ const EditProfileScreen = () => {
             <Basket fill={selectedSports.Basketball ? "white" : "black"} />
           </View>
           <TouchableOpacity
-            style={styles.addButton}
+            style={[
+              styles.addButton,
+              selectedSports.Basketball
+                ? { backgroundColor: "white", elevation: 3 }
+                : { backgroundColor: "#4A46FF" },
+            ]}
             onPress={() => handleAddSport("Basketball")}
           >
-            <Text style={styles.addButtonText}>
+            <Text
+              style={[
+                styles.addButtonText,
+                selectedSports.Basketball
+                  ? {
+                      color: "#4A46FF",
+                      fontSize: 25,
+                      fontFamily: "Poppins_600SemiBold",
+                    }
+                  : null,
+              ]}
+            >
               {selectedSports.Basketball ? "-" : "+"}
             </Text>
           </TouchableOpacity>
@@ -401,10 +432,26 @@ const EditProfileScreen = () => {
             <Running fill={selectedSports.Running ? "white" : "black"} />
           </View>
           <TouchableOpacity
-            style={styles.addButton}
+            style={[
+              styles.addButton,
+              selectedSports.Running
+                ? { backgroundColor: "white", elevation: 3 }
+                : { backgroundColor: "#4A46FF" },
+            ]}
             onPress={() => handleAddSport("Running")}
           >
-            <Text style={styles.addButtonText}>
+            <Text
+              style={[
+                styles.addButtonText,
+                selectedSports.Running
+                  ? {
+                      color: "#4A46FF",
+                      fontSize: 25,
+                      fontFamily: "Poppins_600SemiBold",
+                    }
+                  : null,
+              ]}
+            >
               {selectedSports.Running ? "-" : "+"}
             </Text>
           </TouchableOpacity>
@@ -433,10 +480,26 @@ const EditProfileScreen = () => {
             <Tennis fill={selectedSports.Tennis ? "white" : "black"} />
           </View>
           <TouchableOpacity
-            style={styles.addButton}
+            style={[
+              styles.addButton,
+              selectedSports.Tennis
+                ? { backgroundColor: "white", elevation: 3}
+                : { backgroundColor: "#4A46FF" },
+            ]}
             onPress={() => handleAddSport("Tennis")}
           >
-            <Text style={styles.addButtonText}>
+            <Text
+              style={[
+                styles.addButtonText,
+                selectedSports.Tennis
+                  ? {
+                      color: "#4A46FF",
+                      fontSize: 25,
+                      fontFamily: "Poppins_600SemiBold",
+                    }
+                  : null,
+              ]}
+            >
               {selectedSports.Tennis ? "-" : "+"}
             </Text>
           </TouchableOpacity>
@@ -451,7 +514,7 @@ const EditProfileScreen = () => {
             styles.multilineInput,
             styles.boldText,
             { textAlign: "justify" },
-            { height: Math.max(110, ambitionHeight) },
+            { height: Math.max(60, ambitionHeight) },
           ]}
           placeholder="Ambition"
           value={userData.ambition}
@@ -474,7 +537,7 @@ const EditProfileScreen = () => {
             style={styles.profileCover}
           />
           <TouchableOpacity style={styles.addButtonCover} onPress={uploadCover}>
-            <Text style={styles.addButtonText}>+</Text>
+            <Text style={styles.addButtonTextImages}>+</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.profileImagesContainer}>
@@ -486,7 +549,7 @@ const EditProfileScreen = () => {
             style={styles.addButtonProfile}
             onPress={uploadProfile}
           >
-            <Text style={styles.addButtonText}>+</Text>
+            <Text style={styles.addButtonTextImages}>+</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -527,13 +590,13 @@ const styles = StyleSheet.create({
 
   backButtonText: {
     color: "#4A46FF",
-    fontSize: 16,
+    fontSize: "1.6%",
     fontFamily: "Poppins_400Regular",
   },
 
   //pseudo + image
   profileImageContainer: {
-    marginTop: 25,
+    marginTop: "4%",
     alignItems: "center",
   },
 
@@ -582,11 +645,12 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: "white",
     borderRadius: 10,
-    height: 60,
-    paddingHorizontal: 10,
+    height: 45,
+    paddingHorizontal: 17,
+    paddingVertical: 10,
     width: "100%",
-    fontFamily: "Poppins_700Bold",
-    fontSize: 14,
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 16,
   },
 
   boldText: {
@@ -602,7 +666,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Poppins_400Regular_Italic",
     left: 10,
-    top: 1,
+    marginTop: 5,
   },
 
   //Bouton pour icones sports
@@ -679,7 +743,6 @@ const styles = StyleSheet.create({
 
   profileCover: {
     width: "100%",
-    backgroundColor: "white",
     height: 182,
     borderRadius: 10,
     justifyContent: "center",
@@ -688,10 +751,10 @@ const styles = StyleSheet.create({
   },
 
   profileImageBottom: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderColor: "white",
+    width: 140,
+    height: 140,
+    borderRadius: 80,
+    borderColor: "#F4F4F4",
     bottom: 70,
     alignSelf: "center",
     position: "relative",
@@ -700,11 +763,11 @@ const styles = StyleSheet.create({
 
   addButtonCover: {
     position: "absolute",
-    top: 170,
-    right: 0,
+    top: 165,
+    left: 285,
     backgroundColor: "#4A46FF",
-    width: 22,
-    height: 22,
+    width: 25,
+    height: 25,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
@@ -713,14 +776,21 @@ const styles = StyleSheet.create({
 
   addButtonProfile: {
     position: "absolute",
-    top: 20,
-    left: 190,
+    top: 42,
+    left: 180,
     backgroundColor: "#4A46FF",
-    width: 22,
-    height: 22,
+    width: 25,
+    height: 25,
     borderRadius: 30,
     alignItems: "center",
     color: "white",
+  },
+
+  addButtonTextImages: {
+    color: "white",
+    fontSize: 28,
+    bottom: 5,
+    alignItems: "center",
   },
 
   // Boutons pied de page
