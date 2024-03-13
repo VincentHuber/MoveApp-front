@@ -61,12 +61,12 @@ const EditProfileScreen = () => {
   });
   //pour gérer sélec/désélec sports
   const handleAddSport = (sport) => {
-    console.log(sport);
-    setSelectedSports((prevState) => ({
-      ...prevState,
-      [sport]: !prevState[sport],
-      
-    }));
+    setSelectedSports(prevState => {
+      return {
+        ...prevState,
+        [sport]: !prevState[sport]
+      };
+    });
   };
 
   const [userData, setUserData] = useState({
@@ -115,17 +115,23 @@ const EditProfileScreen = () => {
   };
 
   const handleSubmit = () => {
-    // Trouver champs modifiés
+    // Mettre à jour les sports dans l'état userData
+    const updatedUserData = {
+      ...userData,
+      sports: selectedSports
+    };
+  
+    // Construire les champs modifiés à partir de l'état userData mis à jour
     const updatedFields = {};
-    for (const key in userData) {
-      if (userData[key] !== "") {
-        updatedFields[key] = userData[key];
+    for (const key in updatedUserData) {
+      if (updatedUserData[key] !== "") {
+        updatedFields[key] = updatedUserData[key];
       }
     }
     console.log("Champs mis à jour :", updatedFields);
-
+  
     console.log("authToken => ", authToken);
-
+  
     fetch(`${BACKEND_ADDRESS}/user/updateProfile/${authToken}`, {
       method: "PUT",
       headers: {
@@ -133,19 +139,19 @@ const EditProfileScreen = () => {
       },
       body: JSON.stringify(updatedFields),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.result) {
-          console.log("Profil mis à jour avec succès");
-          setSuccessMessage(true); // Afficher le message de succès
-          setTimeout(() => {
-            setSuccessMessage(false); // Masquer le message après quelques secondes
-            navigation.goBack(); // retour en arrière
-          }, 2000); // Durée du message de succès en millisecondes
-        } else {
-          console.error("Erreur lors de la mise à jour du profil", data.error);
-        }
-      });
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.result) {
+        console.log("Profil mis à jour avec succès");
+        setSuccessMessage(true); // Afficher le message de succès
+        setTimeout(() => {
+          setSuccessMessage(false); // Masquer le message après quelques secondes
+          navigation.goBack(); // retour en arrière
+        }, 2000); // Durée du message de succès en millisecondes
+      } else {
+        console.error("Erreur lors de la mise à jour du profil", data.error);
+      }
+    });
   };
 
   const user = useSelector((state) => state.user.value);
