@@ -26,8 +26,10 @@ import {
   Poppins_400Regular_Italic,
   Poppins_500Medium,
   Poppins_300Light,
- 
 } from "@expo-google-fonts/poppins";
+
+import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
 const BACKEND_ADDRESS = "http://192.168.10.123:3000";
 
@@ -40,17 +42,30 @@ export default function ReviewScreen() {
   const [isReviewVisible, setIsReviewVisible] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date()); // Etat pour stocker la date sélectionnée
 
+  const token = useSelector((state) => state.user.value.token);
+
   const [userData, setUserData] = useState({
     nickname: "",
     profilePicture: "",
   });
+  const [averageStar, setAverageStar] = useState(0);
 
-  //ce fetch permet de recuperer la data nickname et profilepicture
+  const handleButtonClick = () => {
+    const navigation = useNavigation();
+    navigation.navigate("NomDeLaPage"); // Remplacez 'NomDeLaPage' par le nom de votre page de destination
+  };
+
+  //ce fetch permet de recuperer la data nickname et profilepicture et le Average
   useEffect(() => {
-    fetch(`${BACKEND_ADDRESS}/user/ReviewUser`)
+    // if ("NlQWH0dlyhQZ7WaZSGzth9129mtttLGj") {
+    fetch(`${BACKEND_ADDRESS}/user/NlQWH0dlyhQZ7WaZSGzth9129mtttLGj`)
       .then((response) => response.json())
       .then((data) => {
-        setUserData(data.user);
+        console.log("data", data);
+        if (data.result) {
+          setUserData(data.user);
+          setAverageStar(data.user.averageStar);
+        }
       })
       .catch((error) => {
         console.error(
@@ -58,7 +73,8 @@ export default function ReviewScreen() {
           error
         );
       });
-  }, []);
+    // }
+  }, [token]);
 
   //fonction bouton retour pour revenir au screen precedent
   const handleGoBack = () => {
@@ -100,10 +116,6 @@ export default function ReviewScreen() {
     };
 
     setAddReviews([...addReviews, newReview]);
-
-    console.log(reviewText);
-    console.log(selectedDate);
-    console.log(renderStars());
 
     // Envoi du commentaire au backend pour que ensuite la requéte puisse etre enregistré dans la bdd
     fetch(`${BACKEND_ADDRESS}/review/`, {
@@ -173,7 +185,11 @@ export default function ReviewScreen() {
         {!isVisible && (
           <View style={styles.profileImageContainer}>
             <Image
-              source={{ uri: userData.profilePicture }}
+              source={{
+                uri:
+                  userData.profilePicture ||
+                  "https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1",
+              }}
               style={styles.profileImageTop}
             />
             <View style={styles.textNickname}>
@@ -190,6 +206,16 @@ export default function ReviewScreen() {
               >
                 {userData.nickname}
               </Text>
+              <TouchableOpacity
+                style={styles.buttonDisplayReviews}
+                onPress={handleButtonClick}
+                // Remplacez handleButtonClick par la fonction que vous souhaitez appeler lors du clic
+              >
+                <FontAwesomeIcon icon={faStar} style={styles.starIcon} />
+                <Text style={styles.averageStarText}>
+                  {userData.averageStar}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -208,10 +234,20 @@ export default function ReviewScreen() {
               }}
             >
               <View style={styles.inputWrapper}>
-                <View>{renderStars()}</View>
-                <Text style={{ marginLeft: 118, marginTop: 110 }}>
-                  {selectedDate.toLocaleDateString()}
-                </Text>
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    height: 90,
+                  }}
+                >
+                  <Text style={styles.nicknameWrapper}>
+                    {userData.nickname}
+                  </Text>
+                  <Text>{selectedDate.toLocaleDateString()}</Text>
+                  {renderStars()}
+                </View>
+
                 <TextInput
                   style={styles.input}
                   multiline={true}
@@ -225,7 +261,7 @@ export default function ReviewScreen() {
                   style={styles.buttonreview}
                   onPress={handleAddReview}
                 >
-                  <Text style={styles.buttontextreview}>Deposer mon avis</Text>
+                  <Text style={styles.buttontextreview}>Déposer mon avis</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -262,21 +298,43 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "blue",
     alignItems: "center",
-    //justifyContent: "center",
   },
 
   backButton: {
     position: "absolute",
     marginTop: 40,
     right: 140,
-    //bottom:90
   },
 
-  //pseudo + image
   profileImageContainer: {
-    //position:'absolute',
     marginBottom: 30,
     alignItems: "center",
+  },
+
+  buttonDisplayReviews: {
+    flexDirection: "row",
+    backgroundColor: "#4A46FF",
+    width: 78,
+    height: 27,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+    bottom: 130,
+    left: 150,
+  },
+
+  globalAverage: {
+    color: "white",
+  },
+
+  averageStarText: {
+    color: "white",
+    fontSize: 16,
+  },
+
+  starIcon: {
+    color: "white",
+    marginRight: 5,
   },
 
   profileImageTop: {
@@ -289,16 +347,12 @@ const styles = StyleSheet.create({
   },
 
   pseudoText: {
-    position: "absolute",
-    //left: 0,
-    //top:0,
-    bottom: 1,
-    //right:1,
-    
+    marginLeft: 150,
+    bottom: 100,
     color: "black",
     paddingVertical: 30,
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 28,
+    fontSize: 50,
   },
 
   button: {
@@ -306,13 +360,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 317,
     height: 53,
-    //bottom: 500,
+    bottom: 100,
     paddingVertical: 12,
     borderRadius: 40,
     alignItems: "center",
   },
   text: {
-    fontFamily:"Poppins_600SemiBold",
+    fontFamily: "Poppins_600SemiBold",
     fontSize: 18,
     textAlign: "center",
     color: "#4A46FF",
@@ -326,16 +380,20 @@ const styles = StyleSheet.create({
     height: 390,
     borderRadius: 20,
     overflow: "hidden",
+    justifyContent: "flex-end",
     maxHeight:
       Dimensions.get("window").height - (StatusBar.currentHeight || 0) - 100,
   },
 
+  nicknameWrapper: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
   starContainer: {
-    position: "absolute",
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: 55,
-    paddingTop: 140,
+    justifyContent: "center",
   },
 
   star: {
@@ -350,10 +408,9 @@ const styles = StyleSheet.create({
 
   input: {
     backgroundColor: "#F4F4F4",
-    position: "absolute",
     height: 180,
-    marginBottom: 50,
-    marginTop: 200,
+    marginVertical: 20,
+    marginHorizontal: 10,
     width: 300,
     marginLeft: 8,
     paddingTop: 20,
@@ -362,20 +419,14 @@ const styles = StyleSheet.create({
 
   buttonreview: {
     fontFamily: "Poppins_600SemiBold",
-    //position:"absolute",
     backgroundColor: "#4A46FF",
     width: 317,
     height: 53,
-    //left:5,
-    //right:10,
-    //bottom:1,
     alignItems: "center",
     paddingVertical: 12,
     borderRadius: 20,
     alignItems: "center",
     marginTop: 10,
-
-    //marginBottom: 20,
   },
 
   buttontextreview: {
@@ -384,12 +435,11 @@ const styles = StyleSheet.create({
   },
 
   reviewItem: {
-    flexDirection: "absolute",
     backgroundColor: "white",
-    padding: 10,
+    padding: 20,
     borderRadius: 20,
-    marginTop: 10,
-    //marginBottom: 1,
+    marginBottom:10,
+    
   },
 
   starItem: {
