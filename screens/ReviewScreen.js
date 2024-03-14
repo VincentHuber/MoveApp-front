@@ -31,16 +31,18 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 
-const BACKEND_ADDRESS = "http://192.168.10.123:3000";
+const BACKEND_ADDRESS = "http://172.20.10.3:3000";
 
 export default function ReviewScreen() {
   const [isVisible, setIsVisible] = useState(false);
+  const [sender, setSender] = useState("");
   const [ratingStars, setRatingStars] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [addReviews, setAddReviews] = useState([]);
   const [isTextInputVisible, setIsTextInputVisible] = useState(false);
   const [isReviewVisible, setIsReviewVisible] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Etat pour stocker la date sélectionnée
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
   const token = useSelector((state) => state.user.value.token);
 
@@ -52,12 +54,11 @@ export default function ReviewScreen() {
 
   const handleButtonClick = () => {
     const navigation = useNavigation();
-    navigation.navigate("NomDeLaPage"); // Remplacez 'NomDeLaPage' par le nom de votre page de destination
+    navigation.navigate("NomDeLaPage");
   };
 
   //ce fetch permet de recuperer la data nickname et profilepicture et le Average
   useEffect(() => {
-    // if ("NlQWH0dlyhQZ7WaZSGzth9129mtttLGj") {
     fetch(`${BACKEND_ADDRESS}/user/NlQWH0dlyhQZ7WaZSGzth9129mtttLGj`)
       .then((response) => response.json())
       .then((data) => {
@@ -88,12 +89,16 @@ export default function ReviewScreen() {
     setIsReviewVisible(!isReviewVisible);
   };
 
+  const closeInputWrapper = () => {
+    setReviewModalVisible(!reviewModalVisible);
+  };
+
   const handleAddReview = () => {
     // Vérifiez si le commentaire est vide (la methode trim permet d'enlever les espaces vides)
     //avec cette conditon l'utilisateur ne pourra pas laisser un commentaire vide
 
     if (reviewText.trim() === "") {
-      console.error("Veuillez laisser un commentaire.");
+      console.error("Erreur : Champ de saisie vide.");
       return;
     }
     // la methode slice permet de limiter la longueur du texte a 250 caractères
@@ -110,9 +115,10 @@ export default function ReviewScreen() {
     setIsReviewVisible(true);
     setReviewText("");
     const newReview = {
-      review: trimmedReviewText,
-      stars: ratingStars,
+      sender: sender,
       date: selectedDate,
+      stars: ratingStars,
+      review: trimmedReviewText,
     };
 
     setAddReviews([...addReviews, newReview]);
@@ -122,9 +128,10 @@ export default function ReviewScreen() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        review: reviewText,
+        sender: sender,
         stars: ratingStars,
         date: selectedDate,
+        review: trimmedReviewText,
       }),
     })
       .then((response) => response.json())
@@ -177,9 +184,11 @@ export default function ReviewScreen() {
           translucent={true}
         />
         <View>
-          <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-            <AntDesign name="left" size={24} color="#4A46FF" />
-          </TouchableOpacity>
+          {!isVisible && (
+            <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+              <AntDesign name="left" size={24} color="#4A46FF" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {!isVisible && (
@@ -209,7 +218,6 @@ export default function ReviewScreen() {
               <TouchableOpacity
                 style={styles.buttonDisplayReviews}
                 onPress={handleButtonClick}
-                // Remplacez handleButtonClick par la fonction que vous souhaitez appeler lors du clic
               >
                 <FontAwesomeIcon icon={faStar} style={styles.starIcon} />
                 <Text style={styles.averageStarText}>
@@ -221,7 +229,7 @@ export default function ReviewScreen() {
         )}
 
         <View>
-          {isReviewVisible && (
+          {!isVisible && (
             <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
               <Text style={styles.text}>Laisser un avis</Text>
             </TouchableOpacity>
@@ -246,6 +254,13 @@ export default function ReviewScreen() {
                   </Text>
                   <Text>{selectedDate.toLocaleDateString()}</Text>
                   {renderStars()}
+
+                  <TouchableOpacity
+                    style={styles.buttonClose}
+                    onPress={() => setIsVisible(false)}
+                  >
+                    <AntDesign name="closecircleo" size={24} color="grey" />
+                  </TouchableOpacity>
                 </View>
 
                 <TextInput
@@ -267,7 +282,7 @@ export default function ReviewScreen() {
             </View>
           )}
 
-          <View>
+          <View style={{ marginTop: 20 }}>
             {addReviews.map((review, index) => (
               <View key={index} style={styles.reviewItem}>
                 <View style={styles.starItem}>
@@ -301,26 +316,28 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    position: "absolute",
-    marginTop: 40,
-    right: 140,
+    marginTop: 1,
+    top: 100,
+    top: 80,
+    right: 170,
   },
 
   profileImageContainer: {
-    marginBottom: 30,
+    flexDirection: "row",
+    marginBottom: 3,
     alignItems: "center",
   },
 
   buttonDisplayReviews: {
     flexDirection: "row",
     backgroundColor: "#4A46FF",
+    paddingRight: 10,
+    bottom: 30,
     width: 78,
     height: 27,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 20,
-    bottom: 130,
-    left: 150,
   },
 
   globalAverage: {
@@ -343,12 +360,9 @@ const styles = StyleSheet.create({
     borderRadius: 75,
     borderWidth: 3,
     borderColor: "white",
-    right: 80,
   },
 
   pseudoText: {
-    marginLeft: 150,
-    bottom: 100,
     color: "black",
     paddingVertical: 30,
     fontFamily: "Poppins_600SemiBold",
@@ -360,7 +374,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 317,
     height: 53,
-    bottom: 100,
     paddingVertical: 12,
     borderRadius: 40,
     alignItems: "center",
@@ -376,6 +389,7 @@ const styles = StyleSheet.create({
 
   inputWrapper: {
     backgroundColor: "white",
+    bottom: 40,
     width: 317,
     height: 390,
     borderRadius: 20,
@@ -389,6 +403,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
   },
+
+  buttonClose: {},
 
   starContainer: {
     flexDirection: "row",
@@ -427,6 +443,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     marginTop: 10,
+    bottom: 40,
   },
 
   buttontextreview: {
@@ -438,8 +455,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 20,
     borderRadius: 20,
-    marginBottom:10,
-    
+    marginBottom: 20,
   },
 
   starItem: {
