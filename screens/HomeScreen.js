@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from "react";
+import React, { useRef, useCallback, useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -17,7 +17,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  user,
+  users,
   login,
   addProfilePicture,
   addCoverPicture,
@@ -40,11 +40,23 @@ import Tennis from "../assets/tennis.js";
 import Create from "../assets/create.js";
 import Upload from "../assets/upload.js";
 
-const BACKEND_ADRESS = 'http://192.168.10.165:3000'
+const BACKEND_ADDRESS = 'http://192.168.84.75:3000'
 
 
 export default function HomeScreen({ navigation }) {
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const userToken = useSelector((state) => state.user.value.token); 
+
+    console.log(userToken);
+  
+    useEffect(() => {
+      if (userToken) {
+        navigation.navigate("Map");
+      }
+    }, [userToken]);
+
+    
+    
   const userProfilePicture = useSelector(
     (state) => state.user.value.profilePicture
   );
@@ -186,26 +198,26 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-    const handleConnection = () => {
+  const handleConnection = () => {
     console.log({ email: signInUsermail, password: '********' }); // Cacher le mot de passe dans les logs
-    fetch(`${BACKEND_ADRESS}/user/signin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
+    fetch(`${BACKEND_ADDRESS}/user/signin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
     }).then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data.result) {
-                dispatch(login({ email: signInUsermail, token: data.token }));
-                setSignInUsermail('');
-                setSignInPassword('');
-                setIsOpen(-1);
-                navigation.navigate('Map');
-            } else {
-                Alert.alert('Email et/ou mot de passe incorrect(s).');
-            }
-        });
-};
+      .then(data => {
+        console.log(data);
+        if (data.result) {
+          dispatch(login({ email: signInUsermail, token: data.token }));
+          setSignInUsermail('');
+          setSignInPassword('');
+          setIsOpen(-1);
+          navigation.navigate('Map');
+        } else {
+          Alert.alert('Email et/ou mot de passe incorrect(s).');
+        }
+      });
+  };
     
 
   //Fonts
