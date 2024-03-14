@@ -89,6 +89,7 @@ export default function MapScreen({ navigation }) {
     }
   }, [user, navigation]);
 
+
   // fonction pour afficher les users sur la Map via leurs adresses
   useEffect(() => {
     const fetchUsers = async () => {
@@ -633,11 +634,11 @@ const styles = StyleSheet.create({
 
   // Input recherche
   searchContainer: {
-    position: "absolute",
+    //position: "absolute",
     top: 20,
     width: "100%",
     alignItems: "center",
-    zIndex: 1,
+    // zIndex:1,
   },
   input: {
     width: "90%",
@@ -704,6 +705,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
+  profileImagesContainer: {
+    position: 'absolute',
+    borderWidth:2,
+    top: 10,
+    width: '100%', 
+    alignItems: 'center', 
+  },
+
   photoCoverModal: {
     borderWidth:2,
     width: "90%",
@@ -719,7 +728,14 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth: 6,
     borderColor: "#F4F4F4",
-    backgroundColor: "white",
+  },
+
+  infosUser: {
+    textAlign:'center',
+    borderWidth: 1,
+    width:230,
+    bottom: "10%",
+    flexDirection: 'row',
   },
 
   textModal1: {
@@ -727,6 +743,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 28,
     fontFamily: "Poppins_700Bold",
+  },
+
+  boutonAvis: {
+  
   },
 
   textModal2: {
