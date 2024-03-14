@@ -21,7 +21,7 @@ import {
 
 import { useSelector } from "react-redux";
 
-const BACKEND_ADDRESS = "http://192.168.10.149:3000";
+const BACKEND_ADDRESS = "http://192.168.10.171:3000";
 
 export default function ChatScreen({ navigation, route }) {
   //  Redirect to /login if not logged in
@@ -86,12 +86,8 @@ export default function ChatScreen({ navigation, route }) {
         console.error("Erreur lors de la requête fetch :", error);
       });
   };
-  
 
   //Afficher tous les messages
-
-
-
 
   //Fonts
   const [fontsLoaded] = useFonts({
