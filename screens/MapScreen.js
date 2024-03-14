@@ -733,7 +733,7 @@ const styles = StyleSheet.create({
   modalView: {
     position: "absolute",
     backgroundColor: "#f4f4f4",
-    height: 667,
+    height: 667, // coucou
     width: "85%",
     justifyContent: "center",
     alignItems: "center",
