@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  Platform,
   Image,
   KeyboardAvoidingView,
   ScrollView,
@@ -44,19 +43,17 @@ import Upload from "../assets/upload.js";
 const BACKEND_ADDRESS = "http://192.168.10.171:3000";
 
 export default function HomeScreen({ navigation }) {
-    const dispatch = useDispatch();
-    const userToken = useSelector((state) => state.user.value.token); 
+  const dispatch = useDispatch();
+  const userToken = useSelector((state) => state.user.value.token);
 
-    console.log(userToken);
-  
-    useEffect(() => {
-      if (userToken) {
-        navigation.navigate("Map");
-      }
-    }, [userToken]);
+  console.log(userToken);
 
-    
-    
+  useEffect(() => {
+    if (userToken) {
+      navigation.navigate("Map");
+    }
+  }, [userToken]);
+
   const userProfilePicture = useSelector(
     (state) => state.user.value.profilePicture
   );
@@ -89,7 +86,7 @@ export default function HomeScreen({ navigation }) {
   // pour comprendre la modal BottomSheet : https://www.youtube.com/watch?v=SgeAfiz_j_w&t=184s
   const sheetRef = useRef(null);
   const [isOpen, setIsOpen] = useState(-1);
-  const snapPoints = ["55"];
+  const snapPoints = ["45%"];
 
   const handleSnapPress = useCallback((index) => {
     sheetRef.current?.snapToIndex(index);
@@ -132,13 +129,6 @@ export default function HomeScreen({ navigation }) {
   //Profile creation
   const createProfile = async (userData, profile, cover) => {
     try {
-      const EMAIL_REGEX =
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      if (!EMAIL_REGEX.test(userData.email)) {
-        console.log("coucou");
-        throw new Error("Invalid email format");
-      }
-
       const resCreation = await fetch(`${BACKEND_ADDRESS}/user/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +140,6 @@ export default function HomeScreen({ navigation }) {
 
       const { token, adress, email, nickname, ambition, description, sports } =
         dataCreation.user;
-
       dispatch(
         login({ token, adress, email, nickname, ambition, description, sports })
       );
@@ -207,26 +196,26 @@ export default function HomeScreen({ navigation }) {
   };
 
   const handleConnection = () => {
-    console.log({ email: signInUsermail, password: '********' }); // Cacher le mot de passe dans les logs
+    console.log({ email: signInUsermail, password: "********" }); // Cacher le mot de passe dans les logs
     fetch(`${BACKEND_ADDRESS}/user/signin`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: signInUsermail, password: signInPassword }),
-    }).then(response => response.json())
-      .then(data => {
+    })
+      .then((response) => response.json())
+      .then((data) => {
         console.log(data);
         if (data.result) {
           dispatch(login({ email: signInUsermail, token: data.token }));
-          setSignInUsermail('');
-          setSignInPassword('');
+          setSignInUsermail("");
+          setSignInPassword("");
           setIsOpen(-1);
-          navigation.navigate('Map');
+          navigation.navigate("Map");
         } else {
-          Alert.alert('Email et/ou mot de passe incorrect(s).');
+          Alert.alert("Email et/ou mot de passe incorrect(s).");
         }
       });
   };
-    
 
   //Fonts
   const [fontsLoaded] = useFonts({
@@ -243,12 +232,8 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 500}
-    >
-      <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
         <View style={styles.logoContainer}>
           <Text style={styles.logo}>MOVE</Text>
         </View>
@@ -271,273 +256,283 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-            <Modal 
-                visible={isModalVisible} 
-                onRequestClose={()=>{setIsModalVisible(false)}} 
-                animationType="slide"
-                presentationStyle="pageSheet"
+        <Modal
+          visible={isModalVisible}
+          onRequestClose={() => {
+            setIsModalVisible(false);
+          }}
+          animationType="slide"
+          presentationStyle="pageSheet"
+        >
+          <ScrollView>
+            <View style={styles.modalSignIn}>
+              <Text style={styles.title}>INSCRIPTION</Text>
+              <View style={styles.pseudo}>
+                <TextInput
+                  style={styles.textPseudo}
+                  placeholder="Ton pseudo*"
+                  onChangeText={(value) => setNickname(value)}
+                  value={nickname}
+                  selectionColor="#4A46FF"
+                />
+              </View>
+              <View style={styles.email}>
+                <TextInput
+                  style={styles.textEmail}
+                  placeholder="Ton email*"
+                  onChangeText={(value) => setSignInUsermail(value)}
+                  value={signInUsermail}
+                  selectionColor="#4A46FF"
+                />
+              </View>
+              <View style={styles.password}>
+                <TextInput
+                  style={styles.textPassword}
+                  secureTextEntry={true}
+                  placeholder="Ton mot de passe*"
+                  onChangeText={(value) => setSignInPassword(value)}
+                  value={signInPassword}
+                  selectionColor="#4A46FF"
+                />
+              </View>
+              <View styles={styles.contenairExplicationAdress}>
+                <Text style={styles.textExplicationAdress}>
+                  Ta position en temps réel ne sera pas partagée. Seule
+                  l'adresse de ton lieu d’entraînement sera visible.
+                </Text>
+              </View>
+              <View style={styles.adress}>
+                <TextInput
+                  style={styles.textAdress}
+                  placeholder={`Ton lieu d'activité sportive*`}
+                  onChangeText={(value) => setAdress(value)}
+                  value={adress}
+                  selectionColor="#4A46FF"
+                />
+              </View>
+              <View style={styles.description}>
+                <TextInput
+                  style={styles.textDescription}
+                  placeholder="Ta description en une phrase"
+                  multiline={true} // Permettre plusieurs lignes
+                  numberOfLines={3} // NB lignes à afficher dès le départ
+                  onChangeText={(value) => setDescription(value)}
+                  value={description}
+                  selectionColor="#4A46FF"
+                />
+              </View>
+              <Text style={styles.textSports}>MES SPORTS*</Text>
+              <View style={styles.sportIconsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.iconContainer,
+                    selectedSports.Football
+                      ? { backgroundColor: "#4A46FF", borderRadius: 12 }
+                      : null,
+                  ]}
+                  onPress={() => handleAddSport("Football")}
                 >
-                <ScrollView>
-                    <View style={styles.modalSignIn}>
-                        <Text style={styles.title}>INSCRIPTION</Text>
-                        <View style={styles.pseudo}>
-                            <TextInput
-                                style={styles.textPseudo}
-                                placeholder='Pseudo*'      
-                                onChangeText={(value) => setNickname(value)}
-                                value={nickname}
-                                selectionColor="#4A46FF"
-                            />
-                        </View>
-                        <View style={styles.email}>
-                            <TextInput
-                                style={styles.textEmail}
-                                
-                                placeholder='Email*'   
-                                onChangeText={(value) => setSignInUsermail(value)}
-                                value={signInUsermail}
-                                selectionColor="#4A46FF"
-                            />
-                        </View>
-                        <View style={styles.password}>
-                            <TextInput
-                                style={styles.textPassword}
-                                secureTextEntry={true}
-                                placeholder='Password*'     
-                                onChangeText={(value) => setSignInPassword(value)}
-                                value={signInPassword}
-                                selectionColor="#4A46FF"
-                            />
-                        </View>
-                        <View styles={styles.contenairExplicationAdress}>
-                            <Text style={styles.textExplicationAdress}>
-                                Ta position en temps réel ne sera pas partagée. Seule l'adresse de ton lieu d’entraînement sera visible.
-                            </Text>
-                        </View>
-                        <View style={styles.adress}>
-                            <TextInput
-                                style={styles.textAdress}
-                               
-                                placeholder='Adresse*'  
-                                onChangeText={(value) => setAdress(value)}
-                                value={adress}
-                                selectionColor="#4A46FF"
-                            />
-                        </View>
-                        <View style={styles.description}>
-                            <TextInput
-                                style={styles.textDescription}
-                                
-                                placeholder='Description'  
-                                multiline={true} // Permettre plusieurs lignes
-                                numberOfLines={3} // NB lignes à afficher dès le départ
-                                onChangeText={(value) => setDescription(value)}
-                                value={description}
-                                selectionColor="#4A46FF"
-                            />
-                        </View>
-                        <Text style={styles.textSports}>MES SPORTS*</Text>
-                        <View style={styles.sportIconsContainer}>
-                        <TouchableOpacity
-          style={[
-            styles.iconContainer,
-            selectedSports.Football
-              ? { backgroundColor: "#4A46FF", borderRadius: 12 }
-              : null,
-          ]}
-          onPress={() => handleAddSport("Football")}
-        >
-          <View
-            style={[
-              styles.iconFoot,
-              {
-                backgroundColor: selectedSports.Football ? "#4A46FF" : "white",
-                borderRadius: 12,
-                width: 65,
-                height: 69,
-              },
-            ]}
-          >
-            <Foot fill={selectedSports.Football ? "white" : "black"} />
-          </View>
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              selectedSports.Football
-                ? { backgroundColor: "white", elevation: 3}
-                : { backgroundColor: "#4A46FF" },
-            ]}
-            onPress={() => handleAddSport("Football")}
-          >
-            <Text
-              style={[
-                styles.addButtonText,
-                selectedSports.Football
-                  ? {
-                      color: "#4A46FF",
-                      fontSize: 25,
-                      fontFamily: "Poppins_600SemiBold",
-                    }
-                  : null,
-              ]}
-            >
-              {selectedSports.Football ? "-" : "+"}
-            </Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
+                  <View
+                    style={[
+                      styles.iconFoot,
+                      {
+                        backgroundColor: selectedSports.Football
+                          ? "#4A46FF"
+                          : "white",
+                        borderRadius: 12,
+                        width: 65,
+                        height: 69,
+                      },
+                    ]}
+                  >
+                    <Foot fill={selectedSports.Football ? "white" : "black"} />
+                  </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.addButton,
+                      selectedSports.Football
+                        ? { backgroundColor: "white", elevation: 3 }
+                        : { backgroundColor: "#4A46FF" },
+                    ]}
+                    onPress={() => handleAddSport("Football")}
+                  >
+                    <Text
+                      style={[
+                        styles.addButtonText,
+                        selectedSports.Football
+                          ? {
+                              color: "#4A46FF",
+                              fontSize: 25,
+                              fontFamily: "Poppins_600SemiBold",
+                            }
+                          : null,
+                      ]}
+                    >
+                      {selectedSports.Football ? "-" : "+"}
+                    </Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.iconContainer,
-            selectedSports.Basketball
-              ? { backgroundColor: "#4A46FF", borderRadius: 12 }
-              : null,
-          ]}
-          onPress={() => handleAddSport("Basketball")}
-        >
-          <View
-            style={[
-              styles.iconBasket,
-              {
-                backgroundColor: selectedSports.Basketball
-                  ? "#4A46FF"
-                  : "white",
-                borderRadius: 12,
-                width: 65,
-                height: 69,
-              },
-            ]}
-          >
-            <Basket fill={selectedSports.Basketball ? "white" : "black"} />
-          </View>
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              selectedSports.Basketball
-                ? { backgroundColor: "white", elevation: 3}
-                : { backgroundColor: "#4A46FF" },
-            ]}
-            onPress={() => handleAddSport("Basketball")}
-          >
-            <Text
-              style={[
-                styles.addButtonText,
-                selectedSports.Basketball
-                  ? {
-                      color: "#4A46FF",
-                      fontSize: 25,
-                      fontFamily: "Poppins_600SemiBold",
-                    }
-                  : null,
-              ]}
-            >
-              {selectedSports.Basketball ? "-" : "+"}
-            </Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.iconContainer,
+                    selectedSports.Basketball
+                      ? { backgroundColor: "#4A46FF", borderRadius: 12 }
+                      : null,
+                  ]}
+                  onPress={() => handleAddSport("Basketball")}
+                >
+                  <View
+                    style={[
+                      styles.iconBasket,
+                      {
+                        backgroundColor: selectedSports.Basketball
+                          ? "#4A46FF"
+                          : "white",
+                        borderRadius: 12,
+                        width: 65,
+                        height: 69,
+                      },
+                    ]}
+                  >
+                    <Basket
+                      fill={selectedSports.Basketball ? "white" : "black"}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.addButton,
+                      selectedSports.Basketball
+                        ? { backgroundColor: "white", elevation: 3 }
+                        : { backgroundColor: "#4A46FF" },
+                    ]}
+                    onPress={() => handleAddSport("Basketball")}
+                  >
+                    <Text
+                      style={[
+                        styles.addButtonText,
+                        selectedSports.Basketball
+                          ? {
+                              color: "#4A46FF",
+                              fontSize: 25,
+                              fontFamily: "Poppins_600SemiBold",
+                            }
+                          : null,
+                      ]}
+                    >
+                      {selectedSports.Basketball ? "-" : "+"}
+                    </Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.iconContainer,
-            selectedSports.Running
-              ? { backgroundColor: "#4A46FF", borderRadius: 12 }
-              : null,
-          ]}
-          onPress={() => handleAddSport("Running")}
-        >
-          <View
-            style={[
-              styles.iconRunning,
-              {
-                backgroundColor: selectedSports.Running ? "#4A46FF" : "white",
-                borderRadius: 12,
-                width: 65,
-                height: 69,
-              },
-            ]}
-          >
-            <Running fill={selectedSports.Running ? "white" : "black"} />
-          </View>
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              selectedSports.Running
-                ? { backgroundColor: "white", elevation: 3}
-                : { backgroundColor: "#4A46FF" },
-            ]}
-            onPress={() => handleAddSport("Running")}
-          >
-            <Text
-              style={[
-                styles.addButtonText,
-                selectedSports.Running
-                  ? {
-                      color: "#4A46FF",
-                      fontSize: 25,
-                      fontFamily: "Poppins_600SemiBold",
-                    }
-                  : null,
-              ]}
-            >
-              {selectedSports.Running ? "-" : "+"}
-            </Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.iconContainer,
+                    selectedSports.Running
+                      ? { backgroundColor: "#4A46FF", borderRadius: 12 }
+                      : null,
+                  ]}
+                  onPress={() => handleAddSport("Running")}
+                >
+                  <View
+                    style={[
+                      styles.iconRunning,
+                      {
+                        backgroundColor: selectedSports.Running
+                          ? "#4A46FF"
+                          : "white",
+                        borderRadius: 12,
+                        width: 65,
+                        height: 69,
+                      },
+                    ]}
+                  >
+                    <Running
+                      fill={selectedSports.Running ? "white" : "black"}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.addButton,
+                      selectedSports.Running
+                        ? { backgroundColor: "white", elevation: 3 }
+                        : { backgroundColor: "#4A46FF" },
+                    ]}
+                    onPress={() => handleAddSport("Running")}
+                  >
+                    <Text
+                      style={[
+                        styles.addButtonText,
+                        selectedSports.Running
+                          ? {
+                              color: "#4A46FF",
+                              fontSize: 25,
+                              fontFamily: "Poppins_600SemiBold",
+                            }
+                          : null,
+                      ]}
+                    >
+                      {selectedSports.Running ? "-" : "+"}
+                    </Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.iconContainer,
-            selectedSports.Tennis
-              ? { backgroundColor: "#4A46FF", borderRadius: 12 }
-              : null,
-          ]}
-          onPress={() => handleAddSport("Tennis")}
-        >
-          <View
-            style={[
-              styles.iconTennis,
-              {
-                backgroundColor: selectedSports.Tennis ? "#4A46FF" : "white",
-                borderRadius: 12,
-                width: 65,
-                height: 69,
-              },
-            ]}
-          >
-            <Tennis fill={selectedSports.Tennis ? "white" : "black"} />
-          </View>
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              selectedSports.Tennis
-                ? { backgroundColor: "white", elevation: 3}
-                : { backgroundColor: "#4A46FF" },
-            ]}
-            onPress={() => handleAddSport("Tennis")}
-          >
-            <Text
-              style={[
-                styles.addButtonText,
-                selectedSports.Tennis
-                  ? {
-                      color: "#4A46FF",
-                      fontSize: 25,
-                      fontFamily: "Poppins_600SemiBold",
-                    }
-                  : null,
-              ]}
-            >
-              {selectedSports.Tennis ? "-" : "+"}
-            </Text>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </View>
+                <TouchableOpacity
+                  style={[
+                    styles.iconContainer,
+                    selectedSports.Tennis
+                      ? { backgroundColor: "#4A46FF", borderRadius: 12 }
+                      : null,
+                  ]}
+                  onPress={() => handleAddSport("Tennis")}
+                >
+                  <View
+                    style={[
+                      styles.iconTennis,
+                      {
+                        backgroundColor: selectedSports.Tennis
+                          ? "#4A46FF"
+                          : "white",
+                        borderRadius: 12,
+                        width: 65,
+                        height: 69,
+                      },
+                    ]}
+                  >
+                    <Tennis fill={selectedSports.Tennis ? "white" : "black"} />
+                  </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.addButton,
+                      selectedSports.Tennis
+                        ? { backgroundColor: "white", elevation: 3 }
+                        : { backgroundColor: "#4A46FF" },
+                    ]}
+                    onPress={() => handleAddSport("Tennis")}
+                  >
+                    <Text
+                      style={[
+                        styles.addButtonText,
+                        selectedSports.Tennis
+                          ? {
+                              color: "#4A46FF",
+                              fontSize: 25,
+                              fontFamily: "Poppins_600SemiBold",
+                            }
+                          : null,
+                      ]}
+                    >
+                      {selectedSports.Tennis ? "-" : "+"}
+                    </Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
 
               <View style={styles.ambition}>
                 <TextInput
                   style={styles.textAmbition}
                   type="text"
-                  placeholder="Ambition"
+                  placeholder="Ton ambition avec cette app"
                   multiline={true} // Permettre plusieurs lignes
                   numberOfLines={3} // NB lignes à afficher dès le départ
                   onChangeText={(value) => setAmbition(value)}
@@ -552,7 +547,7 @@ export default function HomeScreen({ navigation }) {
                 ) : (
                   <View style={styles.uploadCover}>
                     <Text style={styles.textUploadProfile}>
-                      Photo de couverture
+                      Ta photo de couverture
                     </Text>
                   </View>
                 )}
@@ -568,7 +563,7 @@ export default function HomeScreen({ navigation }) {
                 ) : (
                   <View style={styles.uploadProfile}>
                     <Text style={styles.textUploadProfile}>
-                      Photo de profile
+                      Ta photo {"\n"} de profile
                     </Text>
                   </View>
                 )}
@@ -614,7 +609,6 @@ export default function HomeScreen({ navigation }) {
 
         <BottomSheet
           ref={sheetRef}
-          backgroundStyle={{ backgroundColor: "#F4F4F4" }}
           snapPoints={snapPoints}
           enablePanDownToClose={true}
           onClose={() => setIsOpen(0)}
@@ -627,7 +621,7 @@ export default function HomeScreen({ navigation }) {
               <TextInput
                 style={styles.textEmail}
                 type="email"
-                placeholder="Email*"
+                placeholder="Ton email"
                 onChangeText={(value) => setSignInUsermail(value)}
                 value={signInUsermail}
                 selectionColor="#4A46FF"
@@ -638,7 +632,7 @@ export default function HomeScreen({ navigation }) {
                 style={styles.textPassword}
                 type="password*"
                 secureTextEntry={true} // pour cacher le mot de passe
-                placeholder="Password"
+                placeholder="Ton mot de passe"
                 onChangeText={(value) => setSignInPassword(value)}
                 value={signInPassword}
                 selectionColor="#4A46FF"
@@ -652,8 +646,8 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         </BottomSheet>
-      </GestureHandlerRootView>
-    </KeyboardAvoidingView>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -662,6 +656,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#4A46FF",
     justifyContent: "space-between",
+    width: "100%",
+    height: "100%",
   },
 
   //LOGO
@@ -810,51 +806,49 @@ const styles = StyleSheet.create({
     marginBottom: 13,
   },
 
-    //Icones sports
-    sportIconsContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignSelf: "center",
-        width: "85%",
-    },
-
-    iconFoot: {
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-        width: "30%",
-        height: 69,
-        borderRadius: 12,
-    },
-
-    iconBasket: {
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-        width: "30%",
-        height: 69,
-        borderRadius: 12,
-    },
-
-    iconRunning: {
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white",
-        width: "30%",
-        height: 69,
-        borderRadius: 12,
-    },
-
-    iconTennis: {
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "white",
-      width: "30%",
-      height: 69,
-      borderRadius: 12,
+  //Icones sports
+  sportIconsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignSelf: "center",
+    width: "85%",
   },
 
-   
+  iconFoot: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    width: "30%",
+    height: 69,
+    borderRadius: 12,
+  },
+
+  iconBasket: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    width: "30%",
+    height: 69,
+    borderRadius: 12,
+  },
+
+  iconRunning: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    width: "30%",
+    height: 69,
+    borderRadius: 12,
+  },
+
+  iconTennis: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    width: "30%",
+    height: 69,
+    borderRadius: 12,
+  },
 
   //Bouton pour icones sports
   addButton: {
@@ -971,24 +965,23 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 
-    textDescription:{
-        marginTop:13,
-        fontFamily: 'Poppins_600SemiBold',
-        fontSize:14,
-        color:'#9B9B9B',
-    },
-   
-    ambition:{
-        backgroundColor:'white',
-        width:'85%',
-        height:90,
-        borderRadius:10,
-        paddingLeft:15,
-        marginTop: 13,
-        marginBottom:13,
-        alignSelf: 'center',
+  textDescription: {
+    marginTop: 13,
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 14,
+    color: "#9B9B9B",
+  },
 
-    },
+  ambition: {
+    backgroundColor: "white",
+    width: "85%",
+    height: 90,
+    borderRadius: 10,
+    paddingLeft: 15,
+    marginTop: 13,
+    marginBottom: 13,
+    alignSelf: "center",
+  },
 
   textAmbition: {
     marginTop: 13,
@@ -1013,9 +1006,7 @@ const styles = StyleSheet.create({
   },
 
   //MODAL SIGN IN
-  bottomSheet: {
-    flexGrow: 1,
-  },
+  bottomSheet: {},
 
   bottomSheetContent: {
     width: "100%",
@@ -1031,7 +1022,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
     alignSelf: "center",
-    marginTop: 25,
   },
 
   textButtonSignInOk: {
@@ -1047,8 +1037,8 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: "black",
     textAlign: "center",
-    marginTop: 15,
-    marginBottom: 35,
+    marginTop: 5,
+    marginBottom: 15,
   },
 
   //UPLOAD
