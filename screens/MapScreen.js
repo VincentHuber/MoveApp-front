@@ -538,13 +538,17 @@ export default function MapScreen({ navigation }) {
 
       <Modal visible={modalMakerVisible} animationType="fade" transparent>
         <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-          <TouchableOpacity onPress={() => handleClose()} style={styles.modalClose}>
+          <View style={styles.closeContainer}>
+        <TouchableOpacity onPress={() => handleClose()} style={styles.modalClose}>
                 <Image
                   source={require("../assets/close.png")}
                   style={{ width: 48, height: 48, borderRadius: 57 }}
                 />
-              </TouchableOpacity>
+          </TouchableOpacity>
+
+          </View>
+          <View style={styles.modalView}>
+          
             <Image
               style={styles.photoCoverModal}
               source={{ uri: usersInfo.coverPicture }}
@@ -806,10 +810,18 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular_Italic",
   },
 
-  modalClose: {
-    
+  closeContainer:{
     borderWidth:2,
-    
+    zIndex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'flex-end', // Aligner le contenu à la fin du conteneur (à droite pour flexDirection: 'row')
+    padding: 10,
+  },
+
+  modalClose: {
+    marginBottom: -40,
+    borderWidth:2
   },
 
   boutonAvis: {
