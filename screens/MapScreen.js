@@ -548,35 +548,66 @@ export default function MapScreen({ navigation }) {
             </View>
           </Modal>
 
-          <Modal visible={modalMakerVisible} animationType="fade" transparent>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
+      <Modal visible={modalMakerVisible} animationType="fade" transparent>
+        <View style={styles.centeredView}>
+          <View style={styles.closeContainer}>
+        <TouchableOpacity onPress={() => handleClose()} style={styles.modalClose}>
                 <Image
-                  style={styles.photoCoverModal}
-                  source={{ uri: usersInfo.coverPicture }}
+                  source={require("../assets/close.png")}
+                  style={{ width: 48, height: 48, borderRadius: 57 }}
                 />
-                <Image
-                  style={styles.photoProfilModal}
-                  source={{ uri: usersInfo.profilePicture }}
-                />
-                <Text style={styles.textModal1}>{usersInfo.nickname}</Text>
-                <Text style={styles.textModal2}>{usersInfo.description}</Text>
-                <Text style={styles.textSports}>SES SPORTS</Text>
-                <View style={styles.sportContainer}>
-                  {Object.keys(usersInfo.sports)
-                    .filter((sport) => usersInfo.sports[sport]) // Ne garde que les sports pratiqués (valeur à true)
-                    .map((sport, index) => {
-                      const SportIcon = sportsLogos[sport]; // Récupère le composant de logo correspondant
-                      return (
-                        <View key={index} style={styles.sport}>
-                          <SportIcon style={styles.sportIcon} />
-                        </View>
-                      );
-                    })}
-                </View>
-                <Text style={styles.textambition}>SON AMBITION </Text>
-                <Text style={styles.textModal3}>{usersInfo.ambition}</Text>
-              </View>
+          </TouchableOpacity>
+
+          </View>
+          <View style={styles.modalView}>
+          
+            <Image
+              style={styles.photoCoverModal}
+              source={{ uri: usersInfo.coverPicture }}
+            />
+            <Image
+              style={styles.photoProfilModal}
+              source={{ uri: usersInfo.profilePicture }}
+            />
+
+
+              
+            
+
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-evenly",
+              }}
+              >
+              <Text style={styles.textModal1}>{usersInfo.nickname}</Text>
+              <TouchableOpacity
+                onPress={() => handleReviews()}
+                style={styles.boutonAvis}
+              >
+                <Image source={require("../assets/boutonAvis.jpg")} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.textModal2}>{usersInfo.description}</Text>
+            <Text style={styles.textSports}>SES SPORTS</Text>
+            <View style={styles.sportContainer}>
+              {Object.keys(usersInfo.sports)
+                .filter((sport) => usersInfo.sports[sport]) // Ne garde que les sports pratiqués (valeur à true)
+                .map((sport, index) => {
+                  const SportIcon = sportsLogos[sport]; // Récupère le composant de logo correspondant
+                  return (
+                    <View key={index} style={styles.sport}>
+                      <SportIcon style={styles.sportIcon} />
+                    </View>
+                  );
+                })}
+            </View>
+            {/* <Text style={styles.textambition}>SON AMBITION </Text>
+            <Text style={styles.textModal3}>{usersInfo.ambition}</Text> */}
+          </View>
 
               <View style={styles.modalClose}>
                 <TouchableOpacity
@@ -804,26 +835,22 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
   },
 
-  modalClose: {
-    position: "absolute",
-    top: 50,
-    right: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#4A46FF",
-    width: 30,
-    height: 30,
-    borderRadius: 50,
+  closeContainer:{
+    borderWidth:2,
+    zIndex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'flex-end', // Aligner le contenu à la fin du conteneur (à droite pour flexDirection: 'row')
+    padding: 10,
   },
 
-  circle: {
-    width: "50%",
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    width: 44,
-    height: 44,
+  modalClose: {
+    marginBottom: -40,
+    borderWidth:2
+  },
+
+  boutonAvis: {
+    borderWidth:2,
     borderRadius: 50,
   },
 

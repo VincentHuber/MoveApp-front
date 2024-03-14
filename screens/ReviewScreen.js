@@ -29,7 +29,10 @@ import {
  
 } from "@expo-google-fonts/poppins";
 
-const BACKEND_ADDRESS = "http://192.168.10.149:3000";
+import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+
+const BACKEND_ADDRESS = "http://192.168.10.171:3000";
 
 export default function ReviewScreen() {
   const [isVisible, setIsVisible] = useState(false);
