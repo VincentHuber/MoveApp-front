@@ -38,9 +38,12 @@ import Close from "../assets/close.js";
 const BACKEND_ADDRESS = "http://192.168.10.171:3000";
 
 export default function MapScreen({ navigation }) {
+  
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
   const [usersWithCoordinates, setUsersWithCoordinates] = useState([]);
+
+  const [updateMatch, setUpdateMatch] = useState(null)
 
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
@@ -58,6 +61,7 @@ export default function MapScreen({ navigation }) {
 
   // pour tout les users
   const [usersInfo, setUsersInfo] = useState({
+    token: "",
     name: "",
     description: "",
     ambition: "",
@@ -85,6 +89,7 @@ export default function MapScreen({ navigation }) {
   //  Redirect to /login if not logged in
   useEffect(() => {
     if (!user.token) {
+      console.log('hello');
       navigation.navigate("Home");
     }
   }, [user, navigation]);
@@ -93,6 +98,7 @@ export default function MapScreen({ navigation }) {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!user.token) {
+        console.log('usertoken :', user.token)
         console.error("Token de l'utilisateur non disponible.");
         return;
       }
@@ -194,6 +200,7 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //Geolocalisation
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -213,6 +220,7 @@ export default function MapScreen({ navigation }) {
     })();
   }, []);
 
+// trouver une ville
   const handleSearch = async () => {
     let results = await Location.geocodeAsync(searchText);
     if (results.length > 0) {
@@ -222,9 +230,11 @@ export default function MapScreen({ navigation }) {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
+      setSearchText("")
     }
   };
 
+  //afficher l'utilisateur dans la page map
   useEffect(() => {
     fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
@@ -246,6 +256,7 @@ export default function MapScreen({ navigation }) {
   // image par défaut au cas ou il n'y pas d'image trouvée
   const defaultImage = "../assets/imagePerso.png";
 
+// Modal au clic sur la photo de profil de l'utilisateur
   const handleModal = () => {
     fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
@@ -273,9 +284,10 @@ export default function MapScreen({ navigation }) {
       });
   };
 
-  // fonction qui gèree l'affichage de la modale lors du 'click'
+  // Modal au clic qui affiche les markers des autres utilisateurs
   const onMarkerPress = (user) => {
     setUsersInfo({
+      token: user.token,
       nickname: user.nickname,
       description: user.description,
       ambition: user.ambition,
@@ -283,37 +295,40 @@ export default function MapScreen({ navigation }) {
       profilePicture: user.profilePicture,
       sports: user.sports,
     });
+
     setModalMarkerVisible(true);
     setModalVisible(false);
   };
 
+  //Action pour modifier le profil
   const handleModif = () => {
     navigation.navigate("EditProfile");
     setModalVisible(false);
   };
 
-  const handle2Modif = () => {
-    const updateMatch = "";
 
-    fetch(`${BACKEND_ADDRESS}/user/match/${user.token}`, {
+//Action pour aller dans le chat
+  const handleFrameChat = (otherToken, token) => {
+    fetch(`${BACKEND_ADDRESS}/user/match/${token}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updateMatch),
+      body: JSON.stringify({newMatch: otherToken}),
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.result) {
-          console.log("Profil mis à jour avec succès");
+        if (data) {
+            navigation.navigate("Chat", {otherToken: data.token});
+            setModalMarkerVisible(false)
+
         } else {
           console.error("Erreur lors de la mise à jour du profil", data.error);
         }
       });
 
-    navigation.navigate("Chat");
-    setModal2Visible(false);
   };
+
 
   const handleReviews = () => {
     //navigation.navigate('Review');
@@ -325,10 +340,12 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //action pour aller au menu de chat via la map
   const handleChat = () => {
     navigation.navigate("Chat");
   };
 
+  //action pour retourner à sa position
   const handleReturnToLocation = async () => {
     let currentLocation = await Location.getCurrentPositionAsync({});
     setRegion({
@@ -595,7 +612,7 @@ export default function MapScreen({ navigation }) {
           </View>
 
           <TouchableOpacity
-            onPress={() => handleModif()}
+            onPress={() => handleFrameChat(usersInfo.token, user.token)}
             style={styles.frameChat}
             activeOpacity={0.8}
           >
