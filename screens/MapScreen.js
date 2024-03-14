@@ -89,7 +89,6 @@ export default function MapScreen({ navigation }) {
     }
   }, [user, navigation]);
 
-
   // fonction pour afficher les users sur la Map via leurs adresses
   useEffect(() => {
     const fetchUsers = async () => {
@@ -469,14 +468,17 @@ export default function MapScreen({ navigation }) {
 
       <Modal visible={modalVisible} animationType="fade" transparent>
         <View style={styles.centeredView}>
-        <View style={styles.closeContainer}>
-              <TouchableOpacity onPress={() => handleClose()} style={styles.modalClose}>
-                <Image
-                  source={require("../assets/close.png")}
-                  style={{ width: 48, height: 48, borderRadius: 57 }}
-                />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.closeContainer}>
+            <TouchableOpacity
+              onPress={() => handleClose()}
+              style={styles.modalClose}
+            >
+              <Image
+                source={require("../assets/close.png")}
+                style={{ width: 48, height: 48, borderRadius: 57 }}
+              />
+            </TouchableOpacity>
+          </View>
           <View style={styles.modalView}>
             <Image
               style={styles.photoCoverModal}
@@ -486,9 +488,6 @@ export default function MapScreen({ navigation }) {
               style={styles.photoProfilModal}
               source={{ uri: userInfo.profilePicture }}
             />
-
-            
-
             <View
               style={{
                 width: "100%",
@@ -496,13 +495,13 @@ export default function MapScreen({ navigation }) {
                 alignItems: "center",
                 justifyContent: "space-evenly",
               }}
-              >
+            >
               <Text style={styles.textModal1}>{userInfo.nickname}</Text>
               <TouchableOpacity
                 onPress={() => handleReviews()}
                 style={styles.boutonAvis}
               >
-                <Image source={require("../assets/boutonAvis.jpg")} />
+                <Image source={require("../assets/noteAvis.png")} style={{ width: 65, height: 22, }} />
               </TouchableOpacity>
             </View>
 
@@ -510,7 +509,7 @@ export default function MapScreen({ navigation }) {
             <Text style={styles.textSports}>MES SPORTS</Text>
             <View style={styles.sportContainer}>
               {Object.keys(userInfo.sports)
-                .filter((sport) => userInfo.sports[sport]) 
+                .filter((sport) => userInfo.sports[sport])
                 .map((sport, index) => {
                   const SportIcon = sportsLogos[sport];
                   return (
@@ -520,36 +519,38 @@ export default function MapScreen({ navigation }) {
                   );
                 })}
             </View>
-            <Text style={styles.textambition}>MON AMBITION </Text>
+
+            {/* <Text style={styles.textambition}>MON AMBITION </Text>
             <Text style={styles.textModal3}>{userInfo.ambition}</Text>
-            <TouchableOpacity
-              onPress={() => handleModif()}
-              style={styles.frameChat}
-              activeOpacity={0.8}
-              >
-              <Image
-                source={require("../assets/boutonModifier.png")}
-                style={{ width: 181, height: 53, borderRadius: 40 }}
-              />
-            </TouchableOpacity>
-            
+             */}
           </View>
+          <TouchableOpacity
+            onPress={() => handleModif()}
+            style={styles.frameChat}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={require("../assets/boutonModifier.png")}
+              style={{ width: 181, height: 53, borderRadius: 40 }}
+            />
+          </TouchableOpacity>
         </View>
       </Modal>
 
       <Modal visible={modalMakerVisible} animationType="fade" transparent>
         <View style={styles.centeredView}>
           <View style={styles.closeContainer}>
-        <TouchableOpacity onPress={() => handleClose()} style={styles.modalClose}>
-                <Image
-                  source={require("../assets/close.png")}
-                  style={{ width: 48, height: 48, borderRadius: 57 }}
-                />
-          </TouchableOpacity>
-
+            <TouchableOpacity
+              onPress={() => handleClose()}
+              style={styles.modalClose}
+            >
+              <Image
+                source={require("../assets/close.png")}
+                style={{ width: 48, height: 48, borderRadius: 57 }}
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.modalView}>
-          
             <Image
               style={styles.photoCoverModal}
               source={{ uri: usersInfo.coverPicture }}
@@ -558,11 +559,6 @@ export default function MapScreen({ navigation }) {
               style={styles.photoProfilModal}
               source={{ uri: usersInfo.profilePicture }}
             />
-
-
-              
-            
-
             <View
               style={{
                 width: "100%",
@@ -570,16 +566,16 @@ export default function MapScreen({ navigation }) {
                 alignItems: "center",
                 justifyContent: "space-evenly",
               }}
-              >
+            >
               <Text style={styles.textModal1}>{usersInfo.nickname}</Text>
               <TouchableOpacity
                 onPress={() => handleReviews()}
                 style={styles.boutonAvis}
               >
-                <Image source={require("../assets/boutonAvis.jpg")} />
+                <Image source={require("../assets/noteAvis.png")} style={{ width: 65, height: 22, }} />
               </TouchableOpacity>
             </View>
-            
+
             <Text style={styles.textModal2}>{usersInfo.description}</Text>
             <Text style={styles.textSports}>SES SPORTS</Text>
             <View style={styles.sportContainer}>
@@ -599,16 +595,15 @@ export default function MapScreen({ navigation }) {
           </View>
 
           <TouchableOpacity
-              onPress={() => handleModif()}
-              style={styles.frameChat}
-              activeOpacity={0.8}
-              >
-              <Image
-                source={require("../assets/frameChat.jpg")}
-                style={{ width: 181, height: 53, borderRadius: 40 }}
-              />
-            </TouchableOpacity>
-          
+            onPress={() => handleModif()}
+            style={styles.frameChat}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={require("../assets/frameChat.jpg")}
+              style={{ width: 181, height: 53, borderRadius: 40 }}
+            />
+          </TouchableOpacity>
         </View>
       </Modal>
     </View>
@@ -685,15 +680,14 @@ const styles = StyleSheet.create({
   },
 
   centeredView: {
-    borderWidth:2,
+    borderWidth: 2,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    
   },
 
   modalView: {
-    borderWidth:2,
+    borderWidth: 1,
     backgroundColor: "#f4f4f4",
     maxHeight: "85%",
     width: "85%",
@@ -711,22 +705,22 @@ const styles = StyleSheet.create({
   },
 
   profileImagesContainer: {
-    position: 'absolute',
-    borderWidth:2,
+    position: "absolute",
+    borderWidth: 2,
     top: 10,
-    width: '100%', 
-    alignItems: 'center', 
+    width: "100%",
+    alignItems: "center",
   },
 
   photoCoverModal: {
-    borderWidth:2,
+    borderWidth: 2,
     width: "90%",
-    height: "25%",
-    borderRadius: 10,
+    height: "30%",
+    borderRadius: 13,
   },
 
   photoProfilModal: {
-    borderWidth:2,
+    borderWidth: 2,
     width: 120,
     height: 120,
     marginTop: "-18%",
@@ -736,35 +730,30 @@ const styles = StyleSheet.create({
   },
 
   infosUser: {
-    textAlign:'center',
+    textAlign: "center",
     borderWidth: 1,
-    width:230,
+    width: 230,
     bottom: "10%",
-    flexDirection: 'row',
+    flexDirection: "row",
   },
 
   textModal1: {
-    borderWidth:2,
+    borderWidth: 2,
     textAlign: "center",
     fontSize: 28,
     fontFamily: "Poppins_700Bold",
   },
 
-  boutonAvis: {
-  
-  },
-
   textModal2: {
-    borderWidth:2,
-    width:'80%',
+    borderWidth: 2,
+    width: "80%",
     textAlign: "center",
     fontSize: 14,
     fontFamily: "Poppins_400Regular_Italic",
   },
 
-
   textSports: {
-    borderWidth:2,
+    borderWidth: 2,
     marginTop: 20,
     textAlign: "center",
     fontSize: 14,
@@ -772,7 +761,7 @@ const styles = StyleSheet.create({
   },
 
   sportContainer: {
-    borderWidth:2,
+    borderWidth: 2,
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
@@ -781,22 +770,22 @@ const styles = StyleSheet.create({
   },
 
   sportIcon: {
-    borderWidth:2,
-    marginRight: 90, // Espace entre l'icône et le nom du sport
+    borderWidth: 2,
+    marginRight: 90,
   },
 
-  sport:{
-    borderWidth:2,
+  sport: {
+    borderWidth: 2,
     backgroundColor: "white",
-    height: 70,
-    width: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius:12,
+    height: 63,
+    width: 65,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
   },
 
   textambition: {
-    borderWidth:2,
+    borderWidth: 2,
     marginTop: 20,
     textAlign: "center",
     fontSize: 14,
@@ -804,42 +793,42 @@ const styles = StyleSheet.create({
   },
 
   textModal3: {
-    borderWidth:2,
+    borderWidth: 2,
     marginTop: 10,
     textAlign: "center",
     fontSize: 14,
     fontFamily: "Poppins_400Regular_Italic",
   },
 
-  closeContainer:{
-    borderWidth:2,
+  closeContainer: {
+    borderWidth: 2,
     zIndex: 1,
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'flex-end', // Aligner le contenu à la fin du conteneur (à droite pour flexDirection: 'row')
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "flex-end", // Aligner le contenu à la fin du conteneur (à droite pour flexDirection: 'row')
     padding: 10,
   },
 
   modalClose: {
     marginBottom: -40,
-    borderWidth:2
+    borderWidth: 2,
   },
 
   boutonAvis: {
-    borderWidth:2,
+    borderWidth: 2,
     borderRadius: 50,
   },
 
   frameChat: {
-    height:65,
-    borderWidth:2,
+    height: 65,
+    borderWidth: 2,
     padding: 10,
     marginTop: -40,
-    
   },
 
   // icon image perso
   modaluser: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -852,6 +841,7 @@ const styles = StyleSheet.create({
   },
 
   modalProfil: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -864,6 +854,7 @@ const styles = StyleSheet.create({
   },
 
   buttonLocation: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -876,6 +867,7 @@ const styles = StyleSheet.create({
 
   // icon chat Map
   message: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -889,6 +881,7 @@ const styles = StyleSheet.create({
 
   // icon sports container
   containerIcons: {
+    borderWidth: 2,
     position: "absolute",
     backgroundColor: "white",
     borderRadius: 20,
