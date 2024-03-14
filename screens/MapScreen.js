@@ -35,7 +35,7 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADRESS = "http://192.168.10.122:3000";
+const BACKEND_ADDRESS = "http://192.168.10.122:3000";
 
 export default function MapScreen({ navigation }) {
   
@@ -710,7 +710,7 @@ const styles = StyleSheet.create({
   modalView: {
     borderWidth: 1,
     backgroundColor: "#f4f4f4",
-    height: 667, // coucou
+    height: 667, // coucou c
     width: "85%",
     justifyContent: "center",
     alignItems: "center",
