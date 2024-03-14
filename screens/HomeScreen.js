@@ -40,7 +40,8 @@ import Tennis from "../assets/tennis.js";
 import Create from "../assets/create.js";
 import Upload from "../assets/upload.js";
 
-const BACKEND_ADDRESS = "http://192.168.10.171:3000";
+const BACKEND_ADDRESS = 'http://192.168.10.149:3000'
+
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -528,32 +529,35 @@ export default function HomeScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.ambition}>
-                <TextInput
-                  style={styles.textAmbition}
-                  type="text"
-                  placeholder="Ton ambition avec cette app"
-                  multiline={true} // Permettre plusieurs lignes
-                  numberOfLines={3} // NB lignes à afficher dès le départ
-                  onChangeText={(value) => setAmbition(value)}
-                  value={ambition}
-                  selectionColor="#4A46FF"
-                />
-              </View>
+                        <View style={styles.ambition}>
+                            <TextInput  
+                                style={styles.textAmbition}  
+                                type="text"  
+                                placeholder='Ton ambition avec cette app'
+                                multiline={true} // Permettre plusieurs lignes
+                                numberOfLines={3} // NB lignes à afficher dès le départ
+                                onChangeText={(value) => setAmbition(value)}
+                                value={ambition}
+                                selectionColor="#4A46FF"
+                            />
+                        </View>
 
-              <View style={styles.uploadContainer}>
-                {cover ? (
-                  <Image source={{ uri: cover }} style={styles.uploadCover} />
-                ) : (
-                  <View style={styles.uploadCover}>
-                    <Text style={styles.textUploadProfile}>
-                      Ta photo de couverture
-                    </Text>
-                  </View>
-                )}
-                <TouchableOpacity onPress={() => uploadCover()}>
-                  <Upload style={styles.buttonUploadProfile} />
-                </TouchableOpacity>
+                        <View style={styles.uploadContainer}>
+                
+                        
+                        {cover ? (
+                            <Image source={{ uri: cover }} style={styles.uploadCover} />
+                                        ) : (
+                                        <View style={styles.uploadCover}>
+                                            <Text style={styles.textUploadProfile}>
+                                            Ta photo de couverture
+                                            </Text>
+                                        </View>
+                                        )}
+                            <TouchableOpacity onPress={()=>uploadCover()}>
+                                <Upload style={styles.buttonUploadProfile}/>
+                            </TouchableOpacity>
+                           
 
                 {profile ? (
                   <Image
@@ -855,17 +859,17 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -5,
     left: 55,
-    backgroundColor: "#4A46FF",
+    backgroundColor: '#4A46FF',
     width: 22,
     height: 22,
     borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    color: "white",
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
   },
-
+  
   addButtonText: {
-    color: "white",
+    color: 'white',
     fontSize: 25,
     bottom: 5,
   },
@@ -1091,5 +1095,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  buttonUploadProfile: {},
-});
+    buttonUploadProfile:{
+    
+
+    },
+})
