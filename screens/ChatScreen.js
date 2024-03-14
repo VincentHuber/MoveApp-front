@@ -21,7 +21,7 @@ import {
 
 import { useSelector } from "react-redux";
 
-const BACKEND_ADRESS = "http://192.168.10.149:3000";
+const BACKEND_ADDRESS = "http://192.168.10.149:3000";
 
 export default function ChatScreen({ navigation, route }) {
   //  Redirect to /login if not logged in
@@ -40,7 +40,7 @@ export default function ChatScreen({ navigation, route }) {
 
   //Affiche la photo et le nom de l'utilisateur
   useEffect(() => {
-    fetch(`${BACKEND_ADRESS}/user/${route.params.otherToken}`)
+    fetch(`${BACKEND_ADDRESS}/user/${route.params.otherToken}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
@@ -61,7 +61,7 @@ export default function ChatScreen({ navigation, route }) {
 
   //Envoie un message
   const handleMessage = () => {
-    fetch(`${BACKEND_ADRESS}/chat`, {
+    fetch(`${BACKEND_ADDRESS}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -87,6 +87,11 @@ export default function ChatScreen({ navigation, route }) {
       });
   };
   
+
+  //Afficher tous les messages
+
+
+
 
   //Fonts
   const [fontsLoaded] = useFonts({
