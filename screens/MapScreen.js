@@ -38,9 +38,12 @@ import Close from "../assets/close.js";
 const BACKEND_ADRESS = "http://192.168.10.122:3000";
 
 export default function MapScreen({ navigation }) {
+  
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
   const [usersWithCoordinates, setUsersWithCoordinates] = useState([]);
+
+  const [updateMatch, setUpdateMatch] = useState(null)
 
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
@@ -85,21 +88,22 @@ export default function MapScreen({ navigation }) {
   //  Redirect to /login if not logged in
   useEffect(() => {
     if (!user.token) {
+      console.log('hello');
       navigation.navigate("Home");
     }
   }, [user, navigation]);
-
 
   // fonction pour afficher les users sur la Map via leurs adresses
   useEffect(() => {
     const fetchUsers = async () => {
       if (!user.token) {
+        console.log('usertoken :', user.token)
         console.error("Token de l'utilisateur non disponible.");
         return;
       }
 
       try {
-        const response = await fetch(`${BACKEND_ADRESS}/users`);
+        const response = await fetch(`${BACKEND_ADDRESS}/users`);
         const userData = await response.json();
 
         if (!userData.result || !Array.isArray(userData.users)) {
@@ -196,6 +200,7 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //Geolocalisation
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -215,6 +220,7 @@ export default function MapScreen({ navigation }) {
     })();
   }, []);
 
+// trouver une ville
   const handleSearch = async () => {
     let results = await Location.geocodeAsync(searchText);
     if (results.length > 0) {
@@ -224,11 +230,13 @@ export default function MapScreen({ navigation }) {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
+      setSearchText("")
     }
   };
 
+  //afficher l'utilisateur dans la page map
   useEffect(() => {
-    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
+    fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
@@ -248,8 +256,9 @@ export default function MapScreen({ navigation }) {
   // image par défaut au cas ou il n'y pas d'image trouvée
   const defaultImage = "../assets/imagePerso.png";
 
+// Modal au clic sur la photo de profil de l'utilisateur
   const handleModal = () => {
-    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
+    fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
@@ -275,7 +284,7 @@ export default function MapScreen({ navigation }) {
       });
   };
 
-  // fonction qui gèree l'affichage de la modale lors du 'click'
+  // Modal au clic qui affiche les markers des autres utilisateurs
   const onMarkerPress = (user) => {
     setUsersInfo({
       nickname: user.nickname,
@@ -285,38 +294,45 @@ export default function MapScreen({ navigation }) {
       profilePicture: user.profilePicture,
       sports: user.sports,
     });
+
     setModalMarkerVisible(true);
     setModalVisible(false);
   };
 
+  //Action pour modifier le profil
   const handleModif = () => {
     navigation.navigate("EditProfile");
     setModalVisible(false);
   };
 
-  const handle2Modif = () => {
-    
-    const updateMatch = "";
 
-    fetch(`${BACKEND_ADRESS}/user/match/${user.token}`, {
+//Action pour aller dans le chat
+  const handleFrameChat = (data) => {
+
+      const newMatch= data.token
+    
+    fetch(`${BACKEND_ADDRESS}/user/match/${user.token}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updateMatch),
+      body: JSON.stringify({newMatch}),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
           console.log("Profil mis à jour avec succès");
+
         } else {
           console.error("Erreur lors de la mise à jour du profil", data.error);
         }
       });
 
-    navigation.navigate("Chat");
-    setModal2Visible(false);
+      navigation.navigate("Chat", {otherToken: data.token});
+      setModalMarkerVisible(false)
+
   };
+
 
   const handleReviews = () => {
     //navigation.navigate('Review');
@@ -328,10 +344,12 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //action pour aller au menu de chat via la map
   const handleChat = () => {
     navigation.navigate("Chat");
   };
 
+  //action pour retourner à sa position
   const handleReturnToLocation = async () => {
     let currentLocation = await Location.getCurrentPositionAsync({});
     setRegion({
@@ -340,6 +358,7 @@ export default function MapScreen({ navigation }) {
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     });
+    setSearchText("")
   };
 
   //Fonts
@@ -469,122 +488,146 @@ export default function MapScreen({ navigation }) {
       </SafeAreaView>
 
       <Modal visible={modalVisible} animationType="fade" transparent>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <View style={styles.profileImagesContainer}>
-                  <Image
-                    style={styles.photoCoverModal}
-                    source={{ uri: userInfo.coverPicture }}
-                  />
-                  <Image
-                    style={styles.photoProfilModal}
-                    source={{ uri: userInfo.profilePicture }}
-                  />
-                  </View>
-                <View style={styles.infosUser}>
-                  <Text style={styles.textModal1}>{userInfo.nickname}</Text>
-                  <TouchableOpacity
-                    onPress={() => handleReviews()}
-                    style={styles.boutonAvis}
-                  >
-                    <Text style={{width:50, borderWidth:3}}>avis</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <Text style={styles.textModal2}>{userInfo.description}</Text>
-                <Text style={styles.textSports}>MES SPORTS </Text>
-                <View style={styles.sportContainer}>
-                  {Object.keys(userInfo.sports)
-                    .filter((sport) => userInfo.sports[sport]) // Ne garde que les sports pratiqués (valeur à true)
-                    .map((sport, index) => {
-                      const SportIcon = sportsLogos[sport]; // Récupère le composant de logo correspondant
-                      return (
-                        <View key={index} style={styles.sport}>
-                          <SportIcon style={styles.sportIcon} />
-                        </View>
-                      );
-                    })}
-                </View>
-                <Text style={styles.textambition}>MON AMBITION </Text>
-                <Text style={styles.textModal3}>{userInfo.ambition}</Text>
-              </View>
-
-              <View style={styles.modalClose}>
-                <TouchableOpacity onPress={handleClose}>
-                  <View style={styles.circle}>
-                    <View style={styles.cross}></View>
-                    <View style={[styles.cross, styles.crossVertical]}></View>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleModif()}
-                  style={styles.frameChat}
-                  activeOpacity={0.8}
-                >
-                  <Image source={require("../assets/boutonModifier.jpg")} />
-                </TouchableOpacity>
-              </View>
+        <View style={styles.centeredView}>
+          <View style={styles.closeContainer}>
+            <TouchableOpacity
+              onPress={() => handleClose()}
+              style={styles.modalClose}
+            >
+              <Image
+                source={require("../assets/close.png")}
+                style={{ width: 48, height: 48, borderRadius: 57 }}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.modalView}>
+            <Image
+              style={styles.photoCoverModal}
+              source={{ uri: userInfo.coverPicture }}
+            />
+            <Image
+              style={styles.photoProfilModal}
+              source={{ uri: userInfo.profilePicture }}
+            />
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-evenly",
+              }}
+            >
+              <Text style={styles.textModal1}>{userInfo.nickname}</Text>
+              <TouchableOpacity
+                onPress={() => handleReviews()}
+                style={styles.boutonAvis}
+              >
+                <Image source={require("../assets/noteAvis.png")} style={{ width: 65, height: 22, }} />
+              </TouchableOpacity>
             </View>
-          </Modal>
 
-          <Modal visible={modalMakerVisible} animationType="fade" transparent>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Image
-                  style={styles.photoCoverModal}
-                  source={{ uri: usersInfo.coverPicture }}
-                />
-                <Image
-                  style={styles.photoProfilModal}
-                  source={{ uri: usersInfo.profilePicture }}
-                />
-                <Text style={styles.textModal1}>{usersInfo.nickname}</Text>
-                <Text style={styles.textModal2}>{usersInfo.description}</Text>
-                <Text style={styles.textSports}>SES SPORTS</Text>
-                <View style={styles.sportContainer}>
-                  {Object.keys(usersInfo.sports)
-                    .filter((sport) => usersInfo.sports[sport]) // Ne garde que les sports pratiqués (valeur à true)
-                    .map((sport, index) => {
-                      const SportIcon = sportsLogos[sport]; // Récupère le composant de logo correspondant
-                      return (
-                        <View key={index} style={styles.sport}>
-                          <SportIcon style={styles.sportIcon} />
-                        </View>
-                      );
-                    })}
-                </View>
-                <Text style={styles.textambition}>SON AMBITION </Text>
-                <Text style={styles.textModal3}>{usersInfo.ambition}</Text>
-              </View>
-
-              <View style={styles.modalClose}>
-                <TouchableOpacity
-                  style={getButtonStyle("close")}
-                  onPress={() => handleClose("close")}
-                >
-                  <Close />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleReviews()}
-                  style={styles.boutonAvis}
-                >
-                  <Image source={require("../assets/boutonAvis.jpg")} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleFrameChat()}
-                  style={styles.frameChat}
-                  activeOpacity={0.8}
-                >
-                  <Image source={require("../assets/frameChat.jpg")} />
-                </TouchableOpacity>
-              </View>
+            <Text style={styles.textModal2}>{userInfo.description}</Text>
+            <Text style={styles.textSports}>MES SPORTS</Text>
+            <View style={styles.sportContainer}>
+              {Object.keys(userInfo.sports)
+                .filter((sport) => userInfo.sports[sport])
+                .map((sport, index) => {
+                  const SportIcon = sportsLogos[sport];
+                  return (
+                    <View key={index} style={styles.sport}>
+                      <SportIcon style={styles.sportIcon} />
+                    </View>
+                  );
+                })}
             </View>
-          </Modal>
+
+            {/* <Text style={styles.textambition}>MON AMBITION </Text>
+            <Text style={styles.textModal3}>{userInfo.ambition}</Text>
+             */}
+          </View>
+          <TouchableOpacity
+            onPress={() => handleModif()}
+            style={styles.frameChat}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={require("../assets/boutonModifier.png")}
+              style={{ width: 181, height: 53, borderRadius: 40 }}
+            />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal visible={modalMakerVisible} animationType="fade" transparent>
+        <View style={styles.centeredView}>
+          <View style={styles.closeContainer}>
+            <TouchableOpacity
+              onPress={() => handleClose()}
+              style={styles.modalClose}
+            >
+              <Image
+                source={require("../assets/close.png")}
+                style={{ width: 48, height: 48, borderRadius: 57 }}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.modalView}>
+            <Image
+              style={styles.photoCoverModal}
+              source={{ uri: usersInfo.coverPicture }}
+            />
+            <Image
+              style={styles.photoProfilModal}
+              source={{ uri: usersInfo.profilePicture }}
+            />
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-evenly",
+              }}
+            >
+              <Text style={styles.textModal1}>{usersInfo.nickname}</Text>
+              <TouchableOpacity
+                onPress={() => handleReviews()}
+                style={styles.boutonAvis}
+              >
+                <Image source={require("../assets/noteAvis.png")} style={{ width: 65, height: 22, }} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.textModal2}>{usersInfo.description}</Text>
+            <Text style={styles.textSports}>SES SPORTS</Text>
+            <View style={styles.sportContainer}>
+              {Object.keys(usersInfo.sports)
+                .filter((sport) => usersInfo.sports[sport]) // Ne garde que les sports pratiqués (valeur à true)
+                .map((sport, index) => {
+                  const SportIcon = sportsLogos[sport]; // Récupère le composant de logo correspondant
+                  return (
+                    <View key={index} style={styles.sport}>
+                      <SportIcon style={styles.sportIcon} />
+                    </View>
+                  );
+                })}
+            </View>
+            {/* <Text style={styles.textambition}>SON AMBITION </Text>
+            <Text style={styles.textModal3}>{usersInfo.ambition}</Text> */}
+          </View>
+
+          <TouchableOpacity
+            onPress={() => handleModif()}
+            style={styles.frameChat}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={require("../assets/frameChat.jpg")}
+              style={{ width: 181, height: 53, borderRadius: 40 }}
+            />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
-
   );
 }
 
@@ -658,15 +701,16 @@ const styles = StyleSheet.create({
   },
 
   centeredView: {
+    borderWidth: 2,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
 
   modalView: {
-    position: "absolute",
+    borderWidth: 1,
     backgroundColor: "#f4f4f4",
-    height: 667,
+    height: 667, // coucou
     width: "85%",
     justifyContent: "center",
     alignItems: "center",
@@ -683,64 +727,58 @@ const styles = StyleSheet.create({
   },
 
   profileImagesContainer: {
-    position: 'absolute',
-    borderWidth:2,
+    position: "absolute",
+    borderWidth: 2,
     top: 10,
-    width: '100%', 
-    alignItems: 'center', 
+    width: "100%",
+    alignItems: "center",
   },
 
   photoCoverModal: {
-    width: 340,
-    height: 182,
-    borderRadius: 10,
-    justifyContent: 'center',
+    borderWidth: 2,
+    width: "90%",
+    height: "30%",
+    borderRadius: 13,
   },
 
   photoProfilModal: {
-    bottom: "20%",
-    width: 134,
-    height: 134,
-    justifyContent: "center",
-    alignItems: "center",
+    borderWidth: 2,
+    width: 120,
+    height: 120,
+    marginTop: "-18%",
     borderRadius: 100,
     borderWidth: 6,
     borderColor: "#F4F4F4",
   },
 
   infosUser: {
-    textAlign:'center',
+    textAlign: "center",
     borderWidth: 1,
-    width:230,
+    width: 230,
     bottom: "10%",
-    flexDirection: 'row',
+    flexDirection: "row",
   },
 
   textModal1: {
-    textAlign:'center',
+    borderWidth: 2,
+    textAlign: "center",
     fontSize: 28,
     fontFamily: "Poppins_700Bold",
   },
 
-  boutonAvis: {
-  
-  },
-
   textModal2: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: "100%",
+    borderWidth: 2,
+    width: "80%",
+    textAlign: "center",
     fontSize: 14,
     width: 299,
     fontFamily: "Poppins_400Regular_Italic",
   },
 
   textSports: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: "120%",
+    borderWidth: 2,
+    marginTop: 20,
+    textAlign: "center",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
     width: 150,
@@ -749,6 +787,7 @@ const styles = StyleSheet.create({
   },
 
   sportContainer: {
+    borderWidth: 2,
     flexDirection: "row",
     alignItems: "space-between",
     justifyContent: "center",
@@ -759,15 +798,24 @@ const styles = StyleSheet.create({
   },
 
   sportIcon: {
-    top: "150%",
-    marginRight: 90, // Espace entre l'icône et le nom du sport
+    borderWidth: 2,
+    marginRight: 90,
+  },
+
+  sport: {
+    borderWidth: 2,
+    backgroundColor: "white",
+    height: 63,
+    width: 65,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
   },
 
   textambition: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: "160%",
+    borderWidth: 2,
+    marginTop: 20,
+    textAlign: "center",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
     width: 350,
@@ -775,59 +823,43 @@ const styles = StyleSheet.create({
   },
 
   textModal3: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: "170%",
+    borderWidth: 2,
+    marginTop: 10,
+    textAlign: "center",
     fontSize: 14,
     width: 299,
     fontFamily: "Poppins_400Regular",
   },
 
+  closeContainer: {
+    borderWidth: 2,
+    zIndex: 1,
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "flex-end", // Aligner le contenu à la fin du conteneur (à droite pour flexDirection: 'row')
+    padding: 10,
+  },
+
   modalClose: {
-    position: "absolute",
-    top: 50,
-    right: 14,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#4A46FF",
-    width: 30,
-    height: 30,
+    marginBottom: -40,
+    borderWidth: 2,
+  },
+
+  boutonAvis: {
+    borderWidth: 2,
     borderRadius: 50,
   },
 
-  circle: {
-    width: "50%",
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-    fontFamily: "Poppins_700Bold",
-  },
-
-  cross: {
-    width: "150%",
-    height: 2,
-    transform: [{ rotate: "45deg" }],
-    backgroundColor: "white",
-    position: "absolute",
-    fontFamily: "Poppins_700Bold",
-  },
-
-  crossVertical: {
-    transform: [{ rotate: "-45deg" }],
-    top: "50%",
-  },
-
   frameChat: {
-    position: "absolute",
-    top: 650,
-    right: 110,
+    height: 65,
+    borderWidth: 2,
+    padding: 10,
+    marginTop: -40,
   },
 
   // icon image perso
   modaluser: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -840,6 +872,7 @@ const styles = StyleSheet.create({
   },
 
   modalProfil: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -852,6 +885,7 @@ const styles = StyleSheet.create({
   },
 
   buttonLocation: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -864,6 +898,7 @@ const styles = StyleSheet.create({
 
   // icon chat Map
   message: {
+    borderWidth: 2,
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
@@ -877,6 +912,7 @@ const styles = StyleSheet.create({
 
   // icon sports container
   containerIcons: {
+    borderWidth: 2,
     position: "absolute",
     backgroundColor: "white",
     borderRadius: 20,
