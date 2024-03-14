@@ -31,9 +31,9 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 
-const BACKEND_ADDRESS = "http://172.20.10.3:3000";
+const BACKEND_ADDRESS = "http://192.168.10.122:3000"; 
 
-export default function ReviewScreen() {
+export default function ReviewScreen({navigation}) {
   const [isVisible, setIsVisible] = useState(false);
   const [sender, setSender] = useState("");
   const [ratingStars, setRatingStars] = useState(0);
@@ -57,9 +57,9 @@ export default function ReviewScreen() {
     navigation.navigate("NomDeLaPage");
   };
 
-  //ce fetch permet de recuperer la data nickname et profilepicture et le Average
+  //ce fetch permet de recuperer la data nickname et profilepicture et le Average token : NlQWH0dlyhQZ7WaZSGzth9129mtttLGj
   useEffect(() => {
-    fetch(`${BACKEND_ADDRESS}/user/NlQWH0dlyhQZ7WaZSGzth9129mtttLGj`)
+    fetch(`${BACKEND_ADDRESS}/user/${token}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("data", data);
@@ -67,7 +67,7 @@ export default function ReviewScreen() {
           setUserData(data.user);
           setAverageStar(data.user.averageStar);
         }
-      })
+      })  
       .catch((error) => {
         console.error(
           "Erreur lors de la récupération des informations de l'utilisateur:",
@@ -89,9 +89,9 @@ export default function ReviewScreen() {
     setIsReviewVisible(!isReviewVisible);
   };
 
-  const closeInputWrapper = () => {
+  /*const closeInputWrapper = () => {
     setReviewModalVisible(!reviewModalVisible);
-  };
+  };*/
 
   const handleAddReview = () => {
     // Vérifiez si le commentaire est vide (la methode trim permet d'enlever les espaces vides)
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 75,
-    borderWidth: 3,
+    borderWidth:1,
     borderColor: "white",
   },
 
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     color: "black",
     paddingVertical: 30,
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 50,
+    fontSize: 60,
   },
 
   button: {
@@ -404,12 +404,16 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  buttonClose: {},
+  buttonClose: {
+    
+  },
 
   starContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    
+    
   },
 
   star: {
