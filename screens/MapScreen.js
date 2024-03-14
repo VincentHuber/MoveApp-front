@@ -35,7 +35,7 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADRESS='http://192.168.10.165:3000'
+const BACKEND_ADRESS = "http://192.168.84.75:3000";
 
 export default function MapScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -45,27 +45,42 @@ export default function MapScreen({ navigation }) {
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
   const [searchText, setSearchText] = useState("");
+
+  // pour le user qui est logger
   const [userInfo, setUserInfo] = useState({
     name: "",
     description: "",
     ambition: "",
     profilePicture: "",
     coverPicture: "",
+    sports: "",
   });
-  const [userInfo2, setUserInfo2] = useState({
+
+  // pour tout les users
+  const [usersInfo, setUsersInfo] = useState({
     name: "",
     description: "",
     ambition: "",
     profilePicture: "",
     coverPicture: "",
+    sports: "",
   });
 
   // État pour la modal
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMakerVisible, setModalMarkerVisible] = useState(false);
 
-  // État pour le bouton actif
-  const [activeButton, setActiveButton] = useState(null);
+  // État pour refléter le sport actif
+  //const [activeButton, setActiveButton] = useState(null);
+  const [activeSport, setActiveSport] = useState(null);
+
+  // variable pour affaicher les logos des sports dans la modal
+  const sportsLogos = {
+    Football: Foot,
+    Basketball: Basket,
+    Running: Running,
+    Tennis: Tennis,
+  };
 
   //  Redirect to /login if not logged in
   useEffect(() => {
@@ -73,6 +88,7 @@ export default function MapScreen({ navigation }) {
       navigation.navigate("Home");
     }
   }, [user, navigation]);
+
 
   // fonction pour afficher les users sur la Map via leurs adresses
   useEffect(() => {
@@ -85,8 +101,6 @@ export default function MapScreen({ navigation }) {
       try {
         const response = await fetch(`${BACKEND_ADRESS}/users`);
         const userData = await response.json();
-
-        console.log("Réponse du backend:", userData);
 
         if (!userData.result || !Array.isArray(userData.users)) {
           console.error(
@@ -167,20 +181,14 @@ export default function MapScreen({ navigation }) {
     }
   };
 
-  // Fonction pour gérer les cliques sur les boutons
-  const handlePress = (buttonName) => {
-    // Si le bouton est actif, le désactiver
-    if (activeButton === buttonName) {
-      setActiveButton(null);
-    } else {
-      // Sinon, activer le bouton cliqué
-      setActiveButton(buttonName);
-    }
+  // Fonction pour gérer le sport comme le sport actif
+  const handlePress = (sport) => {
+    setActiveSport(activeSport === sport ? null : sport);
   };
 
   // Fonction qui modifie la couleur du bouton au click
-  const getButtonStyle = (buttonName) => {
-    return activeButton === buttonName ? styles.activeIcon : styles.icon;
+  const getButtonStyle = (sport) => {
+    return activeSport === sport ? styles.activeIcon : styles.icon;
   };
 
   const handleClose = () => {
@@ -251,6 +259,7 @@ export default function MapScreen({ navigation }) {
             nickname: user.nickname,
             description: user.description,
             ambition: user.ambition,
+            sports: user.sports,
             coverPicture: user.coverPicture,
             profilePicture: user.profilePicture,
           });
@@ -268,12 +277,13 @@ export default function MapScreen({ navigation }) {
 
   // fonction qui gèree l'affichage de la modale lors du 'click'
   const onMarkerPress = (user) => {
-    setUserInfo2({
+    setUsersInfo({
       nickname: user.nickname,
       description: user.description,
       ambition: user.ambition,
       coverPicture: user.coverPicture,
       profilePicture: user.profilePicture,
+      sports: user.sports,
     });
     setModalMarkerVisible(true);
     setModalVisible(false);
@@ -284,9 +294,28 @@ export default function MapScreen({ navigation }) {
     setModalVisible(false);
   };
 
-  const handleFrameChat = () => {
+  const handle2Modif = () => {
+    
+    const updateMatch = "";
+
+    fetch(`${BACKEND_ADRESS}/user/match/${user.token}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateMatch),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result) {
+          console.log("Profil mis à jour avec succès");
+        } else {
+          console.error("Erreur lors de la mise à jour du profil", data.error);
+        }
+      });
+
     navigation.navigate("Chat");
-    setModalMarkerVisible(false);
+    setModal2Visible(false);
   };
 
   const handleReviews = () => {
@@ -328,8 +357,9 @@ export default function MapScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
+    <View style={styles.container}> 
+      <SafeAreaView style={{ height: "100%", width: "100%" }}>
+        <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
@@ -348,116 +378,37 @@ export default function MapScreen({ navigation }) {
             )}
 
             {Array.isArray(usersWithCoordinates) &&
-              usersWithCoordinates.map((user, index) => (
-                <Marker
-                  key={index}
-                  coordinate={user.coordinates}
-                  //tracksViewChanges={true}
-                >
-                  <TouchableOpacity onPress={() => onMarkerPress(user)}>
+              usersWithCoordinates
+                .filter((user) => !activeSport || user.sports[activeSport]) // Filtrer les utilisateurs par le sport actif
+                .map((user, index) => (
+                  <Marker
+                    key={index}
+                    coordinate={user.coordinates}
+                    onPress={() => onMarkerPress(user)}
+                    //tracksViewChanges={true}
+                  >
                     <Image
                       source={{ uri: user.profilePicture }}
-                      style={{ width: 50, height: 50, borderRadius: 25 }}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 25,
+                        borderBottomWidth: 3,
+                        borderColor: "white",
+                      }}
                     />
-                  </TouchableOpacity>
-                </Marker>
-              ))}
+                  </Marker>
+                ))}
           </MapView>
         )}
 
         <View style={styles.searchContainer}>
-          <Modal visible={modalVisible} animationType="fade" transparent>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Image
-                  style={styles.photoCoverModal}
-                  source={{ uri: userInfo.coverPicture }}
-                />
-                <Image
-                  style={styles.photoProfilModal}
-                  source={{ uri: userInfo.profilePicture }}
-                />
-                <Text style={styles.textModal1}>{userInfo.nickname}</Text>
-                <Text style={styles.textModal2}>{userInfo.description}</Text>
-                <Text style={styles.textSports}>MES SPORTS </Text>
-                <Text style={styles.textambition}>MON AMBITION </Text>
-                <Text style={styles.textModal3}>{userInfo.ambition}</Text>
-              </View>
-
-              <View style={styles.modalClose}>
-                <TouchableOpacity onPress={() => handleClose()}>
-                  <Image source={require("../assets/close.jpg")} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleReviews()}
-                  style={styles.boutonAvis}
-                >
-                  <Image source={require("../assets/boutonAvis.jpg")} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleModif()}
-                  style={styles.frameChat}
-                  activeOpacity={0.8}
-                >
-                  <Image source={require("../assets/boutonModifier.jpg")} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-
-          <Modal visible={modalMakerVisible} animationType="fade" transparent>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Image
-                  style={styles.photoCoverModal}
-                  source={{ uri: userInfo2.coverPicture }}
-                />
-                <Image
-                  style={styles.photoProfilModal}
-                  source={{ uri: userInfo2.profilePicture }}
-                />
-                <Text style={styles.textModal1}>{userInfo2.nickname}</Text>
-                <Text style={styles.textModal2}>{userInfo2.description}</Text>
-                <Text style={styles.textSports}>SES SPORTS </Text>
-                <Text style={styles.textambition}>SON AMBITION </Text>
-                <Text style={styles.textModal3}>{userInfo2.ambition}</Text>
-              </View>
-
-              <View style={styles.modalClose}>
-                <TouchableOpacity
-                  style={getButtonStyle("close")}
-                  onPress={() => handleClose("close")}
-                >
-                  <Close />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleReviews()}
-                  style={styles.boutonAvis}
-                >
-                  <Image source={require("../assets/boutonAvis.jpg")} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handleFrameChat()}
-                  style={styles.frameChat}
-                  activeOpacity={0.8}
-                >
-                  <Image source={require("../assets/frameChat.jpg")} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-
           <TextInput
             style={styles.input}
             placeholder="votre recherche"
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={handleSearch}
-            selectionColor="#4A46FF"
           />
 
           <TouchableOpacity
@@ -487,35 +438,153 @@ export default function MapScreen({ navigation }) {
 
         <View style={styles.containerIcons}>
           <TouchableOpacity
-            style={getButtonStyle("foot")}
-            onPress={() => handlePress("foot")}
+            style={getButtonStyle("Football")}
+            onPress={() => handlePress("Football")}
           >
             <Foot />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={getButtonStyle("running")}
-            onPress={() => handlePress("running")}
+            style={getButtonStyle("Running")}
+            onPress={() => handlePress("Running")}
           >
             <Running />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={getButtonStyle("basket")}
-            onPress={() => handlePress("basket")}
+            style={getButtonStyle("Basketball")}
+            onPress={() => handlePress("Basketball")}
           >
             <Basket />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={getButtonStyle("tennis")}
-            onPress={() => handlePress("tennis")}
+            style={getButtonStyle("Tennis")}
+            onPress={() => handlePress("Tennis")}
           >
             <Tennis />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+
+      <Modal visible={modalVisible} animationType="fade" transparent>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <View style={styles.profileImagesContainer}>
+                  <Image
+                    style={styles.photoCoverModal}
+                    source={{ uri: userInfo.coverPicture }}
+                  />
+                  <Image
+                    style={styles.photoProfilModal}
+                    source={{ uri: userInfo.profilePicture }}
+                  />
+                  </View>
+                <View style={styles.infosUser}>
+                  <Text style={styles.textModal1}>{userInfo.nickname}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleReviews()}
+                    style={styles.boutonAvis}
+                  >
+                    <Text style={{width:50, borderWidth:3}}>avis</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.textModal2}>{userInfo.description}</Text>
+                <Text style={styles.textSports}>MES SPORTS </Text>
+                <View style={styles.sportContainer}>
+                  {Object.keys(userInfo.sports)
+                    .filter((sport) => userInfo.sports[sport]) // Ne garde que les sports pratiqués (valeur à true)
+                    .map((sport, index) => {
+                      const SportIcon = sportsLogos[sport]; // Récupère le composant de logo correspondant
+                      return (
+                        <View key={index} style={styles.sport}>
+                          <SportIcon style={styles.sportIcon} />
+                        </View>
+                      );
+                    })}
+                </View>
+                <Text style={styles.textambition}>MON AMBITION </Text>
+                <Text style={styles.textModal3}>{userInfo.ambition}</Text>
+              </View>
+
+              <View style={styles.modalClose}>
+                <TouchableOpacity onPress={handleClose}>
+                  <View style={styles.circle}>
+                    <View style={styles.cross}></View>
+                    <View style={[styles.cross, styles.crossVertical]}></View>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => handleModif()}
+                  style={styles.frameChat}
+                  activeOpacity={0.8}
+                >
+                  <Image source={require("../assets/boutonModifier.jpg")} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          <Modal visible={modalMakerVisible} animationType="fade" transparent>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Image
+                  style={styles.photoCoverModal}
+                  source={{ uri: usersInfo.coverPicture }}
+                />
+                <Image
+                  style={styles.photoProfilModal}
+                  source={{ uri: usersInfo.profilePicture }}
+                />
+                <Text style={styles.textModal1}>{usersInfo.nickname}</Text>
+                <Text style={styles.textModal2}>{usersInfo.description}</Text>
+                <Text style={styles.textSports}>SES SPORTS</Text>
+                <View style={styles.sportContainer}>
+                  {Object.keys(usersInfo.sports)
+                    .filter((sport) => usersInfo.sports[sport]) // Ne garde que les sports pratiqués (valeur à true)
+                    .map((sport, index) => {
+                      const SportIcon = sportsLogos[sport]; // Récupère le composant de logo correspondant
+                      return (
+                        <View key={index} style={styles.sport}>
+                          <SportIcon style={styles.sportIcon} />
+                        </View>
+                      );
+                    })}
+                </View>
+                <Text style={styles.textambition}>SON AMBITION </Text>
+                <Text style={styles.textModal3}>{usersInfo.ambition}</Text>
+              </View>
+
+              <View style={styles.modalClose}>
+                <TouchableOpacity
+                  style={getButtonStyle("close")}
+                  onPress={() => handleClose("close")}
+                >
+                  <Close />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => handleReviews()}
+                  style={styles.boutonAvis}
+                >
+                  <Image source={require("../assets/boutonAvis.jpg")} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => handleFrameChat()}
+                  style={styles.frameChat}
+                  activeOpacity={0.8}
+                >
+                  <Image source={require("../assets/frameChat.jpg")} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+    </View>
+
   );
 }
 
@@ -524,12 +593,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    height: "100%",
-    width: "100%",
   },
 
   keyboardAvoidingView: {
-    flex: 1,
+    height: "100%",
     width: "100%",
   },
 
@@ -545,19 +612,19 @@ const styles = StyleSheet.create({
 
   // Input recherche
   searchContainer: {
-    position: "absolute",
+    //position: "absolute",
     top: 20,
     width: "100%",
     alignItems: "center",
-    zIndex: 1,
+    // zIndex:1,
   },
   input: {
     width: "90%",
-    height: 50,
+    height: 57,
     borderWidth: 1,
     borderColor: "#FFFFFF",
     padding: 10,
-    borderRadius: 20,
+    borderRadius: 90,
     fontSize: 18,
     marginBottom: 10,
     backgroundColor: "#FFFFFF",
@@ -600,12 +667,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     backgroundColor: "#f4f4f4",
     height: 667,
-    width: 352,
+    width: "85%",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 20,
     padding: 180,
-    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 5,
@@ -616,20 +682,23 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
+  profileImagesContainer: {
+    position: 'absolute',
+    borderWidth:2,
+    top: 10,
+    width: '100%', 
+    alignItems: 'center', 
+  },
+
   photoCoverModal: {
-    position: "absolute",
-    width: 323,
-    height: 183,
+    width: 340,
+    height: 182,
     borderRadius: 10,
-    justifyContent: "center",
-    paddingLeft: 15,
-    alignItems: "center",
-    top: "5%",
+    justifyContent: 'center',
   },
 
   photoProfilModal: {
-    position: "absolute",
-    top: "40%",
+    bottom: "20%",
     width: 134,
     height: 134,
     justifyContent: "center",
@@ -637,25 +706,31 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth: 6,
     borderColor: "#F4F4F4",
-    backgroundColor: "white",
+  },
+
+  infosUser: {
+    textAlign:'center',
+    borderWidth: 1,
+    width:230,
+    bottom: "10%",
+    flexDirection: 'row',
   },
 
   textModal1: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: "82%",
-    width: 299,
+    textAlign:'center',
     fontSize: 28,
-    left: 130,
     fontFamily: "Poppins_700Bold",
+  },
+
+  boutonAvis: {
+  
   },
 
   textModal2: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "94%",
+    top: "100%",
     fontSize: 14,
     width: 299,
     fontFamily: "Poppins_400Regular_Italic",
@@ -665,51 +740,84 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "115%",
+    top: "120%",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
+    width: 150,
+    borderWidth: 1,
+    left: 130,
+  },
+
+  sportContainer: {
+    flexDirection: "row",
+    alignItems: "space-between",
+    justifyContent: "center",
+    marginBottom: 60,
+    borderWidth: 1,
+    width: 350,
+    top: 120,
+  },
+
+  sportIcon: {
+    top: "150%",
+    marginRight: 90, // Espace entre l'icône et le nom du sport
   },
 
   textambition: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "150%",
+    top: "160%",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
+    width: 350,
+    left: 110,
   },
 
   textModal3: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: "160%",
+    top: "170%",
     fontSize: 14,
     width: 299,
-    fontFamily: "Poppins_400Regular_Italic",
+    fontFamily: "Poppins_400Regular",
   },
 
   modalClose: {
     position: "absolute",
-    top: 110,
-    right: 20,
+    top: 50,
+    right: 14,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#4A46FF",
-    width: 44,
-    height: 44,
+    width: 30,
+    height: 30,
     borderRadius: 50,
   },
 
-  boutonAvis: {
-    position: "absolute",
-    top: "620%",
-    right: 100,
+  circle: {
+    width: "50%",
+    height: 50,
+    borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-    width: 44,
-    height: 44,
-    borderRadius: 50,
+    position: "relative",
+    fontFamily: "Poppins_700Bold",
+  },
+
+  cross: {
+    width: "150%",
+    height: 2,
+    transform: [{ rotate: "45deg" }],
+    backgroundColor: "white",
+    position: "absolute",
+    fontFamily: "Poppins_700Bold",
+  },
+
+  crossVertical: {
+    transform: [{ rotate: "-45deg" }],
+    top: "50%",
   },
 
   frameChat: {
@@ -736,7 +844,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     bottom: "20%",
-    right: "5%",
+    right: "6%",
     width: 48,
     height: 48,
     borderRadius: 57,
@@ -754,7 +862,7 @@ const styles = StyleSheet.create({
     borderRadius: 57,
   },
 
-  // icon message
+  // icon chat Map
   message: {
     position: "absolute",
     justifyContent: "center",
