@@ -29,7 +29,7 @@ import {
  
 } from "@expo-google-fonts/poppins";
 
-const BACKEND_ADDRESS = "http://192.168.10.140:3000";
+const BACKEND_ADDRESS = "http://192.168.10.149:3000";
 
 export default function ReviewScreen() {
   const [isVisible, setIsVisible] = useState(false);

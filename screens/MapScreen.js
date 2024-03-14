@@ -35,12 +35,15 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADRESS = "http://192.168.10.140:3000";
+const BACKEND_ADRESS = "http://192.168.10.149:3000";
 
 export default function MapScreen({ navigation }) {
+  
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
   const [usersWithCoordinates, setUsersWithCoordinates] = useState([]);
+
+  const [updateMatch, setUpdateMatch] = useState(null)
 
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
@@ -70,6 +73,7 @@ export default function MapScreen({ navigation }) {
   //  Redirect to /login if not logged in
   useEffect(() => {
     if (!user.token) {
+      console.log('hello');
       navigation.navigate("Home");
     }
   }, [user, navigation]);
@@ -78,6 +82,7 @@ export default function MapScreen({ navigation }) {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!user.token) {
+        console.log('usertoken :', user.token)
         console.error("Token de l'utilisateur non disponible.");
         return;
       }
@@ -188,6 +193,7 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //Geolocalisation
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -207,6 +213,7 @@ export default function MapScreen({ navigation }) {
     })();
   }, []);
 
+// trouver une ville
   const handleSearch = async () => {
     let results = await Location.geocodeAsync(searchText);
     if (results.length > 0) {
@@ -216,9 +223,11 @@ export default function MapScreen({ navigation }) {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
+      setSearchText("")
     }
   };
 
+  //afficher l'utilisateur dans la page map
   useEffect(() => {
     fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then((response) => response.json())
@@ -240,6 +249,7 @@ export default function MapScreen({ navigation }) {
   // image par défaut au cas ou il n'y pas d'image trouvée
   const defaultImage = "../assets/imagePerso.png";
 
+// Modal au clic sur la photo de profil de l'utilisateur
   const handleModal = () => {
     fetch(`${BACKEND_ADRESS}/user/${user.token}`)
       .then((response) => response.json())
@@ -266,8 +276,9 @@ export default function MapScreen({ navigation }) {
       });
   };
 
-  // fonction qui gèree l'affichage de la modale lors du 'click'
+  // Modal au clic qui affiche les markers des autres utilisateurs
   const onMarkerPress = (user) => {
+
     setUserInfo2({
       nickname: user.nickname,
       description: user.description,
@@ -275,38 +286,45 @@ export default function MapScreen({ navigation }) {
       coverPicture: user.coverPicture,
       profilePicture: user.profilePicture,
     });
+
     setModalMarkerVisible(true);
     setModalVisible(false);
   };
 
+  //Action pour modifier le profil
   const handleModif = () => {
     navigation.navigate("EditProfile");
     setModalVisible(false);
   };
 
-  const handle2Modif = () => {
-    
-    const updateMatch = "";
 
+//Action pour aller dans le chat
+  const handleFrameChat = (data) => {
+
+      const newMatch= data.token
+    
     fetch(`${BACKEND_ADRESS}/user/match/${user.token}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updateMatch),
+      body: JSON.stringify({newMatch}),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
           console.log("Profil mis à jour avec succès");
+
         } else {
           console.error("Erreur lors de la mise à jour du profil", data.error);
         }
       });
 
-    navigation.navigate("Chat");
-    setModal2Visible(false);
+      navigation.navigate("Chat", {otherToken: data.token});
+      setModalMarkerVisible(false)
+
   };
+
 
   const handleReviews = () => {
     //navigation.navigate('Review');
@@ -318,10 +336,12 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //action pour aller au menu de chat via la map
   const handleChat = () => {
     navigation.navigate("Chat");
   };
 
+  //action pour retourner à sa position
   const handleReturnToLocation = async () => {
     let currentLocation = await Location.getCurrentPositionAsync({});
     setRegion({
@@ -330,6 +350,7 @@ export default function MapScreen({ navigation }) {
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     });
+    setSearchText("")
   };
 
   //Fonts
@@ -373,7 +394,10 @@ export default function MapScreen({ navigation }) {
                   coordinate={user.coordinates}
                   //tracksViewChanges={true}
                 >
-                  <TouchableOpacity onPress={() => onMarkerPress(user)}>
+                  <TouchableOpacity onPress={() => {
+                    onMarkerPress(user)
+                    setUpdateMatch(user)
+                    }}>
                     <Image
                       source={{ uri: user.profilePicture }}
                       style={{ width: 50, height: 50, borderRadius: 25 }}
@@ -460,7 +484,7 @@ export default function MapScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => handleFrameChat()}
+                  onPress={() => handleFrameChat(updateMatch)}
                   style={styles.frameChat}
                   activeOpacity={0.8}
                 >
@@ -472,7 +496,7 @@ export default function MapScreen({ navigation }) {
 
           <TextInput
             style={styles.input}
-            placeholder="votre recherche"
+            placeholder="Votre recherche"
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={handleSearch}
@@ -732,9 +756,7 @@ const styles = StyleSheet.create({
   },
 
   frameChat: {
-    position: "absolute",
-    top: 650,
-    right: 110,
+    justifyContent: "center",
   },
 
   // icon image perso

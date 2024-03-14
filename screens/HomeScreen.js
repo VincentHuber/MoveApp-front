@@ -36,7 +36,7 @@ import Tennis from '../assets/tennis.js'
 import Create from '../assets/create.js'
 import Upload from '../assets/upload.js'
 
-const BACKEND_ADRESS = 'http://192.168.10.140:3000'
+const BACKEND_ADRESS = 'http://192.168.10.149:3000'
 
 
 export default function HomeScreen({ navigation }) {
@@ -243,7 +243,7 @@ export default function HomeScreen({ navigation }) {
                         <View style={styles.pseudo}>
                             <TextInput
                                 style={styles.textPseudo}
-                                placeholder='Pseudo*'      
+                                placeholder='Ton pseudo*'      
                                 onChangeText={(value) => setNickname(value)}
                                 value={nickname}
                                 selectionColor="#4A46FF"
@@ -253,7 +253,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textEmail}
                                 
-                                placeholder='Email*'   
+                                placeholder='Ton email*'   
                                 onChangeText={(value) => setSignInUsermail(value)}
                                 value={signInUsermail}
                                 selectionColor="#4A46FF"
@@ -263,7 +263,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textPassword}
                                 secureTextEntry={true}
-                                placeholder='Password*'     
+                                placeholder='Ton mot de passe*'     
                                 onChangeText={(value) => setSignInPassword(value)}
                                 value={signInPassword}
                                 selectionColor="#4A46FF"
@@ -278,7 +278,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textAdress}
                                
-                                placeholder='Adresse*'  
+                                placeholder={`Ton lieu d'activité sportive*`}
                                 onChangeText={(value) => setAdress(value)}
                                 value={adress}
                                 selectionColor="#4A46FF"
@@ -288,7 +288,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textDescription}
                                 
-                                placeholder='Description'  
+                                placeholder='Ta description en une phrase'  
                                 multiline={true} // Permettre plusieurs lignes
                                 numberOfLines={3} // NB lignes à afficher dès le départ
                                 onChangeText={(value) => setDescription(value)}
@@ -359,7 +359,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput  
                                 style={styles.textAmbition}  
                                 type="text"  
-                                placeholder='Ambition'
+                                placeholder='Ton ambition avec cette app'
                                 multiline={true} // Permettre plusieurs lignes
                                 numberOfLines={3} // NB lignes à afficher dès le départ
                                 onChangeText={(value) => setAmbition(value)}
@@ -376,7 +376,7 @@ export default function HomeScreen({ navigation }) {
                                         ) : (
                                         <View style={styles.uploadCover}>
                                             <Text style={styles.textUploadProfile}>
-                                            Photo de couverture
+                                            Ta photo de couverture
                                             </Text>
                                         </View>
                                         )}
@@ -390,7 +390,7 @@ export default function HomeScreen({ navigation }) {
                                         ) : (
                                         <View style={styles.uploadProfile}>
                                             <Text style={styles.textUploadProfile}>
-                                            Photo de profile
+                                            Ta photo {"\n"} de profile
                                             </Text>
                                         </View>
                                         )}
@@ -439,7 +439,7 @@ export default function HomeScreen({ navigation }) {
                                 <TextInput
                                     style={styles.textEmail}
                                     type="email"  
-                                    placeholder='Email*'   
+                                    placeholder='Ton email'   
                                     onChangeText={(value) => setSignInUsermail(value)}
                                     value={signInUsermail}
                                     selectionColor="#4A46FF"
@@ -450,7 +450,7 @@ export default function HomeScreen({ navigation }) {
                                     style={styles.textPassword}
                                     type="password*"  
                                     secureTextEntry={true} // pour cacher le mot de passe
-                                    placeholder='Password'     
+                                    placeholder='Ton mot de passe'     
                                     onChangeText={(value) => setSignInPassword(value)}
                                     value={signInPassword}
                                     selectionColor="#4A46FF"
