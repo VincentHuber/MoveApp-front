@@ -489,27 +489,43 @@ export default function MapScreen({ navigation }) {
       </SafeAreaView>
 
       <Modal visible={modalVisible} animationType="fade" transparent>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <View style={styles.profileImagesContainer}>
-                  <Image
-                    style={styles.photoCoverModal}
-                    source={{ uri: userInfo.coverPicture }}
-                  />
-                  <Image
-                    style={styles.photoProfilModal}
-                    source={{ uri: userInfo.profilePicture }}
-                  />
-                  </View>
-                <View style={styles.infosUser}>
-                  <Text style={styles.textModal1}>{userInfo.nickname}</Text>
-                  <TouchableOpacity
-                    onPress={() => handleReviews()}
-                    style={styles.boutonAvis}
-                  >
-                    <Text style={{width:50, borderWidth:3}}>avis</Text>
-                  </TouchableOpacity>
-                </View>
+        <View style={styles.centeredView}>
+        <View style={styles.closeContainer}>
+              <TouchableOpacity onPress={() => handleClose()} style={styles.modalClose}>
+                <Image
+                  source={require("../assets/close.png")}
+                  style={{ width: 48, height: 48, borderRadius: 57 }}
+                />
+              </TouchableOpacity>
+            </View>
+          <View style={styles.modalView}>
+            <Image
+              style={styles.photoCoverModal}
+              source={{ uri: userInfo.coverPicture }}
+            />
+            <Image
+              style={styles.photoProfilModal}
+              source={{ uri: userInfo.profilePicture }}
+            />
+
+            
+
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-evenly",
+              }}
+              >
+              <Text style={styles.textModal1}>{userInfo.nickname}</Text>
+              <TouchableOpacity
+                onPress={() => handleReviews()}
+                style={styles.boutonAvis}
+              >
+                <Image source={require("../assets/boutonAvis.jpg")} />
+              </TouchableOpacity>
+            </View>
 
                 <Text style={styles.textModal2}>{userInfo.description}</Text>
                 <Text style={styles.textSports}>MES SPORTS </Text>
