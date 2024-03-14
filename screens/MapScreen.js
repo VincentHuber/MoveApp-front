@@ -35,12 +35,15 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADDRESS = "http://192.168.10.171:3000";
+const BACKEND_ADDRESS = "http://192.168.10.149:3000";
 
 export default function MapScreen({ navigation }) {
+  
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
   const [usersWithCoordinates, setUsersWithCoordinates] = useState([]);
+
+  const [updateMatch, setUpdateMatch] = useState(null)
 
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
@@ -85,6 +88,7 @@ export default function MapScreen({ navigation }) {
   //  Redirect to /login if not logged in
   useEffect(() => {
     if (!user.token) {
+      console.log('hello');
       navigation.navigate("Home");
     }
   }, [user, navigation]);
@@ -93,6 +97,7 @@ export default function MapScreen({ navigation }) {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!user.token) {
+        console.log('usertoken :', user.token)
         console.error("Token de l'utilisateur non disponible.");
         return;
       }
@@ -100,6 +105,7 @@ export default function MapScreen({ navigation }) {
       try {
         const response = await fetch(`${BACKEND_ADDRESS}/users`);
         const userData = await response.json();
+
         if (!userData.result || !Array.isArray(userData.users)) {
           console.error(
             "Les données récupérées depuis le backend ne sont pas un tableau."
@@ -194,6 +200,7 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //Geolocalisation
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -213,6 +220,7 @@ export default function MapScreen({ navigation }) {
     })();
   }, []);
 
+// trouver une ville
   const handleSearch = async () => {
     let results = await Location.geocodeAsync(searchText);
     if (results.length > 0) {
@@ -222,9 +230,11 @@ export default function MapScreen({ navigation }) {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
+      setSearchText("")
     }
   };
 
+  //afficher l'utilisateur dans la page map
   useEffect(() => {
     fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
@@ -246,6 +256,7 @@ export default function MapScreen({ navigation }) {
   // image par défaut au cas ou il n'y pas d'image trouvée
   const defaultImage = "../assets/imagePerso.png";
 
+// Modal au clic sur la photo de profil de l'utilisateur
   const handleModal = () => {
     fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
@@ -273,7 +284,7 @@ export default function MapScreen({ navigation }) {
       });
   };
 
-  // fonction qui gèree l'affichage de la modale lors du 'click'
+  // Modal au clic qui affiche les markers des autres utilisateurs
   const onMarkerPress = (user) => {
     setUsersInfo({
       nickname: user.nickname,
@@ -283,37 +294,45 @@ export default function MapScreen({ navigation }) {
       profilePicture: user.profilePicture,
       sports: user.sports,
     });
+
     setModalMarkerVisible(true);
     setModalVisible(false);
   };
 
+  //Action pour modifier le profil
   const handleModif = () => {
     navigation.navigate("EditProfile");
     setModalVisible(false);
   };
 
-  const handle2Modif = () => {
-    const updateMatch = "";
 
+//Action pour aller dans le chat
+  const handleFrameChat = (data) => {
+
+      const newMatch= data.token
+    
     fetch(`${BACKEND_ADDRESS}/user/match/${user.token}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updateMatch),
+      body: JSON.stringify({newMatch}),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
           console.log("Profil mis à jour avec succès");
+
         } else {
           console.error("Erreur lors de la mise à jour du profil", data.error);
         }
       });
 
-    navigation.navigate("Chat");
-    setModal2Visible(false);
+      navigation.navigate("Chat", {otherToken: data.token});
+      setModalMarkerVisible(false)
+
   };
+
 
   const handleReviews = () => {
     //navigation.navigate('Review');
@@ -325,10 +344,12 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
+  //action pour aller au menu de chat via la map
   const handleChat = () => {
     navigation.navigate("Chat");
   };
 
+  //action pour retourner à sa position
   const handleReturnToLocation = async () => {
     let currentLocation = await Location.getCurrentPositionAsync({});
     setRegion({
@@ -337,7 +358,7 @@ export default function MapScreen({ navigation }) {
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     });
-    setSearchText("");
+    setSearchText("")
   };
 
   //Fonts
@@ -355,114 +376,114 @@ export default function MapScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container}> 
       <SafeAreaView style={{ height: "100%", width: "100%" }}>
         <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-        >
-          {region && (
-            <MapView style={styles.map} region={region}>
-              {location && (
-                <Marker
-                  coordinate={{
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                  }}
-                >
-                  <View style={styles.blueDot} />
-                </Marker>
-              )}
-
-              {Array.isArray(usersWithCoordinates) &&
-                usersWithCoordinates
-                  .filter((user) => !activeSport || user.sports[activeSport]) // Filtrer les utilisateurs par le sport actif
-                  .map((user, index) => (
-                    <Marker
-                      key={index}
-                      coordinate={user.coordinates}
-                      onPress={() => onMarkerPress(user)}
-                      //tracksViewChanges={true}
-                    >
-                      <Image
-                        source={{ uri: user.profilePicture }}
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: 25,
-                          borderBottomWidth: 3,
-                          borderColor: "white",
-                        }}
-                      />
-                    </Marker>
-                  ))}
-            </MapView>
-          )}
-
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.input}
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholder="votre recherche"
-              onSubmitEditing={handleSearch}
-            />
-
-            <View style={styles.buttonLocation}>
-              <TouchableOpacity
-                style={getButtonStyle("position")}
-                onPress={handleReturnToLocation}
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        {region && (
+          <MapView style={styles.map} region={region}>
+            {location && (
+              <Marker
+                coordinate={{
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                }}
               >
-                <Position />
-              </TouchableOpacity>
-            </View>
+                <View style={styles.blueDot} />
+              </Marker>
+            )}
 
-            <TouchableOpacity
-              onPress={() => handleModal()}
-              style={styles.modalProfil}
-              activeOpacity={0.8}
-            >
-              <Image
-                source={{ uri: userInfo.profilePicture || defaultImage }}
-                style={{ width: 48, height: 48, borderRadius: 57 }}
-              />
-            </TouchableOpacity>
-          </View>
+            {Array.isArray(usersWithCoordinates) &&
+              usersWithCoordinates
+                .filter((user) => !activeSport || user.sports[activeSport]) // Filtrer les utilisateurs par le sport actif
+                .map((user, index) => (
+                  <Marker
+                    key={index}
+                    coordinate={user.coordinates}
+                    onPress={() => onMarkerPress(user)}
+                    //tracksViewChanges={true}
+                  >
+                    <Image
+                      source={{ uri: user.profilePicture }}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 25,
+                        borderBottomWidth: 3,
+                        borderColor: "white",
+                      }}
+                    />
+                  </Marker>
+                ))}
+          </MapView>
+        )}
 
-          <TouchableOpacity style={styles.message} onPress={() => handleChat()}>
-            <Message />
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="votre recherche"
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={handleSearch}
+          />
+
+          <TouchableOpacity
+            onPress={() => handleModal()}
+            style={styles.modalProfil}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={{ uri: userInfo.profilePicture || defaultImage }}
+              style={{ width: 48, height: 48, borderRadius: 57 }}
+            />
           </TouchableOpacity>
 
-          <View style={styles.containerIcons}>
+          <View style={styles.buttonLocation}>
             <TouchableOpacity
-              style={getButtonStyle("Football")}
-              onPress={() => handlePress("Football")}
+              style={getButtonStyle("position")}
+              onPress={() => handleReturnToLocation("position")}
             >
-              <Foot />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={getButtonStyle("Running")}
-              onPress={() => handlePress("Running")}
-            >
-              <Running />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={getButtonStyle("Basketball")}
-              onPress={() => handlePress("Basketball")}
-            >
-              <Basket />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={getButtonStyle("Tennis")}
-              onPress={() => handlePress("Tennis")}
-            >
-              <Tennis />
+              <Position />
             </TouchableOpacity>
           </View>
+        </View>
+
+        <TouchableOpacity style={styles.message} onPress={() => handleChat()}>
+          <Message />
+        </TouchableOpacity>
+
+        <View style={styles.containerIcons}>
+          <TouchableOpacity
+            style={getButtonStyle("Football")}
+            onPress={() => handlePress("Football")}
+          >
+            <Foot />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={getButtonStyle("Running")}
+            onPress={() => handlePress("Running")}
+          >
+            <Running />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={getButtonStyle("Basketball")}
+            onPress={() => handlePress("Basketball")}
+          >
+            <Basket />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={getButtonStyle("Tennis")}
+            onPress={() => handlePress("Tennis")}
+          >
+            <Tennis />
+          </TouchableOpacity>
+        </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
 
@@ -689,11 +710,12 @@ const styles = StyleSheet.create({
   modalView: {
     borderWidth: 1,
     backgroundColor: "#f4f4f4",
-    maxHeight: "85%",
+    height: 667, // coucou
     width: "85%",
+    justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
     borderRadius: 20,
+    padding: 180,
     shadowColor: "#000",
     shadowOffset: {
       width: 5,
@@ -749,6 +771,7 @@ const styles = StyleSheet.create({
     width: "80%",
     textAlign: "center",
     fontSize: 14,
+    width: 299,
     fontFamily: "Poppins_400Regular_Italic",
   },
 
@@ -758,15 +781,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
+    width: 150,
+    borderWidth: 1,
+    left: 130,
   },
 
   sportContainer: {
     borderWidth: 2,
     flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
-    width: "90%",
-    marginTop: 20,
+    alignItems: "space-between",
+    justifyContent: "center",
+    marginBottom: 60,
+    borderWidth: 1,
+    width: 350,
+    top: 120,
   },
 
   sportIcon: {
@@ -790,6 +818,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     fontFamily: "Poppins_700Bold",
+    width: 350,
+    left: 110,
   },
 
   textModal3: {
@@ -797,7 +827,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: "center",
     fontSize: 14,
-    fontFamily: "Poppins_400Regular_Italic",
+    width: 299,
+    fontFamily: "Poppins_400Regular",
   },
 
   closeContainer: {

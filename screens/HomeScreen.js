@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  Platform,
   Image,
   KeyboardAvoidingView,
   ScrollView,
@@ -41,7 +40,8 @@ import Tennis from "../assets/tennis.js";
 import Create from "../assets/create.js";
 import Upload from "../assets/upload.js";
 
-const BACKEND_ADDRESS = "http://192.168.10.171:3000";
+const BACKEND_ADDRESS = 'http://192.168.10.149:3000'
+
 
 export default function HomeScreen({ navigation }) {
     const dispatch = useDispatch();
@@ -89,7 +89,7 @@ export default function HomeScreen({ navigation }) {
   // pour comprendre la modal BottomSheet : https://www.youtube.com/watch?v=SgeAfiz_j_w&t=184s
   const sheetRef = useRef(null);
   const [isOpen, setIsOpen] = useState(-1);
-  const snapPoints = ["55"];
+  const snapPoints = ["45%"];
 
   const handleSnapPress = useCallback((index) => {
     sheetRef.current?.snapToIndex(index);
@@ -132,13 +132,6 @@ export default function HomeScreen({ navigation }) {
   //Profile creation
   const createProfile = async (userData, profile, cover) => {
     try {
-      const EMAIL_REGEX =
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      if (!EMAIL_REGEX.test(userData.email)) {
-        console.log("coucou");
-        throw new Error("Invalid email format");
-      }
-
       const resCreation = await fetch(`${BACKEND_ADDRESS}/user/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +143,6 @@ export default function HomeScreen({ navigation }) {
 
       const { token, adress, email, nickname, ambition, description, sports } =
         dataCreation.user;
-
       dispatch(
         login({ token, adress, email, nickname, ambition, description, sports })
       );
@@ -243,12 +235,8 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 500}
-    >
-      <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
         <View style={styles.logoContainer}>
           <Text style={styles.logo}>MOVE</Text>
         </View>
@@ -283,7 +271,7 @@ export default function HomeScreen({ navigation }) {
                         <View style={styles.pseudo}>
                             <TextInput
                                 style={styles.textPseudo}
-                                placeholder='Pseudo*'      
+                                placeholder='Ton pseudo*'      
                                 onChangeText={(value) => setNickname(value)}
                                 value={nickname}
                                 selectionColor="#4A46FF"
@@ -293,7 +281,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textEmail}
                                 
-                                placeholder='Email*'   
+                                placeholder='Ton email*'   
                                 onChangeText={(value) => setSignInUsermail(value)}
                                 value={signInUsermail}
                                 selectionColor="#4A46FF"
@@ -303,7 +291,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textPassword}
                                 secureTextEntry={true}
-                                placeholder='Password*'     
+                                placeholder='Ton mot de passe*'     
                                 onChangeText={(value) => setSignInPassword(value)}
                                 value={signInPassword}
                                 selectionColor="#4A46FF"
@@ -318,7 +306,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textAdress}
                                
-                                placeholder='Adresse*'  
+                                placeholder={`Ton lieu d'activité sportive*`}
                                 onChangeText={(value) => setAdress(value)}
                                 value={adress}
                                 selectionColor="#4A46FF"
@@ -328,7 +316,7 @@ export default function HomeScreen({ navigation }) {
                             <TextInput
                                 style={styles.textDescription}
                                 
-                                placeholder='Description'  
+                                placeholder='Ta description en une phrase'  
                                 multiline={true} // Permettre plusieurs lignes
                                 numberOfLines={3} // NB lignes à afficher dès le départ
                                 onChangeText={(value) => setDescription(value)}
@@ -533,127 +521,115 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-              <View style={styles.ambition}>
-                <TextInput
-                  style={styles.textAmbition}
-                  type="text"
-                  placeholder="Ambition"
-                  multiline={true} // Permettre plusieurs lignes
-                  numberOfLines={3} // NB lignes à afficher dès le départ
-                  onChangeText={(value) => setAmbition(value)}
-                  value={ambition}
-                  selectionColor="#4A46FF"
-                />
-              </View>
+                        <View style={styles.ambition}>
+                            <TextInput  
+                                style={styles.textAmbition}  
+                                type="text"  
+                                placeholder='Ton ambition avec cette app'
+                                multiline={true} // Permettre plusieurs lignes
+                                numberOfLines={3} // NB lignes à afficher dès le départ
+                                onChangeText={(value) => setAmbition(value)}
+                                value={ambition}
+                                selectionColor="#4A46FF"
+                            />
+                        </View>
 
-              <View style={styles.uploadContainer}>
-                {cover ? (
-                  <Image source={{ uri: cover }} style={styles.uploadCover} />
-                ) : (
-                  <View style={styles.uploadCover}>
-                    <Text style={styles.textUploadProfile}>
-                      Photo de couverture
-                    </Text>
-                  </View>
-                )}
-                <TouchableOpacity onPress={() => uploadCover()}>
-                  <Upload style={styles.buttonUploadProfile} />
-                </TouchableOpacity>
+                        <View style={styles.uploadContainer}>
+                
+                        
+                        {cover ? (
+                            <Image source={{ uri: cover }} style={styles.uploadCover} />
+                                        ) : (
+                                        <View style={styles.uploadCover}>
+                                            <Text style={styles.textUploadProfile}>
+                                            Ta photo de couverture
+                                            </Text>
+                                        </View>
+                                        )}
+                            <TouchableOpacity onPress={()=>uploadCover()}>
+                                <Upload style={styles.buttonUploadProfile}/>
+                            </TouchableOpacity>
+                           
 
-                {profile ? (
-                  <Image
-                    source={{ uri: profile }}
-                    style={styles.uploadProfile}
-                  />
-                ) : (
-                  <View style={styles.uploadProfile}>
-                    <Text style={styles.textUploadProfile}>
-                      Photo de profile
-                    </Text>
-                  </View>
-                )}
-                <TouchableOpacity onPress={() => uploadProfile()}>
-                  <Upload style={styles.buttonUploadProfile} />
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                style={styles.buttonOk}
-                onPress={() =>
-                  createProfile(
-                    {
-                      nickname,
-                      email: signInUsermail,
-                      password: signInPassword,
-                      ambition,
-                      adress,
-                      sports: selectedSports,
-                      description,
-                    },
-                    profile,
-                    cover
-                  )
-                }
-              >
-                <View style={styles.contenairButtonOk}>
-                  <Create style={styles.iconCreate} />
-                  <Text style={styles.textButtonOk}>Créer ton profil</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.buttonBack}
-                onPress={() => setIsModalVisible(false)}
-              >
-                <Text style={styles.textButtonBack}>Retour</Text>
-              </TouchableOpacity>
-              <View style={styles.containairLegend}>
-                <Text style={styles.legend}>*Champ obligatoire</Text>
-              </View>
-            </View>
-          </ScrollView>
-        </Modal>
+                        {profile ? (
+                            <Image source={{ uri: profile }} style={styles.uploadProfile} />
+                                        ) : (
+                                        <View style={styles.uploadProfile}>
+                                            <Text style={styles.textUploadProfile}>
+                                            Ta photo {"\n"} de profile
+                                            </Text>
+                                        </View>
+                                        )}
+                            <TouchableOpacity onPress={()=>uploadProfile()}>
+                                <Upload style={styles.buttonUploadProfile}/>
+                            </TouchableOpacity>
 
-        <BottomSheet
-          ref={sheetRef}
-          backgroundStyle={{ backgroundColor: "#F4F4F4" }}
-          snapPoints={snapPoints}
-          enablePanDownToClose={true}
-          onClose={() => setIsOpen(0)}
-          index={isOpen}
-          style={styles.bottomSheet}
-        >
-          <View style={styles.bottomSheetContent}>
-            <Text style={styles.titleSignIn}>CONNEXION</Text>
-            <View style={styles.email}>
-              <TextInput
-                style={styles.textEmail}
-                type="email"
-                placeholder="Email*"
-                onChangeText={(value) => setSignInUsermail(value)}
-                value={signInUsermail}
-                selectionColor="#4A46FF"
-              />
-            </View>
-            <View style={styles.password}>
-              <TextInput
-                style={styles.textPassword}
-                type="password*"
-                secureTextEntry={true} // pour cacher le mot de passe
-                placeholder="Password"
-                onChangeText={(value) => setSignInPassword(value)}
-                value={signInPassword}
-                selectionColor="#4A46FF"
-              />
-            </View>
-            <TouchableOpacity
-              style={styles.buttonSignInOk}
-              onPress={() => handleConnection()}
-            >
-              <Text style={styles.textButtonSignInOk}>Ok</Text>
-            </TouchableOpacity>
-          </View>
-        </BottomSheet>
-      </GestureHandlerRootView>
-    </KeyboardAvoidingView>
+                        </View>
+                            <TouchableOpacity style={styles.buttonOk} onPress={() => createProfile({
+                                    nickname,
+                                    email: signInUsermail,
+                                    password : signInPassword,
+                                    ambition,
+                                    adress,
+                                    sports :selectedSports,
+                                    description,
+                                }, profile, cover)}>
+                               <View style={styles.contenairButtonOk}>
+                                    <Create style={styles.iconCreate}/>
+                                    <Text style={styles.textButtonOk}>Créer ton profil</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.buttonBack} onPress={() => setIsModalVisible(false)}>
+                                <Text style={styles.textButtonBack}>Retour</Text>
+                            </TouchableOpacity>
+                            <View style={styles.containairLegend}>
+                            <Text style={styles.legend}>*Champ obligatoire</Text>
+                            </View>
+                    </View>
+                    </ScrollView>
+            </Modal>
+
+            
+            <BottomSheet
+                ref={sheetRef}
+                snapPoints={snapPoints}
+                enablePanDownToClose={true}
+                onClose={()=>setIsOpen(0)}
+                index={isOpen}
+                style={styles.bottomSheet}
+                >
+                    <View style={styles.bottomSheetContent}>
+
+                        <Text style={styles.titleSignIn}>CONNEXION</Text>
+                        <View style={styles.email}>
+                                <TextInput
+                                    style={styles.textEmail}
+                                    type="email"  
+                                    placeholder='Ton email'   
+                                    onChangeText={(value) => setSignInUsermail(value)}
+                                    value={signInUsermail}
+                                    selectionColor="#4A46FF"
+                                />
+                            </View>
+                            <View style={styles.password}>
+                                <TextInput
+                                    style={styles.textPassword}
+                                    type="password*"  
+                                    secureTextEntry={true} // pour cacher le mot de passe
+                                    placeholder='Ton mot de passe'     
+                                    onChangeText={(value) => setSignInPassword(value)}
+                                    value={signInPassword}
+                                    selectionColor="#4A46FF"
+                                />
+                            </View>
+                        <TouchableOpacity style={styles.buttonSignInOk}  onPress={() => handleConnection()}>
+                            <Text style={styles.textButtonSignInOk}>Ok</Text>
+                        </TouchableOpacity>
+                    </View>
+            </BottomSheet>
+
+        </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -662,6 +638,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#4A46FF",
     justifyContent: "space-between",
+    width: "100%",
+    height: "100%",
   },
 
   //LOGO
@@ -846,32 +824,30 @@ const styles = StyleSheet.create({
     },
 
     iconTennis: {
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "white",
-      width: "30%",
-      height: 69,
-      borderRadius: 12,
-  },
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "white",
+        width: "30%",
+        height: 69,
+        borderRadius: 12,
+    },
 
-   
-
-  //Bouton pour icones sports
-  addButton: {
-    position: "absolute",
+//Bouton pour icones sports
+addButton: {
+    position: 'absolute',
     bottom: -5,
     left: 55,
-    backgroundColor: "#4A46FF",
+    backgroundColor: '#4A46FF',
     width: 22,
     height: 22,
     borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    color: "white",
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'white',
   },
-
+  
   addButtonText: {
-    color: "white",
+    color: 'white',
     fontSize: 25,
     bottom: 5,
   },
@@ -1013,9 +989,7 @@ const styles = StyleSheet.create({
   },
 
   //MODAL SIGN IN
-  bottomSheet: {
-    flexGrow: 1,
-  },
+  bottomSheet: {},
 
   bottomSheetContent: {
     width: "100%",
@@ -1031,7 +1005,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
     alignSelf: "center",
-    marginTop: 25,
   },
 
   textButtonSignInOk: {
@@ -1047,8 +1020,8 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: "black",
     textAlign: "center",
-    marginTop: 15,
-    marginBottom: 35,
+    marginTop: 5,
+    marginBottom: 15,
   },
 
   //UPLOAD
@@ -1101,5 +1074,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  buttonUploadProfile: {},
-});
+    buttonUploadProfile:{
+    
+
+    },
+})
