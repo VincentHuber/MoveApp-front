@@ -35,7 +35,7 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADRESS = "http://192.168.84.75:3000";
+const BACKEND_ADDRESS = "http://192.168.84.75:3000";
 
 export default function MapScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -99,7 +99,7 @@ export default function MapScreen({ navigation }) {
       }
 
       try {
-        const response = await fetch(`${BACKEND_ADRESS}/users`);
+        const response = await fetch(`${BACKEND_ADDRESS}/users`);
         const userData = await response.json();
 
         if (!userData.result || !Array.isArray(userData.users)) {
@@ -228,7 +228,7 @@ export default function MapScreen({ navigation }) {
   };
 
   useEffect(() => {
-    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
+    fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
@@ -249,7 +249,7 @@ export default function MapScreen({ navigation }) {
   const defaultImage = "../assets/imagePerso.png";
 
   const handleModal = () => {
-    fetch(`${BACKEND_ADRESS}/user/${user.token}`)
+    fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
@@ -298,7 +298,7 @@ export default function MapScreen({ navigation }) {
     
     const updateMatch = "";
 
-    fetch(`${BACKEND_ADRESS}/user/match/${user.token}`, {
+    fetch(`${BACKEND_ADDRESS}/user/match/${user.token}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

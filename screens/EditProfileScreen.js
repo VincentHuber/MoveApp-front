@@ -27,7 +27,6 @@ import Tennis from "../assets/tennis.js";
 
 import { useSelector } from "react-redux";
 
-// Adresse du backend
 const BACKEND_ADDRESS = "http://192.168.84.75:3000";
 
 const EditProfileScreen = () => {
@@ -121,7 +120,7 @@ const EditProfileScreen = () => {
       sports: selectedSports,
     };
 
-    // Construire les champs modifiés à partir de l'état userData mis à jour
+    // logique pour modifier les champs utilisateur à partir de l'état userData et les mettre à jour
     const updatedFields = {};
     for (const key in updatedUserData) {
       if (updatedUserData[key] !== "") {
@@ -139,18 +138,19 @@ const EditProfileScreen = () => {
       },
       body: JSON.stringify(updatedFields),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.result) {
+      .then((response) => {
+        if (response.ok) {
           console.log("Profil mis à jour avec succès");
-          setSuccessMessage(true); // Afficher le message de succès
-          setTimeout(() => {
-            setSuccessMessage(false); // Masquer le message après quelques secondes
-            navigation.goBack(); // retour en arrière
-          }, 2000); // Durée du message de succès en millisecondes
+          navigation.goBack();
         } else {
-          console.error("Erreur lors de la mise à jour du profil", data.error);
+          console.error(
+            "Erreur lors de la mise à jour du profil. Statut :",
+            response.status
+          );
         }
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la mise à jour du profil :", error);
       });
   };
 
@@ -612,13 +612,11 @@ const styles = StyleSheet.create({
 
   backButtonContainer: {
     marginLeft: 20,
-    borderWidth: 2,
   },
 
   profileContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 2,
   },
 
   profileImage: {
@@ -768,7 +766,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     paddingLeft: 15,
-    borderWidth: 4,
   },
 
   profileImageBottom: {

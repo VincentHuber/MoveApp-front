@@ -132,7 +132,7 @@ export default function HomeScreen({ navigation }) {
   //Profile creation
   const createProfile = async (userData, profile, cover) => {
     try {
-      const resCreation = await fetch(`${BACKEND_ADRESS}/user/signup`, {
+      const resCreation = await fetch(`${BACKEND_ADDRESS}/user/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -158,7 +158,7 @@ export default function HomeScreen({ navigation }) {
         });
 
         const resCover = await fetch(
-          `${BACKEND_ADRESS}/user/uploadPictureCover/${token}`,
+          `${BACKEND_ADDRESS}/user/uploadPictureCover/${token}`,
           {
             method: "POST",
             body: formDataCover,
@@ -178,7 +178,7 @@ export default function HomeScreen({ navigation }) {
         });
 
         const resProfile = await fetch(
-          `${BACKEND_ADRESS}/user/uploadProfileCover/${token}`,
+          `${BACKEND_ADDRESS}/user/uploadProfileCover/${token}`,
           {
             method: "POST",
             body: formDataProfile,
