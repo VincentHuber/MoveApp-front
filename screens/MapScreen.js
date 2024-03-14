@@ -469,6 +469,14 @@ export default function MapScreen({ navigation }) {
 
       <Modal visible={modalVisible} animationType="fade" transparent>
         <View style={styles.centeredView}>
+        <View style={styles.closeContainer}>
+              <TouchableOpacity onPress={() => handleClose()} style={styles.modalClose}>
+                <Image
+                  source={require("../assets/close.png")}
+                  style={{ width: 48, height: 48, borderRadius: 57 }}
+                />
+              </TouchableOpacity>
+            </View>
           <View style={styles.modalView}>
             <Image
               style={styles.photoCoverModal}
@@ -479,14 +487,7 @@ export default function MapScreen({ navigation }) {
               source={{ uri: userInfo.profilePicture }}
             />
 
-            <View style={styles.modalClose}>
-              <TouchableOpacity onPress={() => handleClose()}>
-                <Image
-                  source={require("../assets/close.png")}
-                  style={{ width: 48, height: 48, borderRadius: 57 }}
-                />
-              </TouchableOpacity>
-            </View>
+            
 
             <View
               style={{
