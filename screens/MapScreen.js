@@ -35,7 +35,7 @@ import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 import Close from "../assets/close.js";
 
-const BACKEND_ADDRESS = "http://192.168.10.149:3000";
+const BACKEND_ADDRESS = "http://192.168.100.196:3000";
 
 export default function MapScreen({ navigation }) {
   
@@ -309,18 +309,18 @@ export default function MapScreen({ navigation }) {
 
 
 //Action pour aller dans le chat
-  const handleFrameChat = (otherToken, token) => {
-    fetch(`${BACKEND_ADDRESS}/user/match/${token}`, {
+  const handleFrameChat = (newToken, token) => {
+    fetch(`${BACKEND_ADDRESS}/user/match/${newToken}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({newMatch: otherToken}),
+      body: JSON.stringify({newMatch: newToken}),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-            navigation.navigate("Chat", {otherToken: data.token});
+            navigation.navigate("Chat", {newToken: data.token});
             setModalMarkerVisible(false)
 
         } else {

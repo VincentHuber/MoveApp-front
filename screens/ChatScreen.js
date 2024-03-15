@@ -21,29 +21,37 @@ import {
 
 import { useSelector } from "react-redux";
 
-const BACKEND_ADDRESS = "http://192.168.10.149:3000";
+const BACKEND_ADDRESS = "http://192.168.100.196:3000";
 
 export default function ChatScreen({ navigation, route }) {
-  //  Redirect to /login if not logged 
+  //  Redirect to /login if not logged
+
   useEffect(() => {
     if (!user.token) {
       navigation.navigate("Home");
     }
   }, [user, navigation]);
 
-  const user = useSelector((state)  =>{
-      console.log(state);
-    return state?.user.value
+  const user = useSelector((state) => {
+    return state?.user.value;
   });
+
+  const [dipslayMessage, setDisplayMessage] = [
+    {
+      newToken: null,
+      token: null,
+      message: null,
+    },
+  ];
   const [message, setMessage] = useState("");
   const [chatter, setChatter] = useState({
     nickname: null,
     profilePicture: null,
   });
-
+  const [messageData, setMessageData] = useState(null);
   //Affiche la photo et le nom de l'utilisateur
   useEffect(() => {
-    fetch(`${BACKEND_ADDRESS}/user/${route.params.otherToken}`)
+    fetch(`${BACKEND_ADDRESS}/user/${route.params.newToken}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
@@ -69,19 +77,14 @@ export default function ChatScreen({ navigation, route }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token: user.token,
-        newToken: route.params.otherToken,
+        newToken: route.params.newToken,
         newMessageContent: message,
       }),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur lors de la requête", error);
-        }
-        return response.json();
-      })
       .then((data) => {
-        if (data.result) {
-          console.log("ça marche");
+        console.log("token : ", user.token);
+        console.log("newToken : ", route.params.newToken);
+        if (data.ok) {
           setMessage("");
         }
       })
@@ -92,10 +95,52 @@ export default function ChatScreen({ navigation, route }) {
 
   //Afficher tous les messages
 
+  useEffect(() => {
+    fetch(`${BACKEND_ADDRESS}/chat/${route.params.newToken}/${user.token}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const messages = data.message.map((messageItem, index) => {
+          console.log("message =>", messageItem.sender, messageItem.message);
+          return (
+            <View
+              key={index}
+              style={{
+                display: "flex",
+                borderRadius:3,
+                backgroundColor:"blue",
+                maxWidth:60,
+                flexDirection: "row",
+                justifyContent:
+                  messageItem.sender.token === user.token
+                    ? "flex-end"
+                    : "flex-start",
+              }}
+            >
+              <Text
+                style={{
+                  textAlign:'right',
+                  fontSize:14,
+                  fontFamily: "Poppins_400Regular",
+                  color:
+                    messageItem.sender.token === user.token ? "white" : "blue",
+                }}
+              >
+                {messageItem.message}
+              </Text>
+            </View>
+          );
+        });
+        console.log("data message=>", messages);
 
-
-
-
+        setMessageData(messages);
+      })
+      .catch((error) => {
+        console.error(
+          "Erreur lors de la récupération des informations de l'utilisateur:",
+          error
+        );
+      });
+  }, []);
 
   //Fonts
   const [fontsLoaded] = useFonts({
@@ -192,7 +237,9 @@ export default function ChatScreen({ navigation, route }) {
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
         }}
-      ></View>
+      >
+        {messageData}
+      </View>
       <View
         style={{
           position: "absolute",
