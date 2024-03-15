@@ -18,6 +18,10 @@ import EditProfileScreen from "./screens/EditProfileScreen";
 import ReviewScreen from "./screens/ReviewScreen";
 import DisplayReviewScreen from "./screens/DisplayReviewsScreen";
 
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notifications
+
 const reducers = combineReducers({ user: userReducer });
 const persistConfig = { key: "Move", storage: AsyncStorage };
 

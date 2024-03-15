@@ -24,7 +24,6 @@ import Foot from "../assets/foot.js";
 import Basket from "../assets/basket.js";
 import Running from "../assets/running.js";
 import Tennis from "../assets/tennis.js";
-import { logout } from "../reducers/users.js";
 
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../reducers/users.js";
