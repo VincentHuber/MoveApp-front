@@ -33,9 +33,8 @@ import Running from "../assets/running.js";
 import Tennis from "../assets/tennis.js";
 import Message from "../assets/message.js";
 import Position from "../assets/position.js";
-import Close from "../assets/close.js";
 
-const BACKEND_ADDRESS = "http://192.168.10.171:3000";
+const BACKEND_ADDRESS = "http://192.168.100.101:3000";
 
 export default function MapScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -223,6 +222,7 @@ export default function MapScreen({ navigation }) {
         longitudeDelta: 0.005,
       });
     }
+    setSearchText("");
   };
 
   useEffect(() => {
@@ -357,113 +357,109 @@ export default function MapScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ height: "100%", width: "100%" }}>
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-        >
-          {region && (
-            <MapView style={styles.map} region={region}>
-              {location && (
-                <Marker
-                  coordinate={{
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                  }}
-                >
-                  <View style={styles.blueDot} />
-                </Marker>
-              )}
-
-              {Array.isArray(usersWithCoordinates) &&
-                usersWithCoordinates
-                  .filter((user) => !activeSport || user.sports[activeSport]) // Filtrer les utilisateurs par le sport actif
-                  .map((user, index) => (
-                    <Marker
-                      key={index}
-                      coordinate={user.coordinates}
-                      onPress={() => onMarkerPress(user)}
-                      //tracksViewChanges={true}
-                    >
-                      <Image
-                        source={{ uri: user.profilePicture }}
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: 25,
-                          borderBottomWidth: 3,
-                          borderColor: "white",
-                        }}
-                      />
-                    </Marker>
-                  ))}
-            </MapView>
-          )}
-
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.input}
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholder="votre recherche"
-              onSubmitEditing={handleSearch}
-            />
-
-            <View style={styles.buttonLocation}>
-              <TouchableOpacity
-                style={getButtonStyle("position")}
-                onPress={handleReturnToLocation}
+        {region && (
+          <MapView style={styles.map} region={region}>
+            {location && (
+              <Marker
+                coordinate={{
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                }}
               >
-                <Position />
-              </TouchableOpacity>
-            </View>
+                <View style={styles.blueDot} />
+              </Marker>
+            )}
 
+            {Array.isArray(usersWithCoordinates) &&
+              usersWithCoordinates
+                .filter((user) => !activeSport || user.sports[activeSport]) // Filtrer les utilisateurs par le sport actif
+                .map((user, index) => (
+                  <Marker
+                    key={index}
+                    coordinate={user.coordinates}
+                    onPress={() => onMarkerPress(user)}
+                    //tracksViewChanges={true}
+                  >
+                    <Image
+                      source={{ uri: user.profilePicture }}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 25,
+                        borderBottomWidth: 3,
+                        borderColor: "white",
+                      }}
+                    />
+                  </Marker>
+                ))}
+          </MapView>
+        )}
+
+        <View style={styles.searchContainer}>
+          <View style={styles.buttonLocation}>
             <TouchableOpacity
-              onPress={() => handleModal()}
-              style={styles.modalProfil}
-              activeOpacity={0.8}
+              style={getButtonStyle("position")}
+              onPress={handleReturnToLocation}
             >
-              <Image
-                source={{ uri: userInfo.profilePicture || defaultImage }}
-                style={{ width: 48, height: 48, borderRadius: 57 }}
-              />
+              <Position />
             </TouchableOpacity>
           </View>
 
+          <TextInput
+            style={styles.input}
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder="Votre recherche"
+            onSubmitEditing={handleSearch}
+          />
+
+          <TouchableOpacity
+            onPress={() => handleModal()}
+            style={styles.modalProfil}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={{ uri: userInfo.profilePicture || defaultImage }}
+              style={{ width: 48, height: 48, borderRadius: 57 }}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.containerMessage}>
           <TouchableOpacity style={styles.message} onPress={() => handleChat()}>
-            <Message />
+            <Message/>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.containerIcons}>
+          <TouchableOpacity
+            style={getButtonStyle("Football")}
+            onPress={() => handlePress("Football")}
+          >
+            <Foot />
           </TouchableOpacity>
 
-          <View style={styles.containerIcons}>
-            <TouchableOpacity
-              style={getButtonStyle("Football")}
-              onPress={() => handlePress("Football")}
-            >
-              <Foot />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={getButtonStyle("Running")}
+            onPress={() => handlePress("Running")}
+          >
+            <Running />
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={getButtonStyle("Running")}
-              onPress={() => handlePress("Running")}
-            >
-              <Running />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={getButtonStyle("Basketball")}
+            onPress={() => handlePress("Basketball")}
+          >
+            <Basket />
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={getButtonStyle("Basketball")}
-              onPress={() => handlePress("Basketball")}
-            >
-              <Basket />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={getButtonStyle("Tennis")}
-              onPress={() => handlePress("Tennis")}
-            >
-              <Tennis />
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
+          <TouchableOpacity
+            style={getButtonStyle("Tennis")}
+            onPress={() => handlePress("Tennis")}
+          >
+            <Tennis />
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
 
       <Modal visible={modalVisible} animationType="fade" transparent>
@@ -501,7 +497,10 @@ export default function MapScreen({ navigation }) {
                 onPress={() => handleReviews()}
                 style={styles.boutonAvis}
               >
-                <Image source={require("../assets/noteAvis.png")} style={{ width: 65, height: 22, }} />
+                <Image
+                  source={require("../assets/noteAvis.png")}
+                  style={{ width: 65, height: 22 }}
+                />
               </TouchableOpacity>
             </View>
 
@@ -572,7 +571,10 @@ export default function MapScreen({ navigation }) {
                 onPress={() => handleReviews()}
                 style={styles.boutonAvis}
               >
-                <Image source={require("../assets/noteAvis.png")} style={{ width: 65, height: 22, }} />
+                <Image
+                  source={require("../assets/noteAvis.png")}
+                  style={{ width: 65, height: 22 }}
+                />
               </TouchableOpacity>
             </View>
 
@@ -617,11 +619,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  keyboardAvoidingView: {
-    height: "100%",
-    width: "100%",
-  },
-
   // Map
   map: {
     flex: 1,
@@ -634,18 +631,20 @@ const styles = StyleSheet.create({
 
   // Input recherche
   searchContainer: {
-    //position: "absolute",
-    top: 20,
+    flexDirection: "row",
+    height: "20%",
     width: "100%",
+    justifyContent: "center",
     alignItems: "center",
-    // zIndex:1,
   },
+
   input: {
-    width: "90%",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "95%",
+    marginLeft: 15,
     height: 57,
-    borderWidth: 1,
     borderColor: "#FFFFFF",
-    padding: 10,
     borderRadius: 90,
     fontSize: 18,
     marginBottom: 10,
@@ -657,11 +656,94 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
-    elevation: 8,
     textAlign: "center",
   },
 
-  // icon position
+  // icon image perso
+
+  modalProfil: {
+    bottom: 5,
+    right: 55,
+  },
+
+  buttonLocation: {
+    alignItems: "center",
+    bottom: 6,
+    left: 60,
+    zIndex: 1,
+  },
+
+  // icon chat Map
+  containerMessage: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 57,
+    marginTop: "87%",
+    height: 70,
+    width: 70,
+    justifyContent: "center",
+    alignItems: "center",
+    left: "75%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
+
+  message: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 78,
+    height: 77,
+  },
+
+  
+
+  // icon sports container
+  containerIcons: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    bottom: "2%",
+    height: "12%",
+    width: "85%",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    alignSelf: "center",
+    marginTop: "auto",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
+
+  //Icon sports non actives
+  icon: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    width: "24%",
+    height: "24%",
+    borderRadius: 12,
+  },
+
+  //Icon sports actives bleue Move
+  activeIcon: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#4A46FF",
+    width: "24%",
+    height: "90%",
+    borderRadius: 12,
+  },
+
+  // icon position geolocalisation
   blueDot: {
     width: 20,
     height: 20,
@@ -824,95 +906,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 10,
     marginTop: -40,
-  },
-
-  // icon image perso
-  modaluser: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: 150,
-    right: 150,
-    width: 78,
-    height: 77,
-    borderRadius: 57,
-    borderColor: "#F4F4F4",
-  },
-
-  modalProfil: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    bottom: "20%",
-    right: "6%",
-    width: 48,
-    height: 48,
-    borderRadius: 57,
-    borderColor: "#F4F4F4",
-  },
-
-  buttonLocation: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    bottom: "20%",
-    right: "82%",
-    width: 48,
-    height: 48,
-    borderRadius: 57,
-  },
-
-  // icon chat Map
-  message: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    bottom: 180,
-    right: 40,
-    backgroundColor: "#FFFFFF",
-    width: 78,
-    height: 77,
-    borderRadius: 57,
-  },
-
-  // icon sports container
-  containerIcons: {
-    borderWidth: 2,
-    position: "absolute",
-    backgroundColor: "white",
-    borderRadius: 20,
-    bottom: "2%",
-    height: "12%",
-    width: "85%",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    alignSelf: "center",
-    marginTop: "auto",
-    marginBottom: 20,
-  },
-
-  //Icon sports non actives
-  icon: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    width: "24%",
-    height: "24%",
-    borderRadius: 12,
-  },
-
-  //Icon sports actives bleue Move
-  activeIcon: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#4A46FF",
-    width: "24%",
-    height: "90%",
-    borderRadius: 12,
   },
 });

@@ -28,10 +28,13 @@ import Tennis from "../assets/tennis.js";
 import { useSelector } from "react-redux";
 
 // Adresse du backend
-const BACKEND_ADDRESS = "http://192.168.10.171:3000";
+const BACKEND_ADDRESS = "http://192.168.100.101:3000";
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
+
+  // image par défaut au cas ou il n'y pas d'image trouvée
+  const defaultImage = "../assets/imagePerso.png";
 
   // Logique pour gérer l'interaction avec le bouton "Avis"
   const handleReview = () => {
@@ -218,7 +221,7 @@ const EditProfileScreen = () => {
 
           <View style={styles.profileContainer}>
             <Image
-              source={{ uri: userData.profilePicture }}
+              source={{ uri: userData.profilePicture || defaultImage }}
               style={styles.profileImage}
             />
             <View style={styles.userInfoContainer}>
@@ -555,7 +558,7 @@ const EditProfileScreen = () => {
 
           <View style={styles.profileImagesContainer}>
             <Image
-              source={{ uri: userData.coverPicture }}
+              source={{ uri: userData.coverPicture || defaultImage }}
               style={styles.profileCover}
             />
             <TouchableOpacity
@@ -567,7 +570,7 @@ const EditProfileScreen = () => {
           </View>
           <View style={styles.profileImagesContainer}>
             <Image
-              source={{ uri: userData.profilePicture }}
+              source={{ uri: userData.profilePicture || defaultImage }}
               style={styles.profileImageBottom}
             />
             <TouchableOpacity

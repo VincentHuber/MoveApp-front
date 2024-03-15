@@ -21,7 +21,7 @@ import {
 
 import { useSelector } from "react-redux";
 
-const BACKEND_ADDRESS = "http://192.168.10.171:3000";
+const BACKEND_ADDRESS = "http://192.168.100.101:3000";
 
 export default function ChatScreen({ navigation, route }) {
   //  Redirect to /login if not logged in
