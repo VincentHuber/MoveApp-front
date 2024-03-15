@@ -47,10 +47,6 @@ const BACKEND_ADDRESS = 'http://192.168.100.196:3000'
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
   const userToken = useSelector((state) => state.user.value.token);
-  const dispatch = useDispatch();
-  const userToken = useSelector((state) => state.user.value.token);
-
-  console.log(userToken);
 
   useEffect(() => {
     if (userToken) {
