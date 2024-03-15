@@ -26,11 +26,20 @@ import Running from "../assets/running.js";
 import Tennis from "../assets/tennis.js";
 
 import { useSelector } from "react-redux";
+import { logout } from "../reducers/users.js";
+import { useDispatch } from "react-redux";
 
 const BACKEND_ADDRESS = "http://192.168.84.75:3000";
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
+  
+  const dispatch = useDispatch();
+
+  const handleLogOut = () => {
+  dispatch(logout())
+  navigation.navigate("Home");
+  }
 
   // Logique pour gérer l'interaction avec le bouton "Avis"
   const handleReview = () => {
@@ -586,7 +595,7 @@ const EditProfileScreen = () => {
 
           <TouchableOpacity
             style={[styles.button, { backgroundColor: "white" }]}
-            onPress={() => navigation.navigate("Home")}
+            onPress={() => handleLogOut()}
           >
             <Text style={[styles.buttonText, { color: "black" }]}>
               Se déconnecter
@@ -794,7 +803,7 @@ const styles = StyleSheet.create({
 
   addButtonProfile: {
     position: "absolute",
-    top: 42,
+    bottom: 100,
     left: 180,
     backgroundColor: "#4A46FF",
     width: 25,
