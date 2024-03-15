@@ -21,17 +21,20 @@ import {
 
 import { useSelector } from "react-redux";
 
-const BACKEND_ADDRESS = "http://192.168.10.171:3000";
+const BACKEND_ADDRESS = "http://192.168.100.36:3000";
 
 export default function ChatScreen({ navigation, route }) {
-  //  Redirect to /login if not logged in
+  //  Redirect to /login if not logged 
   useEffect(() => {
     if (!user.token) {
       navigation.navigate("Home");
     }
   }, [user, navigation]);
 
-  const user = useSelector((state) => state.user.value);
+  const user = useSelector((state)  =>{
+      console.log(state);
+    return state?.user.value
+  });
   const [message, setMessage] = useState("");
   const [chatter, setChatter] = useState({
     nickname: null,
@@ -88,6 +91,11 @@ export default function ChatScreen({ navigation, route }) {
   };
 
   //Afficher tous les messages
+
+
+
+
+
 
   //Fonts
   const [fontsLoaded] = useFonts({

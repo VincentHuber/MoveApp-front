@@ -30,6 +30,10 @@ export const userSlice = createSlice({
       state.value.profilePicture = action.payload.profilePicture;
     },
 
+    logout: (state) => {
+      state.value.token = null
+    },
+
     addProfilePicture: (state, action)=>{
       state.value.profilePicture = action.payload;
     },
@@ -40,5 +44,5 @@ export const userSlice = createSlice({
   },
 });
 
-export const { login, addProfilePicture, addCoverPicture } = userSlice.actions;
+export const { login,logout, addProfilePicture, addCoverPicture } = userSlice.actions;
 export default userSlice.reducer;

@@ -16,6 +16,7 @@ import HomeScreen from "./screens/HomeScreen";
 import ChatScreen from "./screens/ChatScreen";
 import EditProfileScreen from "./screens/EditProfileScreen";
 import ReviewScreen from "./screens/ReviewScreen";
+import DisplayReviewScreen from "./screens/DisplayReviewsScreen";
 
 const reducers = combineReducers({ user: userReducer });
 const persistConfig = { key: "Move", storage: AsyncStorage };
@@ -40,6 +41,7 @@ export default function App() {
             <Stack.Screen name="Map" component={MapScreen} />
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="Review" component={ReviewScreen} />
+            <Stack.Screen name="DisplayReview" component={DisplayReviewScreen} />
             <Stack.Screen name="Chat" component={ChatScreen} />
           </Stack.Navigator>
         </NavigationContainer>
@@ -48,15 +50,8 @@ export default function App() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
 });
-
-
-
-
-
