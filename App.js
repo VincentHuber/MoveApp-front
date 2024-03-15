@@ -23,7 +23,7 @@ LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();//Ignore all log notifications
 
 const reducers = combineReducers({ user: userReducer });
-const persistConfig = { key: "Move", storage: AsyncStorage };
+const persistConfig = { key: "Move", storage: AsyncStorage, whitelist: ["user"] };
 
 const store = configureStore({
   reducer: persistReducer(persistConfig, reducers),

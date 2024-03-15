@@ -225,7 +225,7 @@ const EditProfileScreen = () => {
         <View style={styles.headerContainer}>
           <View style={styles.backButtonContainer}>
             <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-              <AntDesign name="left" size={24} color="#4A46FF" />
+              <AntDesign name="left" size={24} color="#black" />
             </TouchableOpacity>
           </View>
 
@@ -636,7 +636,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    borderWidth: 2,
+    borderWidth: 4,
     borderColor: "white",
     marginTop: 20,
     marginRight: 20,

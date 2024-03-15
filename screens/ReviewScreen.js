@@ -23,6 +23,7 @@ import {
   Poppins_700Bold,
   Poppins_600SemiBold,
   Poppins_400Regular,
+  Poppins_300Light_Italic,
   Poppins_400Regular_Italic,
   Poppins_500Medium,
   Poppins_300Light,
@@ -63,7 +64,7 @@ export default function ReviewScreen({ navigation, route }) {
 
   //ce fetch permet de recuperer la data nickname et profilepicture et le Average token : NlQWH0dlyhQZ7WaZSGzth9129mtttLGj
   useEffect(() => {
-    fetch(`${BACKEND_ADDRESS}/user/${route.params.othersToken}`)
+    fetch(`${BACKEND_ADDRESS}/user/${route.params.newToken}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
@@ -93,9 +94,7 @@ export default function ReviewScreen({ navigation, route }) {
     setIsReviewVisible(!isReviewVisible);
   };
 
-  /*const closeInputWrapper = () => {
-    setReviewModalVisible(!reviewModalVisible);
-  };*/
+
 
   const handleAddReview = () => {
     // Vérifiez si le commentaire est vide (la methode trim permet d'enlever les espaces vides)
@@ -133,7 +132,7 @@ export default function ReviewScreen({ navigation, route }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         sender: token,
-        receiver: route.params.othersToken,
+        receiver: route.params.newToken,
         stars: ratingStars,
         date: selectedDate,
         review: trimmedReviewText,
@@ -191,7 +190,7 @@ export default function ReviewScreen({ navigation, route }) {
         <View>
           {!isVisible && (
             <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-              <AntDesign name="left" size={24} color="#4A46FF" />
+              <AntDesign name="left" size={24} color="#black" />
             </TouchableOpacity>
           )}
         </View>
@@ -226,7 +225,7 @@ export default function ReviewScreen({ navigation, route }) {
               >
                 <FontAwesomeIcon icon={faStar} style={styles.starIcon} />
                 <Text style={styles.averageStarText}>
-                  {userData.averageStar}
+                  4.75{userData.averageStar}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -287,10 +286,11 @@ export default function ReviewScreen({ navigation, route }) {
             </View>
           )}
 
-          <View style={{ marginTop: 20 }}>
+          <ScrollView style={{ marginTop: 20 }}>
             {addReviews.map((review, index) => (
               <View key={index} style={styles.reviewItem}>
                 <View style={styles.starItem}>
+                <Text style={{fontSize:18, fontFamily:"Poppins_700Bold",marginBottom:3}}>{review.sender}</Text>
                   {[...Array(review.stars)].map((_, i) => (
                     <FontAwesomeIcon
                       key={i}
@@ -302,12 +302,12 @@ export default function ReviewScreen({ navigation, route }) {
                     />
                   ))}
                 </View>
-                <Text>{review.sender}</Text>
-                <Text>{review.date.toString()}</Text>
+                
+                <Text style={{fontFamily:" Poppins_300Light_Italic,", fontSize:14, marginBottom:6}}>{review.date.toString()}</Text>
                 <Text>{review.review}</Text>
               </View>
             ))}
-          </View>
+          </ScrollView>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     marginTop: 1,
     top: 100,
     top: 80,
-    right: 110,
+    right:150,
   },
 
   profileImageContainer: {
@@ -337,8 +337,9 @@ const styles = StyleSheet.create({
   buttonDisplayReviews: {
     flexDirection: "row",
     backgroundColor: "#4A46FF",
-    paddingRight: 10,
-    bottom: 30,
+    bottom:30,
+    left:7,
+  
     width: 78,
     height: 27,
     justifyContent: "center",
@@ -352,7 +353,8 @@ const styles = StyleSheet.create({
 
   averageStarText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily:"Poppins_300Light",
   },
 
   starIcon: {
@@ -364,17 +366,13 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 75,
-    borderWidth: 1,
+    borderWidth: 4,
     borderColor: "white",
   },
 
   pseudoText: {
-    position: "absolute",
-    //left: 0,
-    //top:0,
     bottom: 1,
-    //right:1,
-
+    left:7,
     color: "black",
     paddingVertical: 30,
     fontFamily: "Poppins_600SemiBold",
@@ -386,13 +384,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 317,
     height: 53,
-    paddingVertical: 12,
     borderRadius: 40,
+    justifyContent:'center',
     alignItems: "center",
   },
   text: {
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 18,
+    fontSize: 16,
     textAlign: "center",
     color: "#4A46FF",
     fontWeight: "SemiBold",
@@ -476,6 +474,8 @@ const styles = StyleSheet.create({
   },
 
   starItem: {
+    // marginLeft:5,
+    alignItems:'center',
     flexDirection: "row",
   },
 

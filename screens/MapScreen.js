@@ -322,8 +322,8 @@ export default function MapScreen({ navigation }) {
 
   };
 
-  const handleReviews = (othersToken) => {
-    navigation.navigate("Review", { othersToken });
+  const handleReviews = (newToken) => {
+    navigation.navigate("Review", { newToken });
     setModalVisible(false);
   };
 
@@ -364,11 +364,6 @@ export default function MapScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ height: "100%", width: "100%" }}>
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-        >
           {region && (
             <MapView style={styles.map} region={region}>
               {location && (
@@ -398,7 +393,7 @@ export default function MapScreen({ navigation }) {
                           width: 50,
                           height: 50,
                           borderRadius: 25,
-                          borderBottomWidth: 3,
+                          borderWidth: 2,
                           borderColor: "white",
                         }}
                       />
@@ -481,7 +476,6 @@ export default function MapScreen({ navigation }) {
               <Tennis />
             </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
       </SafeAreaView>
 
       <Modal visible={modalVisible} animationType="fade" transparent>
@@ -654,7 +648,8 @@ const styles = StyleSheet.create({
   // Input recherche
   searchContainer: {
     flexDirection: "row",
-    height: "20%",
+    marginLeft: 17,
+    height: "15%",
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
@@ -699,7 +694,7 @@ const styles = StyleSheet.create({
   containerMessage: {
     backgroundColor: "#FFFFFF",
     borderRadius: 57,
-    marginTop: "87%",
+    marginTop: "94%",
     height: 70,
     width: 70,
     justifyContent: "center",
@@ -769,9 +764,9 @@ const styles = StyleSheet.create({
   blueDot: {
     width: 20,
     height: 20,
+    borderWidth:2,
     backgroundColor: "#4A46FF",
     borderRadius: 10,
-    borderWidth: 2,
     borderColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: {
@@ -784,14 +779,13 @@ const styles = StyleSheet.create({
   },
 
   centeredView: {
-    borderWidth: 2,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
 
   modalView: {
-    borderWidth: 1,
+    
     backgroundColor: "#f4f4f4",
     maxHeight: "85%",
     width: "85%",
@@ -810,46 +804,40 @@ const styles = StyleSheet.create({
 
   profileImagesContainer: {
     position: "absolute",
-    borderWidth: 2,
     top: 10,
     width: "100%",
     alignItems: "center",
   },
 
   photoCoverModal: {
-    borderWidth: 2,
     width: "90%",
     height: "30%",
     borderRadius: 13,
   },
 
   photoProfilModal: {
-    borderWidth: 2,
     width: 120,
     height: 120,
     marginTop: "-18%",
     borderRadius: 100,
-    borderWidth: 6,
+    borderWidth: 4,
     borderColor: "#F4F4F4",
   },
 
   infosUser: {
     textAlign: "center",
-    borderWidth: 1,
     width: 230,
     bottom: "10%",
     flexDirection: "row",
   },
 
   textModal1: {
-    borderWidth: 2,
     textAlign: "center",
     fontSize: 28,
     fontFamily: "Poppins_700Bold",
   },
 
   textModal2: {
-    borderWidth: 2,
     width: "80%",
     textAlign: "center",
     fontSize: 14,
@@ -857,7 +845,6 @@ const styles = StyleSheet.create({
   },
 
   textSports: {
-    borderWidth: 2,
     marginTop: 20,
     textAlign: "center",
     fontSize: 14,
@@ -865,7 +852,6 @@ const styles = StyleSheet.create({
   },
 
   sportContainer: {
-    borderWidth: 2,
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
@@ -874,12 +860,10 @@ const styles = StyleSheet.create({
   },
 
   sportIcon: {
-    borderWidth: 2,
     marginRight: 90,
   },
 
   sport: {
-    borderWidth: 2,
     backgroundColor: "white",
     height: 63,
     width: 65,
@@ -889,7 +873,6 @@ const styles = StyleSheet.create({
   },
 
   textambition: {
-    borderWidth: 2,
     marginTop: 20,
     textAlign: "center",
     fontSize: 14,
@@ -897,7 +880,6 @@ const styles = StyleSheet.create({
   },
 
   textModal3: {
-    borderWidth: 2,
     marginTop: 10,
     textAlign: "center",
     fontSize: 14,
@@ -905,7 +887,6 @@ const styles = StyleSheet.create({
   },
 
   closeContainer: {
-    borderWidth: 2,
     zIndex: 1,
     flexDirection: "row",
     width: "100%",
@@ -915,17 +896,14 @@ const styles = StyleSheet.create({
 
   modalClose: {
     marginBottom: -40,
-    borderWidth: 2,
   },
 
   boutonAvis: {
-    borderWidth: 2,
     borderRadius: 50,
   },
 
   frameChat: {
     height: 65,
-    borderWidth: 2,
     padding: 10,
     marginTop: -40,
   },
