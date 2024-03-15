@@ -33,7 +33,6 @@ import Running from "../assets/running.js";
 import Tennis from "../assets/tennis.js";
 import Message from "../assets/message.js";
 import Position from "../assets/position.js";
-import Close from "../assets/close.js";
 
 const BACKEND_ADDRESS = "http://192.168.100.36:3000";
 
@@ -88,7 +87,6 @@ export default function MapScreen({ navigation }) {
   //  Redirect to /login if not logged in
   useEffect(() => {
     if (!user.token) {
-      console.log("hello");
       navigation.navigate("Home");
     }
   }, [user, navigation]);
@@ -97,7 +95,6 @@ export default function MapScreen({ navigation }) {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!user.token) {
-        console.log("usertoken :", user.token);
         console.error("Token de l'utilisateur non disponible.");
         return;
       }
@@ -105,7 +102,6 @@ export default function MapScreen({ navigation }) {
       try {
         const response = await fetch(`${BACKEND_ADDRESS}/users`);
         const userData = await response.json();
-
         if (!userData.result || !Array.isArray(userData.users)) {
           console.error(
             "Les données récupérées depuis le backend ne sont pas un tableau."
@@ -200,7 +196,6 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
-  //Geolocalisation
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -232,9 +227,9 @@ export default function MapScreen({ navigation }) {
       });
       setSearchText("");
     }
+    setSearchText("");
   };
 
-  //afficher l'utilisateur dans la page map
   useEffect(() => {
     fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
       .then((response) => response.json())
@@ -284,7 +279,7 @@ export default function MapScreen({ navigation }) {
       });
   };
 
-  // Modal au clic qui affiche les markers des autres utilisateurs
+  // fonction qui gèree l'affichage de la modale lors du 'click'
   const onMarkerPress = (user) => {
     setUsersInfo({
       token: user.token,
@@ -295,12 +290,10 @@ export default function MapScreen({ navigation }) {
       profilePicture: user.profilePicture,
       sports: user.sports,
     });
-
     setModalMarkerVisible(true);
     setModalVisible(false);
   };
 
-  //Action pour modifier le profil
   const handleModif = () => {
     navigation.navigate("EditProfile");
     setModalVisible(false);
@@ -336,12 +329,10 @@ export default function MapScreen({ navigation }) {
     setModalMarkerVisible(false);
   };
 
-  //action pour aller au menu de chat via la map
   const handleChat = () => {
     navigation.navigate("Chat");
   };
 
-  //action pour retourner à sa position
   const handleReturnToLocation = async () => {
     let currentLocation = await Location.getCurrentPositionAsync({});
     setRegion({
@@ -414,11 +405,20 @@ export default function MapScreen({ navigation }) {
           )}
 
           <View style={styles.searchContainer}>
+          <View style={styles.buttonLocation}>
+            <TouchableOpacity
+              style={getButtonStyle("position")}
+              onPress={handleReturnToLocation}
+            >
+              <Position />
+            </TouchableOpacity>
+          </View>
+
             <TextInput
               style={styles.input}
-              placeholder="votre recherche"
-              value={searchText}
+                value={searchText}
               onChangeText={setSearchText}
+            placeholder="Votre recherche"
               onSubmitEditing={handleSearch}
             />
 
@@ -443,9 +443,11 @@ export default function MapScreen({ navigation }) {
             </View>
           </View>
 
+        <View style={styles.containerMessage}>
           <TouchableOpacity style={styles.message} onPress={() => handleChat()}>
-            <Message />
+            <Message/>
           </TouchableOpacity>
+        </View>
 
           <View style={styles.containerIcons}>
             <TouchableOpacity
@@ -636,11 +638,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  keyboardAvoidingView: {
-    height: "100%",
-    width: "100%",
-  },
-
   // Map
   map: {
     flex: 1,
@@ -653,18 +650,20 @@ const styles = StyleSheet.create({
 
   // Input recherche
   searchContainer: {
-    //position: "absolute",
-    top: 20,
+    flexDirection: "row",
+    height: "20%",
     width: "100%",
+    justifyContent: "center",
     alignItems: "center",
-    // zIndex:1,
   },
+
   input: {
-    width: "90%",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "95%",
+    marginLeft: 15,
     height: 57,
-    borderWidth: 1,
     borderColor: "#FFFFFF",
-    padding: 10,
     borderRadius: 90,
     fontSize: 18,
     marginBottom: 10,
@@ -676,11 +675,94 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
-    elevation: 8,
     textAlign: "center",
   },
 
-  // icon position
+  // icon image perso
+
+  modalProfil: {
+    bottom: 5,
+    right: 55,
+  },
+
+  buttonLocation: {
+    alignItems: "center",
+    bottom: 6,
+    left: 60,
+    zIndex: 1,
+  },
+
+  // icon chat Map
+  containerMessage: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 57,
+    marginTop: "87%",
+    height: 70,
+    width: 70,
+    justifyContent: "center",
+    alignItems: "center",
+    left: "75%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
+
+  message: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 78,
+    height: 77,
+  },
+
+  
+
+  // icon sports container
+  containerIcons: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    bottom: "2%",
+    height: "12%",
+    width: "85%",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    alignSelf: "center",
+    marginTop: "auto",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+  },
+
+  //Icon sports non actives
+  icon: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    width: "24%",
+    height: "24%",
+    borderRadius: 12,
+  },
+
+  //Icon sports actives bleue Move
+  activeIcon: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#4A46FF",
+    width: "24%",
+    height: "90%",
+    borderRadius: 12,
+  },
+
+  // icon position geolocalisation
   blueDot: {
     width: 20,
     height: 20,
@@ -843,95 +925,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 10,
     marginTop: -40,
-  },
-
-  // icon image perso
-  modaluser: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    top: 150,
-    right: 150,
-    width: 78,
-    height: 77,
-    borderRadius: 57,
-    borderColor: "#F4F4F4",
-  },
-
-  modalProfil: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    bottom: "20%",
-    right: "6%",
-    width: 48,
-    height: 48,
-    borderRadius: 57,
-    borderColor: "#F4F4F4",
-  },
-
-  buttonLocation: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    bottom: "20%",
-    right: "82%",
-    width: 48,
-    height: 48,
-    borderRadius: 57,
-  },
-
-  // icon chat Map
-  message: {
-    borderWidth: 2,
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    bottom: 180,
-    right: 40,
-    backgroundColor: "#FFFFFF",
-    width: 78,
-    height: 77,
-    borderRadius: 57,
-  },
-
-  // icon sports container
-  containerIcons: {
-    borderWidth: 2,
-    position: "absolute",
-    backgroundColor: "white",
-    borderRadius: 20,
-    bottom: "2%",
-    height: "12%",
-    width: "85%",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    alignSelf: "center",
-    marginTop: "auto",
-    marginBottom: 20,
-  },
-
-  //Icon sports non actives
-  icon: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    width: "24%",
-    height: "24%",
-    borderRadius: 12,
-  },
-
-  //Icon sports actives bleue Move
-  activeIcon: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#4A46FF",
-    width: "24%",
-    height: "90%",
-    borderRadius: 12,
   },
 });

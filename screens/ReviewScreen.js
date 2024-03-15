@@ -369,6 +369,12 @@ const styles = StyleSheet.create({
   },
 
   pseudoText: {
+    position: "absolute",
+    //left: 0,
+    //top:0,
+    bottom: 1,
+    //right:1,
+
     color: "black",
     paddingVertical: 30,
     fontFamily: "Poppins_600SemiBold",
