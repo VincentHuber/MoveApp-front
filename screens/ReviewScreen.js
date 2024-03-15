@@ -26,7 +26,6 @@ import {
   Poppins_400Regular_Italic,
   Poppins_500Medium,
   Poppins_300Light,
- 
 } from "@expo-google-fonts/poppins";
 
 import { useSelector } from "react-redux";
@@ -34,26 +33,45 @@ import { useNavigation } from "@react-navigation/native";
 
 const BACKEND_ADDRESS = "http://192.168.100.196:3000";
 
-export default function ReviewScreen() {
+export default function ReviewScreen({ navigation, route }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [sender, setSender] = useState("");
   const [ratingStars, setRatingStars] = useState(0);
+
   const [reviewText, setReviewText] = useState("");
   const [addReviews, setAddReviews] = useState([]);
-  const [isTextInputVisible, setIsTextInputVisible] = useState(false);
+  // const [isTextInputVisible, setIsTextInputVisible] = useState(false);
+
   const [isReviewVisible, setIsReviewVisible] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Etat pour stocker la date sélectionnée
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  //const [reviewModalVisible, setReviewModalVisible] = useState(false);
+
+  const token = useSelector((state) => state.user.value.token);
+  const user = useSelector((state) => state.user.value);
 
   const [userData, setUserData] = useState({
     nickname: "",
     profilePicture: "",
   });
 
-  //ce fetch permet de recuperer la data nickname et profilepicture
+  const [averageStar, setAverageStar] = useState(0);
+
+  const handleButtonClick = () => {
+    const navigation = useNavigation();
+    navigation.navigate("NomDeLaPage");
+  };
+
+  //ce fetch permet de recuperer la data nickname et profilepicture et le Average token : NlQWH0dlyhQZ7WaZSGzth9129mtttLGj
   useEffect(() => {
-    fetch(`${BACKEND_ADDRESS}/user/ReviewUser`)
+    fetch(`${BACKEND_ADDRESS}/user/${route.params.othersToken}`)
       .then((response) => response.json())
       .then((data) => {
-        setUserData(data.user);
+        if (data.result) {
+          console.log("data.user.reviews", data.user.reviews);
+          setUserData(data.user);
+          setAverageStar(data.user.averageStar);
+          setAddReviews(data.user.reviews);
+        }
       })
       .catch((error) => {
         console.error(
@@ -61,7 +79,7 @@ export default function ReviewScreen() {
           error
         );
       });
-  }, []);
+  }, [token]);
 
   //fonction bouton retour pour revenir au screen precedent
   const handleGoBack = () => {
@@ -75,12 +93,16 @@ export default function ReviewScreen() {
     setIsReviewVisible(!isReviewVisible);
   };
 
+  /*const closeInputWrapper = () => {
+    setReviewModalVisible(!reviewModalVisible);
+  };*/
+
   const handleAddReview = () => {
     // Vérifiez si le commentaire est vide (la methode trim permet d'enlever les espaces vides)
-    //avec cette conditon l'utilisateur ne pourra pas laisser un commentaire vide
+    // avec cette conditon l'utilisateur ne pourra pas laisser un commentaire vide
 
     if (reviewText.trim() === "") {
-      console.error("Veuillez laisser un commentaire.");
+      console.error("Erreur : Champ de saisie vide.");
       return;
     }
     // la methode slice permet de limiter la longueur du texte a 250 caractères
@@ -97,25 +119,24 @@ export default function ReviewScreen() {
     setIsReviewVisible(true);
     setReviewText("");
     const newReview = {
-      review: trimmedReviewText,
-      stars: ratingStars,
+      sender: user.email,
       date: selectedDate,
+      stars: ratingStars,
+      review: trimmedReviewText,
     };
 
     setAddReviews([...addReviews, newReview]);
-
-    console.log(reviewText);
-    console.log(selectedDate);
-    console.log(renderStars());
 
     // Envoi du commentaire au backend pour que ensuite la requéte puisse etre enregistré dans la bdd
     fetch(`${BACKEND_ADDRESS}/review/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        review: reviewText,
+        sender: token,
+        receiver: route.params.othersToken,
         stars: ratingStars,
         date: selectedDate,
+        review: trimmedReviewText,
       }),
     })
       .then((response) => response.json())
@@ -168,15 +189,21 @@ export default function ReviewScreen() {
           translucent={true}
         />
         <View>
-          <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-            <AntDesign name="left" size={24} color="#4A46FF" />
-          </TouchableOpacity>
+          {!isVisible && (
+            <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+              <AntDesign name="left" size={24} color="#4A46FF" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {!isVisible && (
           <View style={styles.profileImageContainer}>
             <Image
-              source={{ uri: userData.profilePicture }}
+              source={{
+                uri:
+                  userData.profilePicture ||
+                  "https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1",
+              }}
               style={styles.profileImageTop}
             />
             <View style={styles.textNickname}>
@@ -193,12 +220,21 @@ export default function ReviewScreen() {
               >
                 {userData.nickname}
               </Text>
+              <TouchableOpacity
+                style={styles.buttonDisplayReviews}
+                onPress={handleButtonClick}
+              >
+                <FontAwesomeIcon icon={faStar} style={styles.starIcon} />
+                <Text style={styles.averageStarText}>
+                  {userData.averageStar}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
 
         <View>
-          {isReviewVisible && (
+          {!isVisible && (
             <TouchableOpacity style={styles.button} onPress={toggleVisibility}>
               <Text style={styles.text}>Laisser un avis</Text>
             </TouchableOpacity>
@@ -211,10 +247,27 @@ export default function ReviewScreen() {
               }}
             >
               <View style={styles.inputWrapper}>
-                <View>{renderStars()}</View>
-                <Text style={{ marginLeft: 118, marginTop: 110 }}>
-                  {selectedDate.toLocaleDateString()}
-                </Text>
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    height: 90,
+                  }}
+                >
+                  <Text style={styles.nicknameWrapper}>
+                    {userData.nickname}
+                  </Text>
+                  <Text>{selectedDate.toLocaleDateString()}</Text>
+                  {renderStars()}
+
+                  <TouchableOpacity
+                    style={styles.buttonClose}
+                    onPress={() => setIsVisible(false)}
+                  >
+                    <AntDesign name="left" size={24} color="#4A46FF" />
+                  </TouchableOpacity>
+                </View>
+
                 <TextInput
                   style={styles.input}
                   multiline={true}
@@ -228,13 +281,13 @@ export default function ReviewScreen() {
                   style={styles.buttonreview}
                   onPress={handleAddReview}
                 >
-                  <Text style={styles.buttontextreview}>Deposer mon avis</Text>
+                  <Text style={styles.buttontextreview}>Déposer mon avis</Text>
                 </TouchableOpacity>
               </View>
             </View>
           )}
 
-          <View>
+          <View style={{ marginTop: 20 }}>
             {addReviews.map((review, index) => (
               <View key={index} style={styles.reviewItem}>
                 <View style={styles.starItem}>
@@ -249,7 +302,8 @@ export default function ReviewScreen() {
                     />
                   ))}
                 </View>
-                <Text>{review.date.toLocaleDateString()}</Text>
+                <Text>{review.sender}</Text>
+                <Text>{review.date.toString()}</Text>
                 <Text>{review.review}</Text>
               </View>
             ))}
@@ -265,30 +319,53 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "blue",
     alignItems: "center",
-    //justifyContent: "center",
   },
 
   backButton: {
-    position: "absolute",
-    marginTop: 40,
-    right: 140,
-    //bottom:90
+    marginTop: 1,
+    top: 100,
+    top: 80,
+    right: 110,
   },
 
-  //pseudo + image
   profileImageContainer: {
-    //position:'absolute',
-    marginBottom: 30,
+    flexDirection: "row",
+    marginBottom: 3,
     alignItems: "center",
+  },
+
+  buttonDisplayReviews: {
+    flexDirection: "row",
+    backgroundColor: "#4A46FF",
+    paddingRight: 10,
+    bottom: 30,
+    width: 78,
+    height: 27,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+  },
+
+  globalAverage: {
+    color: "white",
+  },
+
+  averageStarText: {
+    color: "white",
+    fontSize: 16,
+  },
+
+  starIcon: {
+    color: "white",
+    marginRight: 5,
   },
 
   profileImageTop: {
     width: 100,
     height: 100,
     borderRadius: 75,
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: "white",
-    right: 80,
   },
 
   pseudoText: {
@@ -297,11 +374,11 @@ const styles = StyleSheet.create({
     //top:0,
     bottom: 1,
     //right:1,
-    
+
     color: "black",
     paddingVertical: 30,
     fontFamily: "Poppins_600SemiBold",
-    fontSize: 28,
+    fontSize: 60,
   },
 
   button: {
@@ -309,13 +386,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 317,
     height: 53,
-    //bottom: 500,
     paddingVertical: 12,
     borderRadius: 40,
     alignItems: "center",
   },
   text: {
-    fontFamily:"Poppins_600SemiBold",
+    fontFamily: "Poppins_600SemiBold",
     fontSize: 18,
     textAlign: "center",
     color: "#4A46FF",
@@ -325,20 +401,31 @@ const styles = StyleSheet.create({
 
   inputWrapper: {
     backgroundColor: "white",
+    bottom: 40,
+    top: 15,
     width: 317,
     height: 390,
     borderRadius: 20,
     overflow: "hidden",
+    justifyContent: "flex-end",
     maxHeight:
       Dimensions.get("window").height - (StatusBar.currentHeight || 0) - 100,
   },
 
+  nicknameWrapper: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  buttonClose: {
+    right: 130,
+    bottom: 100,
+  },
+
   starContainer: {
-    position: "absolute",
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: 55,
-    paddingTop: 140,
+    justifyContent: "center",
   },
 
   star: {
@@ -353,10 +440,9 @@ const styles = StyleSheet.create({
 
   input: {
     backgroundColor: "#F4F4F4",
-    position: "absolute",
     height: 180,
-    marginBottom: 50,
-    marginTop: 200,
+    marginVertical: 20,
+    marginHorizontal: 10,
     width: 300,
     marginLeft: 8,
     paddingTop: 20,
@@ -364,21 +450,17 @@ const styles = StyleSheet.create({
   },
 
   buttonreview: {
-    fontFamily: "Poppins_600SemiBold",
-    //position:"absolute",
+    //fontFamily: "Poppins_600SemiBold",
     backgroundColor: "#4A46FF",
     width: 317,
     height: 53,
-    //left:5,
-    //right:10,
-    //bottom:1,
     alignItems: "center",
     paddingVertical: 12,
     borderRadius: 20,
     alignItems: "center",
     marginTop: 10,
-
-    //marginBottom: 20,
+    top: 13,
+    bottom: 40,
   },
 
   buttontextreview: {
@@ -387,15 +469,18 @@ const styles = StyleSheet.create({
   },
 
   reviewItem: {
-    flexDirection: "absolute",
     backgroundColor: "white",
-    padding: 10,
+    padding: 20,
     borderRadius: 20,
-    marginTop: 10,
-    //marginBottom: 1,
+    marginBottom: 20,
   },
 
   starItem: {
     flexDirection: "row",
+  },
+
+  sender: {
+    backgroundColor: "red",
+    borderColor: "red",
   },
 });
