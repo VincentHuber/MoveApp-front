@@ -26,10 +26,12 @@ import {
   Poppins_400Regular_Italic,
   Poppins_500Medium,
   Poppins_300Light,
- 
 } from "@expo-google-fonts/poppins";
 
-const BACKEND_ADDRESS = "http://192.168.84.75:3000";
+import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+
+const BACKEND_ADDRESS = "http://192.168.100.101:3000";
 
 export default function ReviewScreen() {
   const [isVisible, setIsVisible] = useState(false);
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
     //top:0,
     bottom: 1,
     //right:1,
-    
+
     color: "black",
     paddingVertical: 30,
     fontFamily: "Poppins_600SemiBold",
@@ -312,7 +314,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontFamily:"Poppins_600SemiBold",
+    fontFamily: "Poppins_600SemiBold",
     fontSize: 18,
     textAlign: "center",
     color: "#4A46FF",
