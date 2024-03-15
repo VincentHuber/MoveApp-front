@@ -241,11 +241,11 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView
-    style={styles.container}
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 500}
-  >
-    <GestureHandlerRootView style={{ flex: 1 }}>
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 500}
+    >
+      <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={styles.container}>
           <View style={styles.logoContainer}>
             <Text style={styles.logo}>MOVE</Text>
@@ -664,8 +664,7 @@ export default function HomeScreen({ navigation }) {
             </View>
           </BottomSheet>
         </View>
-     
-    </GestureHandlerRootView>
+      </GestureHandlerRootView>
     </KeyboardAvoidingView>
   );
 }
