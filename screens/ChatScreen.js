@@ -146,6 +146,7 @@ export default function ChatScreen({ newToken, navigation, route }) {
                         ? "white"
                         : "#black",
                   }}
+                  
                 >
                   {messageItem.message}
                 </Text>
