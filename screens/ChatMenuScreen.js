@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React, { useEffect, useState } from "react";
 
 import Add from "../assets/add.js";
@@ -15,33 +15,46 @@ import {
 
 import { useDispatch, useSelector } from "react-redux";
 
-
-const BACKEND_ADDRESS = 'http://192.168.1.132:3000'
+const BACKEND_ADDRESS = "http://192.168.1.132:3000";
 
 const ChatMenuScreen = () => {
-    const dispatch = useDispatch();
-    const user = useSelector((state) => state.user.value);
-    const[menu, setMenu]=useState({})
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.value);
+  const [menu, setMenu] = useState();
 
-    useEffect(() => {
-        fetch(`${BACKEND_ADDRESS}/user/${user.token}`)
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.result) {
-              setMenu(data.user.match);
-              console.log ("RESULT => ",data.user.match)
-            }
-          })
-          .catch((error) => {
-            console.error(
-              "Erreur lors de la récupération des informations de l'utilisateur:",
-              error
+  useEffect(() => {
+    fetch(`${BACKEND_ADDRESS}/user/menu/${user.token}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result) {
+          const menuPeople = data.users.map((person, index) => {
+            return (
+              <View key={index} style={{ borderWidth: 2 }}>
+                <Image
+                  style={{
+                    height: 50,
+                    width: 50,
+                    borderRadius: 30,
+
+                  }}
+                  source={{uri:person.profilePicture}}
+                />
+                <Text>{person.nickname}</Text>
+              </View>
             );
-            setUsers(data);
-        });
-    }, []);
-   
-    
+          });
+          setMenu(menuPeople);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Erreur lors de la récupération des informations de l'utilisateur:",
+          error
+        );
+      });
+  }, []);
+
+  console.log("menu => ", menu);
 
   //Fonts
   const [fontsLoaded] = useFonts({
@@ -57,9 +70,7 @@ const ChatMenuScreen = () => {
     return null;
   }
 
-
   return (
-
     // 1e layer
     <View
       style={{
@@ -69,7 +80,6 @@ const ChatMenuScreen = () => {
         justifyContent: "flex-end",
       }}
     >
-
       {/* 2e layer */}
       <View
         style={{
@@ -127,9 +137,7 @@ const ChatMenuScreen = () => {
             backgroundColor: "white",
           }}
         >
-
-
-
+          {menu}
         </View>
       </View>
     </View>

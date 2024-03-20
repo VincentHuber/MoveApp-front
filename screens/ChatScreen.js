@@ -115,7 +115,7 @@ export default function ChatScreen({ newToken, navigation, route }) {
             return (
               <View
                 key={index}
-                style={{
+                  style={{
                   padding: 10,
                   marginBottom: 7,
                   borderRadius: 8,
