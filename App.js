@@ -14,6 +14,7 @@ import userReducer from "./reducers/users";
 import MapScreen from "./screens/MapScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ChatScreen from "./screens/ChatScreen";
+import ChatMenuScreen from "./screens/ChatMenuScreen";
 import EditProfileScreen from "./screens/EditProfileScreen";
 import ReviewScreen from "./screens/ReviewScreen";
 import DisplayReviewScreen from "./screens/DisplayReviewsScreen";
@@ -46,6 +47,7 @@ export default function App() {
             <Stack.Screen name="EditProfile" component={EditProfileScreen} />
             <Stack.Screen name="Review" component={ReviewScreen} />
             <Stack.Screen name="DisplayReview" component={DisplayReviewScreen} />
+            <Stack.Screen name="ChatMenu" component={ChatMenuScreen} />
             <Stack.Screen name="Chat" component={ChatScreen} />
           </Stack.Navigator>
         </NavigationContainer>

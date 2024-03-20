@@ -41,7 +41,7 @@ import Tennis from "../assets/tennis.js";
 import Create from "../assets/create.js";
 import Upload from "../assets/upload.js";
 
-const BACKEND_ADDRESS = 'http://192.168.100.196:3000'
+const BACKEND_ADDRESS = 'http://192.168.1.132:3000'
 
 
 export default function HomeScreen({ navigation }) {
@@ -324,7 +324,7 @@ export default function HomeScreen({ navigation }) {
                 <View style={styles.adress}>
                   <TextInput
                     style={styles.textAdress}
-                    placeholder={`Ton lieu d'activité sportive*`}
+                    placeholder={`Une adresse pour l'activité sportive*`}
                     onChangeText={(value) => setAdress(value)}
                     value={adress}
                     selectionColor="#4A46FF"

@@ -32,7 +32,7 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 
-const BACKEND_ADDRESS = "http://192.168.100.196:3000";
+const BACKEND_ADDRESS = "http://192.168.1.132:3000";
 
 export default function ReviewScreen({ navigation, route }) {
   const [isVisible, setIsVisible] = useState(false);

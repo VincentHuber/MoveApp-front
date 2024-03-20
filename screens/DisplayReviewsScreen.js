@@ -14,7 +14,7 @@ import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 
-const BACKEND_ADDRESS = "http://192.168.100.36:3000"; 
+const BACKEND_ADDRESS = "http://192.168.1.132:3000"; 
 
 export default function ReviewScreen({navigation}) {
   const [addReviews, setAddReviews] = useState([]);

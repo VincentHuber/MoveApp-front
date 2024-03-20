@@ -29,7 +29,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../reducers/users.js";
 
 // Adresse du backend
-const BACKEND_ADDRESS = 'http://192.168.100.196:3000';
+const BACKEND_ADDRESS = 'http://192.168.1.132:3000';
 
 
 const EditProfileScreen = () => {

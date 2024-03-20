@@ -26,7 +26,7 @@ import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const BACKEND_ADDRESS = "http://192.168.100.196:3000";
+const BACKEND_ADDRESS = "http://192.168.1.132:3000";
 
 export default function ChatScreen({ newToken, navigation, route }) {
   //  Redirect to /login if not logged

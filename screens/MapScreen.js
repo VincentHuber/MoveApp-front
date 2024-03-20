@@ -34,7 +34,7 @@ import Tennis from "../assets/tennis.js";
 import Message from "../assets/message.js";
 import Position from "../assets/position.js";
 
-const BACKEND_ADDRESS = "http://192.168.100.196:3000";
+const BACKEND_ADDRESS = "http://192.168.1.132:3000";
 
 export default function MapScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -333,7 +333,7 @@ export default function MapScreen({ navigation }) {
   };
 
   const handleChat = () => {
-    navigation.navigate("Chat");
+    navigation.navigate("ChatMenu");
   };
 
   const handleReturnToLocation = async () => {
@@ -535,9 +535,7 @@ export default function MapScreen({ navigation }) {
                 })}
             </View>
 
-            {/* <Text style={styles.textambition}>MON AMBITION </Text>
-            <Text style={styles.textModal3}>{userInfo.ambition}</Text>
-             */}
+        
           </View>
           <TouchableOpacity
             onPress={() => handleModif()}
